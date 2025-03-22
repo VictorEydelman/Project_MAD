@@ -17,7 +17,8 @@ fun Application.configureDatabases() {
     routing {
     
         // Create city
-        post("/cities") {
+        post("/citie") {
+            println("cds")
             val city = call.receive<City>()
             val id = cityService.create(city)
             call.respond(HttpStatusCode.Created, id)
