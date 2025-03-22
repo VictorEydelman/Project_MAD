@@ -5,6 +5,6 @@ ktor:
     deployment:
         port: 8080
 postgres:
-  url: "jdbc:postgresql://localhost:5433/studs"
+  url: "jdbc:postgresql://db:5432/studs"
   user: "s291485"
-  password: "qz6XMfGNKAgNOWkq"
+  password: "qwe"
