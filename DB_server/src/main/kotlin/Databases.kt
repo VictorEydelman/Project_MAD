@@ -9,6 +9,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import java.sql.Connection
 import java.sql.DriverManager
+import mad.project.*;
 
 fun Application.configureDatabases() {
     println("f")
@@ -53,9 +54,11 @@ fun Application.configureDatabases() {
     }
 }
 
+
+
 fun Application.connectToPostgres(embedded: Boolean): Connection {
     Class.forName("org.postgresql.Driver")
-    println("d")
+    println(embedded)
     if (embedded) {
         log.info("Using embedded H2 database for testing; replace this flag to use postgres")
         return DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "root", "")

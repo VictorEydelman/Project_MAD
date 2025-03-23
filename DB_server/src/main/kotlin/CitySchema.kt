@@ -10,7 +10,7 @@ data class City(val name: String, val population: Int)
 class CityService(private val connection: Connection) {
     companion object {
         private const val CREATE_TABLE_CITIES =
-            "CREATE TABLE CITIES (ID SERIAL PRIMARY KEY, NAME VARCHAR(255), POPULATION INT);"
+            "CREATE TABLE IF NOT EXISTS CITIES (ID SERIAL PRIMARY KEY, NAME VARCHAR(255), POPULATION INT);"
         private const val SELECT_CITY_BY_ID = "SELECT name, population FROM cities WHERE id = ?"
         private const val INSERT_CITY = "INSERT INTO cities (name, population) VALUES (?, ?)"
         private const val UPDATE_CITY = "UPDATE cities SET name = ?, population = ? WHERE id = ?"
@@ -20,6 +20,7 @@ class CityService(private val connection: Connection) {
 
     init {
         val statement = connection.createStatement()
+        println(CREATE_TABLE_CITIES)
         statement.executeUpdate(CREATE_TABLE_CITIES)
     }
 
