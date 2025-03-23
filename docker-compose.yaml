@@ -15,7 +15,7 @@ services:
 
   ktor-server:
     build:
-      context: .  # Контекст сборки (папка с Dockerfile)
+      context: DB_server  # Контекст сборки (папка с Dockerfile)
       dockerfile: Dockerfile  # Имя Dockerfile
     ports:
       - "8080:8080"  # Проброс порта для доступа к Ktor серверу
