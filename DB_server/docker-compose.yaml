@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: studs
+      POSTGRES_USER: s291485
+      POSTGRES_PASSWORD: qwe
+    ports:
+      - "5433:5432"  # Проброс порта для доступа к PostgreSQL
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # Хранение данных
+
+  ktor-server:
+    build:
+      context: .  # Контекст сборки (папка с Dockerfile)
+      dockerfile: Dockerfile  # Имя Dockerfile
+    ports:
+      - "8080:8080"  # Проброс порта для доступа к Ktor серверу
+    depends_on:
+      - db  # Зависимость от базы данных
+
+volumes:
+  pgdata:
