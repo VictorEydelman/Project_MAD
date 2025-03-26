@@ -5,10 +5,10 @@ FROM openjdk:17-slim
 WORKDIR /app
 
 # Копируйте файл сборки (например, jar-файл) в контейнер
-COPY build/libs/DB_server-all.jar app.jar
+COPY build/libs/load_microservice-1.0-SNAPSHOT.jar app.jar
 
 # Укажите команду для запуска приложения
 CMD ["java", "-jar", "app.jar"]
 
 # Откройте порт, на котором будет работать ваш сервер
-EXPOSE 8080
+EXPOSE 8099

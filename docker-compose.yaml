@@ -21,6 +21,17 @@ services:
       - "8080:8080"  # Проброс порта для доступа к Ktor серверу
     depends_on:
       - db  # Зависимость от базы данных
+  entry:
+    build:
+      context: entry_microservice  # Контекст сборки (папка с Dockerfile)
+      dockerfile: Dockerfile  # Имя Dockerfile
+    ports:
+      - "8090:8090"  # Проброс порта для доступа к Ktor серверу
+
+  load:
+    build:
+      context: load_microservice  # Контекст сборки (папка с Dockerfile)
+      dockerfile: Dockerfile  # Имя Dockerfile
 
 volumes:
   pgdata:
