@@ -9,3 +9,6 @@ jwt:
   audience: "sleep-monitor"
   realm: "Sleep monitor"
   secret: ""
+keydb:
+  host: "keydb"
+  port: 6379
