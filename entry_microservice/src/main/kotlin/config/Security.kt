@@ -1,22 +1,18 @@
-package ru.itmo
+package ru.itmo.config
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.fasterxml.jackson.databind.*
-import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
 
 fun Application.configureSecurity() {
     // Please read the jwt property from the config file if you are using EngineMain
-    val jwtAudience = "jwt-audience"
-    val jwtDomain = "https://jwt-provider-domain/"
-    val jwtRealm = "ktor sample app"
-    val jwtSecret = "secret"
+    val jwtConfig = environment.config.config("jwt")
+    val jwtAudience = jwtConfig.property("audience").getString()
+    val jwtDomain = jwtConfig.property("domain").getString()
+    val jwtRealm = jwtConfig.property("realm").getString()
+    val jwtSecret = jwtConfig.property("secret").getString()
     authentication {
         jwt {
             realm = jwtRealm
