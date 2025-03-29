@@ -58,11 +58,14 @@ services:
     networks:
       - sleepmonitor-network
   load:
+    stdin_open: true 
+    tty: true
+    container_name: load-tester
     build:
-      context: load_microservice  # Контекст сборки (папка с Dockerfile)
-      dockerfile: Dockerfile  # Имя Dockerfile
+      context: load_microservice
+      dockerfile: Dockerfile
     ports:
-      - "8099:8099"  # Проброс порта для доступа к Ktor серверу
+      - "8099:8099"
     depends_on:
       - keydb
     networks:
