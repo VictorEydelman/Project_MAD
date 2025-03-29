@@ -5,6 +5,10 @@ ktor:
   deployment:
     port: 8080
 jwt:
-  domain: "https://jwt-provider-domain/"
-  audience: "jwt-audience"
-  realm: "ktor sample app"
+  domain: "https://localhost/"
+  audience: "sleep-monitor"
+  realm: "Sleep monitor"
+  secret: ""
+keydb:
+  host: "keydb"
+  port: 6379
