@@ -1,4 +1,4 @@
-package mad.project
+package mad.project.Service
 
 import kotlinx.serialization.Serializable
 import java.sql.Connection
