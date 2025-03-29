@@ -10,7 +10,7 @@ object Database {
     }
 
     suspend fun getUser(username: String): User? {
-        // publish("get-user", username)
+        publish("get-user", username)
         return User("test", "KJKn+0rZAg4VGYNBo11JPeoqKI6L+P8mNK9Rv1+aRdU=")
     }
 

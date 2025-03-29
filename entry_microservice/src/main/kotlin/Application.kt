@@ -1,9 +1,7 @@
 package ru.itmo
 
-import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.statuspages.*
-import io.ktor.server.response.*
 import ru.itmo.config.configureKeyDB
 import ru.itmo.config.configureRouting
 import ru.itmo.config.configureSecurity
@@ -22,4 +20,5 @@ fun Application.module() {
     configureSecurity()
     configureSerialization()
     configureRouting()
+    log.info("Starting application version {}", environment.config.property("ktor.version").getString())
 }

@@ -15,7 +15,7 @@ fun Application.configureRouting() {
             authenticate {
                 get("/test") {
                     val username = call.principal<String>()
-                    call.respond(SimpleResponse.success(username))
+                    call.respond(SimpleResponse.success("user: $username"))
                 }
             }
 
