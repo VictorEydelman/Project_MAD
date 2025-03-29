@@ -5,10 +5,8 @@ ktor:
   deployment:
     port: 8080
 jwt:
-  domain: "https://localhost/"
-  audience: "sleep-monitor"
-  realm: "Sleep monitor"
-  secret: ""
+  expiration: 6
+  secret: "secret"
 keydb:
   host: "keydb"
   port: 6379

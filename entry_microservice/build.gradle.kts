@@ -34,6 +34,8 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.ktor:ktor-server-config-yaml")
     implementation("redis.clients:jedis:5.2.0")
+    implementation("io.ktor:ktor-server-host-common:3.1.1")
+    implementation("io.ktor:ktor-server-status-pages:3.1.1")
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }
