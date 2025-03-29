@@ -15,16 +15,18 @@ fun Application.configureDatabases() {
     println("f")
     val dbConnection: Connection = connectToPostgres(embedded = false)
     val cityService = CityService(dbConnection)
+    val usersService = UsersService(dbConnection)
     
     routing {
     
         // Create city
         post("/citie") {
             println("cds")
-            val city = call.receive<City>()
-            val id = cityService.create(city)
-            call.respond(HttpStatusCode.Created, id)
+            val user = call.receive<Users>()
+            usersService.insert(user)
+            call.respond(HttpStatusCode.Created, 1)
         }
+
     
         // Read city
         get("/cities/{id}") {

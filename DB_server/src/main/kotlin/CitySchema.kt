@@ -20,7 +20,6 @@ class CityService(private val connection: Connection) {
 
     init {
         val statement = connection.createStatement()
-        println(CREATE_TABLE_CITIES)
         statement.executeUpdate(CREATE_TABLE_CITIES)
     }
 
