@@ -8,7 +8,7 @@ enum class PhysicalCondition {OnceADay, TwiceADay, ThreeTimesADay, OnceEveryTwoD
 class PhysicalConditionService(private val connection: Connection){
     companion object {
         private const val CREATE_TYPE_PhysicalCondition =
-            "CREATE TYPE IF NOT EXISTS PhysicalCondition AS ENUM ('OnceADay', 'TwiceADay', 'ThreeTimesADay', 'OnceEveryTwoDays', 'TwiceAWeek', 'ThreeTimesAWeek', 'Rarely', 'Often', 'Never', 'Null');"
+            "CREATE TYPE PhysicalCondition AS ENUM ('OnceADay', 'TwiceADay', 'ThreeTimesADay', 'OnceEveryTwoDays', 'TwiceAWeek', 'ThreeTimesAWeek', 'Rarely', 'Often', 'Never', 'Null');"
     }
     init {
         val statement = connection.createStatement()

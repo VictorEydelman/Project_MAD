@@ -8,7 +8,7 @@ enum class Gender {Men, Woman, Null}
 class GenderService(private val connection: Connection){
     companion object {
         private const val CREATE_TYPE_GENDER =
-            "CREATE TYPE IF NOT EXISTS GENDER AS ENUM ('Men', 'Woman', 'Null');"
+            "CREATE TYPE GENDER AS ENUM ('Men', 'Woman', 'Null');"
     }
     init {
         val statement = connection.createStatement()

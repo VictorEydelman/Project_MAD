@@ -10,6 +10,7 @@ import mad.project.Service.AlcoholUsageService
 import mad.project.Service.CaffeineUsageService
 import mad.project.Service.GenderService
 import mad.project.Service.PhysicalConditionService
+import mad.project.Service.Settings
 import mad.project.Service.SettingsService
 import java.sql.Connection
 import java.sql.DriverManager
@@ -33,10 +34,13 @@ fun Application.configureDatabases() {
             println("cds")
             val user = call.receive<Users>()
             usersService.insert(user)
+            println(usersService.findByUsernameAndPassword(user))
+            //val settings = Settings.
+            //settingsService.insert()
             call.respond(HttpStatusCode.Created, 1)
         }
 
-    
+
         // Read city
         get("/cities/{id}") {
             val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
