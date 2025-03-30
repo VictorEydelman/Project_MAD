@@ -49,7 +49,6 @@ class AlarmService(private val connection: Connection){
             statement.setObject(2, settings.gender)
             statement.setObject(3,settings.physicalCondition)
             statement.setObject(4,settings.caffeineUsage)
-            statement.setObject(5,settings.alcoholUsage)
             statement.executeUpdate()
         } catch (e: SQLException){
             throw Exception("Ошибка с бд")
