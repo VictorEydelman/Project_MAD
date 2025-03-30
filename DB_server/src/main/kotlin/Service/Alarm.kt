@@ -60,10 +60,7 @@ class AlarmService(private val connection: Connection){
             val statement = connection.prepareStatement(INSERT_USER)
             //statement.setString(1, settings.birthday)
             statement.setObject(2, settings.gender)
-            statement.setObject(3,settings.physicalCondition)
-            statement.setObject(4,settings.caffeineUsage)
-            statement.setObject(5,settings.alcoholUsage)
-            statement.setInt(6,settings.id)
+
             statement.executeUpdate()
         } catch (e: SQLException){
             throw Exception("Ошибка с бд")
