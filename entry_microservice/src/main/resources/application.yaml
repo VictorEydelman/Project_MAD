@@ -3,8 +3,11 @@ ktor:
     modules:
       - ru.itmo.ApplicationKt.module
   deployment:
-    port: 8080
+    port: 8090
+  version: 0.3
 jwt:
-  domain: "https://jwt-provider-domain/"
-  audience: "jwt-audience"
-  realm: "ktor sample app"
+  expiration: 6
+  secret: "secret"
+keydb:
+  host: "keydb"
+  port: 6379
