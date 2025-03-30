@@ -33,6 +33,7 @@ dependencies {
     implementation("io.ktor:ktor-server-html-builder:2.3.4") // Если вам нужно HTML-строительство
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
     testImplementation(libs.kotlin.test.junit)
+    implementation("redis.clients:jedis:5.2.0")
     testImplementation("io.ktor:ktor-server-test-host:2.0.0") // Замените на актуальную версию
     testImplementation("io.ktor:ktor-server-tests:2.0.0") // Замените на актуальную версию
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.7.10")
