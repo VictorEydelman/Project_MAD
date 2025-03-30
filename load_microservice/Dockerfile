@@ -1,14 +1,11 @@
-# Используйте официальный образ OpenJDK
-FROM openjdk:17-slim
-
-# Установите рабочую директорию
+FROM gradle:8-jdk17 as builder
 WORKDIR /app
+COPY . .
+RUN gradle clean shadowJar
 
-# Копируйте файл сборки (например, jar-файл) в контейнер
-COPY build/libs/load_microservice-1.0-SNAPSHOT.jar app.jar
-
-# Укажите команду для запуска приложения
+FROM openjdk:17-slim
+WORKDIR /app
+COPY --from=builder /app/build/libs/load_microservice.jar app.jar
+COPY --from=builder /app/build/resources/main /app/resources
 CMD ["java", "-jar", "app.jar"]
-
-# Откройте порт, на котором будет работать ваш сервер
 EXPOSE 8099

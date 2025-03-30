@@ -9,7 +9,10 @@ class KeyDBClient(
 ) {
     private val jedis: Jedis by lazy {
         Jedis(host, port)
-    }// Публикация сообщения в канал
+    }
+
+    // Публикация сообщения в канал
+
     fun publish(channel: String, message: String) {
         jedis.publish(channel, message)
     }
