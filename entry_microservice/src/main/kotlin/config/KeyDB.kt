@@ -9,4 +9,8 @@ fun Application.configureKeyDB() {
     val port = keyDBConfig.property("port").getString().toInt()
 
     KeyDBClient.init(host, port)
+
+    monitor.subscribe(ApplicationStopped) {
+        KeyDBClient.close()
+    }
 }

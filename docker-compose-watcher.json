@@ -1,0 +1,48 @@
+{
+  "dockerComposeFile": "docker-compose.yml",
+  "services": [
+    "keydb",
+    "db",
+    "clickhouse-server",
+    "db_server",
+    "entry",
+    "load",
+    "logic"
+  ],
+  "watch": [
+    "DB_server/**/*",
+    "entry_microservice/**/*",
+    "load_microservice/**/*",
+    "logic_microservice/**/*"
+  ],
+  "onChange": [
+    {
+      "action": "restart",
+      "service": "keydb"
+    },
+    {
+      "action": "restart",
+      "service": "db"
+    },
+    {
+      "action": "restart",
+      "service": "clickhouse-server"
+    },
+    {
+      "action": "restart",
+      "service": "db_server"
+    },
+    {
+      "action": "restart",
+      "service": "entry"
+    },
+    {
+      "action": "restart",
+      "service": "load"
+    },
+    {
+      "action": "restart",
+      "service": "logic"
+    }
+  ]
+}

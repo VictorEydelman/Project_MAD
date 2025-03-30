@@ -1,33 +1,46 @@
 package mad.project
 
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mad.project.Service.AlcoholUsage
+import mad.project.Service.AlcoholUsageService
+import mad.project.Service.CaffeineUsageService
+import mad.project.Service.GenderService
+import mad.project.Service.PhysicalConditionService
+import mad.project.Service.Settings
+import mad.project.Service.SettingsService
 import java.sql.Connection
 import java.sql.DriverManager
-import mad.project.*;
+import mad.project.Service.Users
+import mad.project.Service.UsersService
 
 fun Application.configureDatabases() {
     println("f")
     val dbConnection: Connection = connectToPostgres(embedded = false)
     val cityService = CityService(dbConnection)
     val usersService = UsersService(dbConnection)
-    
+    val genderService = GenderService(dbConnection)
+    val alcoholUsageService = AlcoholUsageService(dbConnection)
+    val caffeineUsageService = CaffeineUsageService(dbConnection)
+    val physicalConditionService = PhysicalConditionService(dbConnection)
+    val settingsService = SettingsService(dbConnection)
+
     routing {
-    
         // Create city
         post("/citie") {
             println("cds")
             val user = call.receive<Users>()
             usersService.insert(user)
+
+            println(usersService.findByUsernameAndPassword(user))
+            //val settings = Settings.
+            //settingsService.insert()
             call.respond(HttpStatusCode.Created, 1)
         }
 
-    
         // Read city
         get("/cities/{id}") {
             val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")

@@ -1,9 +1,11 @@
 package ru.itmo.keydb
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.JedisPubSub
 
 object KeyDBClient {
+    private val objectMapper = jacksonObjectMapper()
     private lateinit var jedis: Jedis
 
     fun init(host: String, port: Int) {
@@ -17,6 +19,9 @@ object KeyDBClient {
     // Публикация сообщения в канал
     fun publish(channel: String, message: String) {
         jedis.publish(channel, message)
+    }
+    fun <T> publish(channel: String, request: KeyDBRequest<T>) {
+        jedis.publish(channel, objectMapper.writeValueAsString(request))
     }
 
     // Подписка на канал

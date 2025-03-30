@@ -3,12 +3,11 @@ ktor:
     modules:
       - ru.itmo.ApplicationKt.module
   deployment:
-    port: 8080
+    port: 8090
+  version: 0.3
 jwt:
-  domain: "https://localhost/"
-  audience: "sleep-monitor"
-  realm: "Sleep monitor"
-  secret: ""
+  expiration: 6
+  secret: "secret"
 keydb:
   host: "keydb"
   port: 6379
