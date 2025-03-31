@@ -1,20 +1,27 @@
-package mad.project.keyDB
+package ru.itmo.keydb
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.JedisPubSub
 
-class KeyDBClient(
-    private val host: String = "keydb",
-    private val port: Int = 6379
-) {
-    private val jedis: Jedis by lazy {
-        Jedis(host, port)
+object KeyDBClient {
+    private val objectMapper = jacksonObjectMapper()
+    private lateinit var jedis: Jedis
+
+    fun init(host: String, port: Int) {
+        jedis = Jedis(host, port)
+    }
+
+    fun getJedis(): Jedis {
+        return jedis
     }
 
     // Публикация сообщения в канал
-
     fun publish(channel: String, message: String) {
         jedis.publish(channel, message)
+    }
+    fun <T> publish(channel: String, request: KeyDBRequest<T>) {
+        jedis.publish(channel, objectMapper.writeValueAsString(request))
     }
 
     // Подписка на канал
@@ -38,7 +45,6 @@ class KeyDBClient(
         return jedis.rpop(queue)
     }
 
-    // Закрытие соединения
     fun close() {
         jedis.close()
     }

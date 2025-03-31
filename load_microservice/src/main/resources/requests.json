@@ -1,0 +1,14 @@
+[
+  {
+    "address": "login",
+    "method": "post",
+    "body": "{\"login\": \"$1\", \"password\": \"$2\"}",
+    "args": ["string", "string"]
+  },
+  {
+    "address": "profile",
+    "method": "get",
+    "body": "",
+    "args": []
+  }
+]
