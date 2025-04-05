@@ -8,7 +8,11 @@ enum class CaffeineUsage {OnceADay, TwiceADay, ThreeTimesADay, OnceEveryTwoDays,
 class CaffeineUsageService(private val connection: Connection){
     companion object {
         private const val CREATE_TYPE_CAFFEINE =
-            "CREATE TYPE CaffeineUsage AS ENUM ('OnceADay', 'TwiceADay', 'ThreeTimesADay', 'OnceEveryTwoDays', 'TwiceAWeek', 'ThreeTimesAWeek', 'Rarely', 'Often', 'Never', 'Null');"
+            "DO $$\nBEGIN\n" +
+                    "    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'caffeineusage') THEN\n" +
+                    "        CREATE TYPE CaffeineUsage AS ENUM ('OnceADay', 'TwiceADay', 'ThreeTimesADay', 'OnceEveryTwoDays', 'TwiceAWeek', 'ThreeTimesAWeek', 'Rarely', 'Often', 'Never', 'Null');\n" +
+                    "    END IF;\n" +
+                    "END $$;\n"
     }
     init {
         val statement = connection.createStatement()

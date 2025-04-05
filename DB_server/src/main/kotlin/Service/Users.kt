@@ -1,5 +1,6 @@
 package mad.project.Service
 
+import com.typesafe.config.ConfigException.Null
 import kotlinx.serialization.Serializable
 import java.sql.Connection
 import java.sql.SQLException
@@ -13,6 +14,7 @@ class UsersService(private val connection: Connection){
         private const val SELECT_CITY_BY_ID = "SELECT name, population FROM cities WHERE id = ?"
         private const val INSERT_USER = "INSERT INTO users (username, password) VALUES (?, ?)"
         private const val EXIST_USER = "SELECT count(*) FROM USERS WHERE username = ?"
+        private const val GET_USER = "SELECT * FROM USERS WHERE username = ?"
         private const val FIND_BY_USERNAME_AND_PASSWORD = "SELECT count(*) FROM users WHERE username = ? and password = ?"
         private const val UPDATE_CITY = "UPDATE cities SET name = ?, population = ? WHERE id = ?"
         private const val DELETE_CITY = "DELETE FROM cities WHERE id = ?"
@@ -69,4 +71,18 @@ class UsersService(private val connection: Connection){
         }
     }
 
+    suspend fun getUserByUsername(username: String): Users? {
+        try{
+            val statement = connection.prepareStatement(GET_USER);
+            statement.setString(1,username)
+            val result = statement.executeQuery()
+            if(result.next()){
+                return Users(result.getString("username"), result.getString("password"))
+            } else{
+                return null
+            }
+        } catch (e: SQLException){
+            throw Exception("Ошибка с бд")
+        }
+    }
 }

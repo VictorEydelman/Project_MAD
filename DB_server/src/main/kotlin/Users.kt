@@ -8,6 +8,7 @@ import java.sql.SQLException
 data class Users(val username: String, val password: String)
 class UsersService(private val connection: Connection){
     companion object {
+
         private const val CREATE_TABLE_USERS =
             "CREATE TABLE IF NOT EXISTS USERS (username VARCHAR(255) PRIMARY KEY, password VARCHAR(255));"
         private const val SELECT_CITY_BY_ID = "SELECT name, population FROM cities WHERE id = ?"
@@ -23,7 +24,7 @@ class UsersService(private val connection: Connection){
         statement.executeUpdate(CREATE_TABLE_USERS)
     }
 
-    suspend fun userExist(username: String): Boolean {
+    fun userExist(username: String): Boolean {
 
         try{
             val statement = connection.prepareStatement(EXIST_USER)
@@ -40,7 +41,7 @@ class UsersService(private val connection: Connection){
         }
     }
 
-    suspend fun insert(users: Users){
+    fun insert(users: Users){
         if(userExist(users.username)){
             try {
                 val statement = connection.prepareStatement(INSERT_USER)
