@@ -7,9 +7,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import mad.project.SleepMonitor.navigation.Screen
 import com.example.myapplication.screens.LoginScreen
 import com.example.myapplication.screens.SignUpScreen
+import mad.project.SleepMonitor.navigation.Screen
 
 @Composable
 fun SleepMonitorApp() {
