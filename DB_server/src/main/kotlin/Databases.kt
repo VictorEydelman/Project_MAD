@@ -1,10 +1,12 @@
 package mad.project
 
+import KeyDBClient
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.runBlocking
 import mad.project.Service.AlcoholUsage
 import mad.project.Service.AlcoholUsageService
 import mad.project.Service.CaffeineUsageService
@@ -27,8 +29,21 @@ fun Application.configureDatabases() {
     val caffeineUsageService = CaffeineUsageService(dbConnection)
     val physicalConditionService = PhysicalConditionService(dbConnection)
     val settingsService = SettingsService(dbConnection)
+    val keyDBClient = KeyDBClient()
+    val user = mad.project.UsersService
 
     routing {
+        /*runBlocking {
+            while (true) {
+                keyDBClient.receiveRequest("getuser", { Username -> usersService.getUserByUsername(username = Username)},
+                    Users::class.java)
+            }
+        }
+        runBlocking {
+            while (true) {
+                keyDBClient.receiveRequest("requestChannel", { _ -> "OK" }, String::class.java)
+            }
+        }*/
         // Create city
         post("/citie") {
             println("cds")
