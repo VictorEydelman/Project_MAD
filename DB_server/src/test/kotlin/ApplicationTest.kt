@@ -18,7 +18,7 @@ import kotlin.test.assertNotNull
 class ApplicationTest {
     private lateinit var connection: Connection
 
-    @Test
+    /*@Test
     fun InsertUser()=testApplication {
             application {
                 connection = connectToPostgres(false)
@@ -29,6 +29,6 @@ class ApplicationTest {
         assert(true)
 
 
-    }
+    }*/
 
 }

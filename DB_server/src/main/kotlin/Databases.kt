@@ -6,13 +6,11 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.coroutines.runBlocking
-import mad.project.Service.AlcoholUsage
+import kotlinx.coroutines.launch
 import mad.project.Service.AlcoholUsageService
 import mad.project.Service.CaffeineUsageService
 import mad.project.Service.GenderService
 import mad.project.Service.PhysicalConditionService
-import mad.project.Service.Settings
 import mad.project.Service.SettingsService
 import java.sql.Connection
 import java.sql.DriverManager
@@ -31,6 +29,17 @@ fun Application.configureDatabases() {
     val settingsService = SettingsService(dbConnection)
     val keyDBClient = KeyDBClient()
     val user = mad.project.UsersService
+
+    launch {
+        keyDBClient.subscribeWithResponse("get-user", String::class.java, { username: String ->
+            usersService.getUserByUsername(username=username)
+        })
+    }
+    launch {
+        keyDBClient.subscribeWithResponse("save-user", Users::class.java, { user->
+            usersService.insert(user=user)
+        })
+    }
 
     routing {
         /*runBlocking {
