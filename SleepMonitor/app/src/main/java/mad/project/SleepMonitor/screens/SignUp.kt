@@ -34,7 +34,10 @@ fun SignUpScreen(navController: NavController){
             PasswordFieldComponent()
 
             Spacer(modifier = Modifier.height(80.dp))
-            ButtonComponent("SIGN UP")
+            ButtonComponent("SIGN UP", onClick ={
+                // add logic
+                navController.navigate(Screen.LoginScreen.route)
+            })
             Spacer(modifier = Modifier.height(25.dp))
             ClickableLoginTextComponent(
                 initialText = "ALREADY HAVE AN ACCOUNT? ",

@@ -34,7 +34,12 @@ fun LoginScreen(navController: NavController){
             PasswordFieldComponent()
 
             Spacer(modifier = Modifier.height(80.dp))
-            ButtonComponent("LOGIN")
+            ButtonComponent("LOGIN",
+                onClick = {
+                    navController.navigate(Screen.SplashScreen.route){
+                        popUpTo(Screen.LoginScreen.route) {inclusive=true}
+                    }
+                })
             Spacer(modifier = Modifier.height(25.dp))
             ClickableLoginTextComponent(
                 initialText = "DON’T HAVE AN ACCOUNT? ",

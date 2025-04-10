@@ -15,14 +15,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.delay
 import mad.project.SleepMonitor.R
+import mad.project.SleepMonitor.navigation.Screen
 
 @Composable
-fun SplashScreen(onTimeout: () -> Unit = {}) {
+fun SplashScreen(navController: NavController) {
     LaunchedEffect(Unit) {
         delay(2000)
-        onTimeout()
+        navController.navigate(Screen.MainScreen.route) {
+            popUpTo(Screen.SplashScreen.route) { inclusive = true }
+        }
     }
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -56,5 +61,6 @@ fun SplashScreen(onTimeout: () -> Unit = {}) {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreviewOfSplashScreen() {
-    SplashScreen()
+    val navController = rememberNavController()
+    SplashScreen(navController = navController)
 }
