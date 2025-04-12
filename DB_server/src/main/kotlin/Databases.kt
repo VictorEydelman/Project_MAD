@@ -7,19 +7,21 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.launch
-import mad.project.Service.AlcoholUsageService
-import mad.project.Service.CaffeineUsageService
-import mad.project.Service.GenderService
-import mad.project.Service.PhysicalConditionService
-import mad.project.Service.SettingsService
+import mad.project.Service.clickhouse.SleepStatisticService
+import mad.project.Service.postgres.AlcoholUsageService
+import mad.project.Service.postgres.CaffeineUsageService
+import mad.project.Service.postgres.GenderService
+import mad.project.Service.postgres.PhysicalConditionService
+import mad.project.Service.postgres.SettingsService
 import java.sql.Connection
 import java.sql.DriverManager
-import mad.project.Service.Users
-import mad.project.Service.UsersService
+import mad.project.Service.postgres.Users
+import mad.project.Service.postgres.UsersService
 
 fun Application.configureDatabases() {
     println("f")
     val dbConnection: Connection = connectToPostgres(embedded = false)
+    val clickHouseConnection: Connection = connectToClickHouse()
     val cityService = CityService(dbConnection)
     val usersService = UsersService(dbConnection)
     val genderService = GenderService(dbConnection)
@@ -27,6 +29,7 @@ fun Application.configureDatabases() {
     val caffeineUsageService = CaffeineUsageService(dbConnection)
     val physicalConditionService = PhysicalConditionService(dbConnection)
     val settingsService = SettingsService(dbConnection)
+    val sleepStatisticService = SleepStatisticService(clickHouseConnection)
     val keyDBClient = KeyDBClient()
     val user = mad.project.UsersService
 
@@ -109,4 +112,9 @@ fun Application.connectToPostgres(embedded: Boolean): Connection {
 
         return DriverManager.getConnection(url, user, password)
     }
+}
+fun Application.connectToClickHouse(): Connection {
+    val url = environment.config.property("clickhouse.url").getString() // Убедитесь, что ClickHouse запущен на этом адресе
+    Class.forName("ru.yandex.clickhouse.ClickHouseDriver")
+    return DriverManager.getConnection("jdbc:clickhouse://172.18.0.4:8123","default","")
 }

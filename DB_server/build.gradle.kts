@@ -28,6 +28,7 @@ dependencies {
     implementation(libs.ktor.server.tomcat.jakarta)
     implementation(libs.logback.classic)
     implementation(libs.ktor.server.config.yaml)
+    implementation("ru.yandex.clickhouse:clickhouse-jdbc:0.1.36")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm")
     implementation("io.ktor:ktor-server-tomcat-jakarta:2.3.4")
     implementation("io.ktor:ktor-server-html-builder:2.3.4") // Если вам нужно HTML-строительство

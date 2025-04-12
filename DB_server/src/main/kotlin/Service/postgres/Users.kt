@@ -1,6 +1,5 @@
-package mad.project.Service
+package mad.project.Service.postgres
 
-import com.typesafe.config.ConfigException.Null
 import kotlinx.serialization.Serializable
 import java.sql.Connection
 import java.sql.SQLException

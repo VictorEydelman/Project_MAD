@@ -45,6 +45,7 @@ services:
     depends_on:
       - db  # Зависимость от базы данных
       - keydb
+      - clickhouse-server
     networks:
       - sleepmonitor-network
   entry:
