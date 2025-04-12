@@ -1,14 +1,15 @@
 package mad.project.SleepMonitor.navigation
 
-import SplashScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.myapplication.screens.LoginScreen
-import com.example.myapplication.screens.MainScreen
-import com.example.myapplication.screens.SignUpScreen
+
+import mad.project.SleepMonitor.screens.LoginScreen
+import mad.project.SleepMonitor.screens.MainScreen
+import mad.project.SleepMonitor.screens.SignUpScreen
+import mad.project.SleepMonitor.screens.SplashScreen
 
 sealed class Screen(val route: String) {
     object LoginScreen : Screen("login_screen")

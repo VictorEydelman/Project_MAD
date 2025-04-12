@@ -1,3 +1,5 @@
+package mad.project.SleepMonitor.screens;
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

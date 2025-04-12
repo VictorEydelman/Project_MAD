@@ -1,6 +1,6 @@
 @file:Suppress("DEPRECATION")
 
-package com.example.myapplication.components
+package mad.project.SleepMonitor.components
 
 import androidx.compose.foundation.text.ClickableText
 import android.util.Log

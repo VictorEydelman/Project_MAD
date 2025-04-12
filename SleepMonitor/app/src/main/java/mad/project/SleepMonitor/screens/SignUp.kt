@@ -1,4 +1,4 @@
-package com.example.myapplication.screens
+package mad.project.SleepMonitor.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,7 +10,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.myapplication.components.*
+import mad.project.SleepMonitor.components.ButtonComponent
+import mad.project.SleepMonitor.components.ClickableLoginTextComponent
+import mad.project.SleepMonitor.components.NormalTextComponent
+import mad.project.SleepMonitor.components.PasswordFieldComponent
+import mad.project.SleepMonitor.components.TextFieldComponent
+import mad.project.SleepMonitor.components.TitleTextComponent
 import mad.project.SleepMonitor.navigation.Screen
 
 @Composable
