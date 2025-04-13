@@ -74,6 +74,8 @@ services:
     build:
       context: logic_microservice  # Контекст сборки (папка с Dockerfile)
       dockerfile: Dockerfile  # Имя Dockerfile
+    volumes:
+      - ./logs:/app/logs
     ports:
       - "8900:8900"  # Проброс порта для доступа к Ktor серверу
     depends_on:
