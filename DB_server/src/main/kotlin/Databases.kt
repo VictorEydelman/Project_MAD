@@ -17,6 +17,7 @@ import java.sql.Connection
 import java.sql.DriverManager
 import mad.project.Service.postgres.Users
 import mad.project.Service.postgres.UsersService
+import java.sql.Timestamp
 
 fun Application.configureDatabases() {
     println("f")
@@ -59,9 +60,9 @@ fun Application.configureDatabases() {
         // Create city
         post("/citie") {
             println("cds")
+
             val user = call.receive<Users>()
             usersService.insert(user)
-
             println(usersService.findByUsernameAndPassword(user))
             //val settings = Settings.
             //settingsService.insert()
@@ -86,7 +87,16 @@ fun Application.configureDatabases() {
             cityService.update(id, user)
             call.respond(HttpStatusCode.OK)
         }
-    
+        get("/sleep"){
+            println("ssd")
+            val t = sleepStatisticService.getSleepStatisticInterval("d", Timestamp(111), Timestamp(222))
+            println(t)
+            val f = sleepStatisticService.addSleepData("d", Timestamp(150),11.2,3)
+            println(f)
+            val g = sleepStatisticService.getSleepStatisticInterval("d", Timestamp(111), Timestamp(222))
+            println(g)
+            call.respond(HttpStatusCode.OK,g)
+        }
         // Delete city
         delete("/cities/{id}") {
             val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")

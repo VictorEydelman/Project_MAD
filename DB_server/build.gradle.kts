@@ -54,6 +54,9 @@ application {
 kotlin {
     jvmToolchain(17)
 }
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions.jvmTarget = "1.8" // Убедитесь, что версия соответствует вашей JDK
+}
 tasks.shadowJar {
     archiveBaseName.set("db_server")
     archiveClassifier.set("")
