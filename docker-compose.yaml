@@ -66,8 +66,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8099:8099"
-    depends_on:
-      - keydb
+#    depends_on:
+#      - keydb
     networks:
       - sleepmonitor-network
   logic:
