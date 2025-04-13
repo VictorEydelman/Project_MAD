@@ -44,10 +44,11 @@ class HealthDataService {
 
     private fun determineSleepPhase(heartRate: Int): SleepPhase {
         return when {
-            heartRate > 60 -> SleepPhase.AWAKE
-            heartRate in 50..60 -> SleepPhase.LIGHT_SLEEP
-            heartRate in 40..49 -> SleepPhase.DEEP_SLEEP
-            else -> SleepPhase.REM_SLEEP
+            heartRate > 60 -> SleepPhase.AWAKE          // Бодрствование (>60 уд/мин)
+            heartRate in 55..60 -> SleepPhase.DROWSY    // Дремота (55-60 уд/мин)
+            heartRate in 45..54 -> SleepPhase.LIGHT     // Поверхностный сон (45-54 уд/мин)
+            heartRate in 30..44 -> SleepPhase.DEEP      // Глубокий сон (30-44 уд/мин)
+            else -> SleepPhase.REM                      // Быстрый сон (REM) (<30 уд/мин)
         }
     }
 }

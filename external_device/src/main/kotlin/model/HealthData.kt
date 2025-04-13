@@ -10,5 +10,5 @@ data class HealthData(
 )
 
 enum class SleepPhase {
-    AWAKE, LIGHT_SLEEP, DEEP_SLEEP, REM_SLEEP
+    AWAKE, DROWSY, LIGHT, DEEP, REM
 }
