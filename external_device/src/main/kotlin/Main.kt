@@ -8,7 +8,7 @@ import org.example.controller.HealthDataController
 import org.example.service.HealthDataService
 
 fun main() {
-    embeddedServer(Netty, port = 8080, module = Application::module)
+    embeddedServer(Netty, port = 8909, module = Application::module)
             .start(wait = true)
 }
 
