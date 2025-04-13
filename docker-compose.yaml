@@ -80,6 +80,14 @@ services:
       - keydb
     networks:
       - sleepmonitor-network
+  external_device:
+    build:
+      context: external_device
+      dockerfile: Dockerfile
+    ports:
+      - "8909:8909"
+    networks:
+      - sleepmonitor-network
 
 
 networks:
