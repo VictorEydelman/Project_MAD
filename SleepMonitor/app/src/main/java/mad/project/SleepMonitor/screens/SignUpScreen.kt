@@ -14,17 +14,17 @@ import mad.project.SleepMonitor.components.*
 import mad.project.SleepMonitor.navigation.Screen
 
 @Composable
-fun LoginScreen(navController: NavController){
+fun SignUpScreen(navController: NavController) {
     Surface(
         color = Color(0xFF011222),
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color(0xFF011222))
             .padding(40.dp, 70.dp, 40.dp, 35.dp)
-    ){
+    ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            TitleTextComponent(value = "Login")
-            NormalTextComponent(value = "Welcome we’re glad you’re back")
+            TitleTextComponent(value = "Sign Up")
+            NormalTextComponent(value = "Let’s get started to better your sleep")
 
             Spacer(modifier = Modifier.height(110.dp))
             NormalTextComponent(value = "Username")
@@ -34,19 +34,22 @@ fun LoginScreen(navController: NavController){
             PasswordFieldComponent()
 
             Spacer(modifier = Modifier.height(80.dp))
-            ButtonComponent("LOGIN",
+            ButtonComponent(
+                value = "SIGN UP",
                 onClick = {
-                    navController.navigate(Screen.SplashScreen.route){
-                        popUpTo(Screen.LoginScreen.route) {inclusive=true}
-                    }
-                })
+                    // Переход на главный экран (или другой, в зависимости от твоей логики)
+                    navController.navigate(Screen.MainScreen.route)
+                }
+            )
             Spacer(modifier = Modifier.height(25.dp))
             ClickableLoginTextComponent(
-                initialText = "DON’T HAVE AN ACCOUNT? ",
-                clickableText = "SIGN UP",
-                tag = "register",
+                initialText = "ALREADY HAVE AN ACCOUNT? ",
+                clickableText = "LOG IN",
+                tag = "login",
                 onTextSelected = { tag ->
-                    if (tag == "register") { navController.navigate(Screen.SignUpScreen.route) }
+                    if (tag == "login") {
+                        navController.navigate(Screen.LoginScreen.route)
+                    }
                 }
             )
         }
@@ -55,7 +58,7 @@ fun LoginScreen(navController: NavController){
 
 @Preview
 @Composable
-fun DefaultPreviewOfLoginScreen(){
+fun DefaultPreviewOfSignUpScreen() {
     val navController = rememberNavController()
-    LoginScreen(navController = navController)
+    SignUpScreen(navController = navController)
 }

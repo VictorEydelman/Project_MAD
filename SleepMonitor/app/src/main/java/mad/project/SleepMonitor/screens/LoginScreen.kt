@@ -10,26 +10,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import mad.project.SleepMonitor.components.ButtonComponent
-import mad.project.SleepMonitor.components.ClickableLoginTextComponent
-import mad.project.SleepMonitor.components.NormalTextComponent
-import mad.project.SleepMonitor.components.PasswordFieldComponent
-import mad.project.SleepMonitor.components.TextFieldComponent
-import mad.project.SleepMonitor.components.TitleTextComponent
+import mad.project.SleepMonitor.components.*
 import mad.project.SleepMonitor.navigation.Screen
 
 @Composable
-fun SignUpScreen(navController: NavController){
+
+fun LoginScreen(navController: NavController) {
     Surface(
         color = Color(0xFF011222),
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color(0xFF011222))
             .padding(40.dp, 70.dp, 40.dp, 35.dp)
-    ){
+    ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            TitleTextComponent(value = "Sign Up")
-            NormalTextComponent(value = "Let’s get started to better your sleep")
+            TitleTextComponent(value = "Login")
+            NormalTextComponent(value = "Welcome we’re glad you’re back")
 
             Spacer(modifier = Modifier.height(110.dp))
             NormalTextComponent(value = "Username")
@@ -39,26 +35,24 @@ fun SignUpScreen(navController: NavController){
             PasswordFieldComponent()
 
             Spacer(modifier = Modifier.height(80.dp))
-            ButtonComponent("SIGN UP", onClick ={
-                // add logic
-                navController.navigate(Screen.LoginScreen.route)
-            })
+            ButtonComponent(
+                value = "LOGIN",
+                onClick = {
+                    // Логика перехода на MainScreen
+                    navController.navigate(Screen.MainScreen.route) {
+                        popUpTo(Screen.LoginScreen.route) { inclusive = true } // Закрываем текущий экран
+                    }
+                }
+            )
             Spacer(modifier = Modifier.height(25.dp))
             ClickableLoginTextComponent(
-                initialText = "ALREADY HAVE AN ACCOUNT? ",
-                clickableText = "LOG UP",
-                tag = "login",
+                initialText = "DON’T HAVE AN ACCOUNT? ",
+                clickableText = "SIGN UP",
+                tag = "register",
                 onTextSelected = { tag ->
-                    if (tag == "login") { navController.navigate(Screen.LoginScreen.route) }
+                    if (tag == "register") { navController.navigate(Screen.SignUpScreen.route) }
                 }
             )
         }
     }
-}
-
-@Preview
-@Composable
-fun DefaultPreviewOfSignUpScreen(){
-    val navController = rememberNavController()
-    SignUpScreen(navController = navController)
 }
