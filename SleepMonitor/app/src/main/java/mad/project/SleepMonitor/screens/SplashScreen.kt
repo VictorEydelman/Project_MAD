@@ -30,7 +30,7 @@ fun SplashScreen(navController: NavController) {
     LaunchedEffect(Unit) {
         delay(2000) // Задержка для отображения сплэш-скрина
         // Переходим на LoginScreen
-        navController.navigate(Screen.LoginScreen.route) {
+        navController.navigate(Screen.MainScreen.route) {
             popUpTo(Screen.SplashScreen.route) { inclusive = true }
         }
     }

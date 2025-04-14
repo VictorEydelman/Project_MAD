@@ -34,8 +34,8 @@ class MainActivity : ComponentActivity() {
     // планирования уведомления на определённое время
     private fun scheduleNotification(NotificationService: NotificationService) {
         val calendar = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 13)
-            set(Calendar.MINUTE, 37)
+            set(Calendar.HOUR_OF_DAY, 14)
+            set(Calendar.MINUTE, 11)
             set(Calendar.SECOND, 0)
             if (timeInMillis <= System.currentTimeMillis()) {
                 add(Calendar.DAY_OF_MONTH, 1)
