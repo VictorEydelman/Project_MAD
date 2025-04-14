@@ -55,7 +55,6 @@ fun SignUpScreen(navController: NavController) {
         }
     }
 }
-
 @Preview
 @Composable
 fun DefaultPreviewOfSignUpScreen() {

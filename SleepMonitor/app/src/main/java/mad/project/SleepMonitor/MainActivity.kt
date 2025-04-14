@@ -18,7 +18,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 @Composable
 fun SleepMonitorApp() {
     val navController = rememberNavController() // создаём NavController

@@ -14,7 +14,6 @@ import mad.project.SleepMonitor.components.*
 import mad.project.SleepMonitor.navigation.Screen
 
 @Composable
-
 fun LoginScreen(navController: NavController) {
     Surface(
         color = Color(0xFF011222),

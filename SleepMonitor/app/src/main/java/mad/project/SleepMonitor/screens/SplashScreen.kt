@@ -56,7 +56,6 @@ fun SplashScreen(onTimeout: () -> Unit = {}) {
         }
     }
 }
-
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreviewOfSplashScreen() {

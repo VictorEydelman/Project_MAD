@@ -36,7 +36,6 @@ fun MainScreen(navController: NavController) {
         }
     }
 }
-
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreviewOfMainScreen() {
