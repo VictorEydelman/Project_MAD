@@ -1,4 +1,4 @@
-package com.example.myapplication.screens
+package mad.project.SleepMonitor.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,18 +10,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.myapplication.components.*
+import mad.project.SleepMonitor.components.*
 import mad.project.SleepMonitor.navigation.Screen
 
 @Composable
-fun LoginScreen(navController: NavController){
+
+fun LoginScreen(navController: NavController) {
     Surface(
         color = Color(0xFF011222),
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color(0xFF011222))
             .padding(40.dp, 70.dp, 40.dp, 35.dp)
-    ){
+    ) {
         Column(modifier = Modifier.fillMaxSize()) {
             TitleTextComponent(value = "Login")
             NormalTextComponent(value = "Welcome we’re glad you’re back")
@@ -34,7 +35,15 @@ fun LoginScreen(navController: NavController){
             PasswordFieldComponent()
 
             Spacer(modifier = Modifier.height(80.dp))
-            ButtonComponent("LOGIN")
+            ButtonComponent(
+                value = "LOGIN",
+                onClick = {
+                    // Логика перехода на MainScreen
+                    navController.navigate(Screen.MainScreen.route) {
+                        popUpTo(Screen.LoginScreen.route) { inclusive = true } // Закрываем текущий экран
+                    }
+                }
+            )
             Spacer(modifier = Modifier.height(25.dp))
             ClickableLoginTextComponent(
                 initialText = "DON’T HAVE AN ACCOUNT? ",
@@ -46,11 +55,4 @@ fun LoginScreen(navController: NavController){
             )
         }
     }
-}
-
-@Preview
-@Composable
-fun DefaultPreviewOfLoginScreen(){
-    val navController = rememberNavController()
-    LoginScreen(navController = navController)
 }
