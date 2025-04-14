@@ -24,25 +24,29 @@ import mad.project.SleepMonitor.R
 import mad.project.SleepMonitor.navigation.Screen
 
 @Composable
+
+
 fun SplashScreen(navController: NavController) {
     LaunchedEffect(Unit) {
-        delay(2000)
-        navController.navigate(Screen.MainScreen.route) {
+        delay(2000) // Задержка для отображения сплэш-скрина
+        // Переходим на LoginScreen
+        navController.navigate(Screen.LoginScreen.route) {
             popUpTo(Screen.SplashScreen.route) { inclusive = true }
         }
     }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color(0xFF011222),
-    ){
+    ) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
-        ){
+        ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
-            ){
+            ) {
                 Text(
                     text = "Sleep ",
                     color = Color.White,
@@ -54,11 +58,11 @@ fun SplashScreen(navController: NavController) {
                     contentDescription = "Logo",
                     modifier = Modifier.size(30.dp)
                 )
-
             }
         }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreviewOfSplashScreen() {
