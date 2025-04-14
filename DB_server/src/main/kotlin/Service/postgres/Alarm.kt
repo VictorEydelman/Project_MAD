@@ -1,4 +1,4 @@
-package mad.project.Service
+package mad.project.Service.postgres
 
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable

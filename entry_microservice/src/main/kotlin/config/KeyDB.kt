@@ -4,6 +4,7 @@ import KeyDBClient
 import io.ktor.server.application.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import ru.itmo.keydb.KeyDBAPI
 import ru.itmo.model.User
 
 fun Application.configureKeyDB() {
@@ -11,16 +12,16 @@ fun Application.configureKeyDB() {
     val host = keyDBConfig.property("host").getString()
     val port = keyDBConfig.property("port").getString().toInt()
 
-    KeyDBClient.init(host, port)
+    KeyDBAPI.init(host, port)
 
-    KeyDBClient.receiveRequest("get-user", true) { req: String ->
-        User("test", "\$2a\$10\$YHkJELh6c.l27j6x/yZZDuIBgyIcjaVzSjtNmJopGl6X/tT1nDvX.")
-    }
-    KeyDBClient.receiveRequest("save-user", true) { req: User ->
-        true
-    }
+//    KeyDBClient.receiveRequest("get-user", true) { req: String ->
+//        User("test", "\$2a\$10\$YHkJELh6c.l27j6x/yZZDuIBgyIcjaVzSjtNmJopGl6X/tT1nDvX.")
+//    }
+//    KeyDBClient.receiveRequest("save-user", true) { req: User ->
+//        true
+//    }
 
     monitor.subscribe(ApplicationStopped) {
-        KeyDBClient.close()
+        KeyDBAPI.close()
     }
 }

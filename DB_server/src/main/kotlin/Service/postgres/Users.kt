@@ -1,6 +1,5 @@
-package mad.project.Service
+package mad.project.Service.postgres
 
-import com.typesafe.config.ConfigException.Null
 import kotlinx.serialization.Serializable
 import java.sql.Connection
 import java.sql.SQLException
@@ -25,8 +24,7 @@ class UsersService(private val connection: Connection){
         statement.executeUpdate(CREATE_TABLE_USERS)
     }
 
-    suspend fun userExist(username: String): Boolean {
-
+    fun userNotExist(username: String): Boolean {
         try{
             val statement = connection.prepareStatement(EXIST_USER)
             statement.setString(1,username)
@@ -42,16 +40,20 @@ class UsersService(private val connection: Connection){
         }
     }
 
-    suspend fun insert(users: Users){
-        if(userExist(users.username)){
+    fun insert(user: Users): Boolean {
+        if(userNotExist(user.username)){
             try {
                 val statement = connection.prepareStatement(INSERT_USER)
-                statement.setString(1, users.username)
-                statement.setString(2, users.password)
+                statement.setString(1, user.username)
+                statement.setString(2, user.password)
                 statement.executeUpdate()
+                return true
             } catch (e: SQLException){
-                throw Exception("Ошибка с бд")
+                return false
+                //throw Exception("Ошибка с бд")
             }
+        } else{
+            return false
         }
     }
 
@@ -71,7 +73,7 @@ class UsersService(private val connection: Connection){
         }
     }
 
-    suspend fun getUserByUsername(username: String): Users? {
+    fun getUserByUsername(username: String): Users? {
         try{
             val statement = connection.prepareStatement(GET_USER);
             statement.setString(1,username)

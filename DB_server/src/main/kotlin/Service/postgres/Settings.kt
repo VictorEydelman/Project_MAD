@@ -1,4 +1,4 @@
-package mad.project.Service
+package mad.project.Service.postgres
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

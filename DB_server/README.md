@@ -1,42 +1,53 @@
 # DB_server
 
-This project was created using the [Ktor Project Generator](https://start.ktor.io).
+Микросервис для подключения к бд postgres и clickhouse.
 
-Here are some useful links to get you started:
+## Для внешних пользователей предоставляет:
 
-- [Ktor Documentation](https://ktor.io/docs/home.html)
-- [Ktor GitHub page](https://github.com/ktorio/ktor)
-- The [Ktor Slack chat](https://app.slack.com/client/T09229ZC6/C0A974TJ9). You'll need to [request an invite](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up) to join.
+### Таблица Users:
 
-## Features
+USERS (username VARCHAR(255) PRIMARY KEY, password VARCHAR(255))
 
-Here's a list of features included in this project:
+#### Типы данных:
 
-| Name                                                                   | Description                                                                        |
-| ------------------------------------------------------------------------|------------------------------------------------------------------------------------ |
-| [Routing](https://start.ktor.io/p/routing)                             | Provides a structured routing DSL                                                  |
-| [kotlinx.serialization](https://start.ktor.io/p/kotlinx-serialization) | Handles JSON serialization using kotlinx.serialization library                     |
-| [Content Negotiation](https://start.ktor.io/p/content-negotiation)     | Provides automatic content conversion according to Content-Type and Accept headers |
-| [Postgres](https://start.ktor.io/p/postgres)                           | Adds Postgres database to your application                                         |
+Users(val username: String, val password: String)
 
-## Building & Running
+#### Запросы:
 
-To build or run the project, use one of the following tasks:
+save-user - запрос который принимает Users и возвращает Boolean
+get-user - запрос который принимает username: String и возвращает Users
+user-not-exist - запрос который принимает username: String и возвращает Boolean, если пользователя нету то true, иначе false
 
-| Task                          | Description                                                          |
-| -------------------------------|---------------------------------------------------------------------- |
-| `./gradlew test`              | Run the tests                                                        |
-| `./gradlew build`             | Build everything                                                     |
-| `buildFatJar`                 | Build an executable JAR of the server with all dependencies included |
-| `buildImage`                  | Build the docker image to use with the fat JAR                       |
-| `publishImageToLocalRegistry` | Publish the docker image locally                                     |
-| `run`                         | Run the server                                                       |
-| `runDocker`                   | Run using the local docker image                                     |
+### Таблица Settings:
 
-If the server starts successfully, you'll see the following output:
+SETTINGS (USERNAME VARCHAR(255) PRIMARY KEY, BIRTHDAY DATE, GENDER GENDER, PHYSICALCONDITION Frequency, CaffeineUsage Frequency, AlcoholUsage Frequency)
 
-```
-2024-12-04 14:32:45.584 [main] INFO  Application - Application started in 0.303 seconds.
-2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
-```
+#### Типы данных:
 
+Settings(val id: Int, val username: String, @Contextual val birthday: Date, val gender: Gender, val physicalCondition: Frequency, val caffeineUsage: Frequency, val alcoholUsage: Frequency)
+
+Frequency {OnceADay, TwiceADay, ThreeTimesADay, OnceEveryTwoDays, TwiceAWeek, ThreeTimesAWeek, Rarely, Often, Never, Null}
+
+Gender {Men, Woman, Null}
+
+#### Запросы:
+
+save-setting - запрос который принимает Settings и возвращает boolean
+update-setting - запрос который принимает Settings и возвращает boolean
+get-setting - запрос который принимает username: String и возвращает Settings
+
+### Таблица SleepStatistic
+
+SleepStatistic (username String,
+                timestamp DateTime,
+                pulse UFloat32,
+                sleep_phase Enum8('drowsiness' = 1, 'shallow' = 2, 'deep' = 3, 'fast ' = 4, 'wakefulness' = 5))
+
+#### Типы данных:
+
+SleepStatistic(username: String, timestamp: Timestamp, pulse: Double, sleepPhase: Int)
+
+#### Запросы:
+
+save-sleepStatistic - запрос который принимает SleepStatistic и возвращает Boolean
+get-SleepStatistic-Interval - запрос который (username: String, start: Timestamp, end: Timestamp) и возращает List<Map<String, Any>> каждая Map состоит из (username: String,  timestamp: Timestamp, pulse: Double, sleepPhase: Int)
