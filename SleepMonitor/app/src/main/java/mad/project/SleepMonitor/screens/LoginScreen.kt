@@ -6,14 +6,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import mad.project.SleepMonitor.components.*
 import mad.project.SleepMonitor.navigation.Screen
 
 @Composable
+
 fun LoginScreen(navController: NavController) {
     Surface(
         color = Color(0xFF011222),
