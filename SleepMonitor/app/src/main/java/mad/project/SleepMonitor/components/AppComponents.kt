@@ -119,9 +119,10 @@ fun PasswordFieldComponent() {
 }
 
 @Composable
+
 fun ButtonComponent(value: String, onClick: () -> Unit) {
     Button(
-        onClick = onClick,
+        onClick = onClick, // добавляем обработчик нажатия
         modifier = Modifier
             .fillMaxWidth()
             .height(54.dp),
@@ -139,6 +140,7 @@ fun ButtonComponent(value: String, onClick: () -> Unit) {
         )
     }
 }
+
 
 @Composable
 fun ClickableLoginTextComponent(initialText: String, clickableText: String, tag: String, onTextSelected: (String) -> Unit) {
