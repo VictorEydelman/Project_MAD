@@ -23,6 +23,7 @@ fun SleepMonitorNavigation() {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = Screen.LoginScreen.route) {
+
         composable(Screen.LoginScreen.route) {
             LoginScreen(navController)
         }
@@ -32,6 +33,7 @@ fun SleepMonitorNavigation() {
         composable(Screen.SplashScreen.route) {
             SplashScreen(navController)
         }
+
         composable(Screen.MainScreen.route) {
             MainScreen(navController)
         }

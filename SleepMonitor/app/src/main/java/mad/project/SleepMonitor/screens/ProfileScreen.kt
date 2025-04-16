@@ -116,6 +116,7 @@ fun ProfileDetails() {
         )
     }
 }
+
 @Composable
 fun BottomNavBar(navController: NavController) {
     NavigationBar(

@@ -39,6 +39,7 @@ fun LoginScreen(navController: NavController) {
                 value = "LOGIN",
                 onClick = {
                     navController.navigate(Screen.SplashScreen.route) {
+
                         popUpTo(Screen.LoginScreen.route) { inclusive = true } // Закрываем текущий экран
                     }
                 }

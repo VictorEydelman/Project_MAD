@@ -12,6 +12,7 @@ import mad.project.SleepMonitor.app.SleepMonitorApp
 import mad.project.SleepMonitor.notification.NotificationService
 import java.util.*
 
+
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,5 +58,6 @@ fun RequestNotificationPermission(onPermissionGranted: () -> Unit) {
         } else {
             permissionState.launchPermissionRequest()
         }
+
     }
 }

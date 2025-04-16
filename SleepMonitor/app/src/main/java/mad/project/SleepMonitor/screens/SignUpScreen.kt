@@ -39,6 +39,7 @@ fun SignUpScreen(navController: NavController) {
                 onClick = {
                     // Переход на главный экран (или другой, в зависимости от твоей логики)
                     navController.navigate(Screen.LoginScreen.route)
+
                 }
             )
             Spacer(modifier = Modifier.height(25.dp))

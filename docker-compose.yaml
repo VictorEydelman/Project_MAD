@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  keydb:
+    image: eqalpha/keydb
+    container_name: keydb
+    ports:
+      - "6379:6379"
+    networks:
+      - sleepmonitor-network
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: studs
+      POSTGRES_USER: s291485
+      POSTGRES_PASSWORD: qwe
+    ports:
+      - "5433:5432"  # Проброс порта для доступа к PostgreSQL
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - sleepmonitor-network # Хранение данных
+  clickhouse-server:
+    image: yandex/clickhouse-server
+    container_name: clickhouse-server
+    ports:
+      - "8123:8123"  # HTTP port
+      - "9000:9000"  # TCP port
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse  # Persistent storage for data
+    environment:
+      CLICKHOUSE_USER: default  # Default user
+      CLICKHOUSE_PASSWORD: ""    # Default password (empty)
+      CLICKHOUSE_DB: default      # Default database
+    networks:
+      - sleepmonitor-network
+
+  db_server:
+    build:
+      context: DB_server  # Контекст сборки (папка с Dockerfile)
+      dockerfile: Dockerfile  # Имя Dockerfile
+    ports:
+      - "8080:8080"  # Проброс порта для доступа к Ktor серверу
+    depends_on:
+      - db  # Зависимость от базы данных
+      - keydb
+      - clickhouse-server
+    networks:
+      - sleepmonitor-network
+  entry:
+    build:
+      context: entry_microservice  # Контекст сборки (папка с Dockerfile)
+      dockerfile: Dockerfile  # Имя Dockerfile
+    ports:
+      - "8090:8090"  # Проброс порта для доступа к Ktor серверу
+    depends_on:
+      - keydb
+    networks:
+      - sleepmonitor-network
+  load:
+    stdin_open: true 
+    tty: true
+    container_name: load-tester
+    build:
+      context: load_microservice
+      dockerfile: Dockerfile
+    ports:
+      - "8099:8099"
+    depends_on:
+      - keydb
+    networks:
+      - sleepmonitor-network
+  logic:
+    build:
+      context: logic_microservice  # Контекст сборки (папка с Dockerfile)
+      dockerfile: Dockerfile  # Имя Dockerfile
+    volumes:
+      - ./logs:/app/logs
+    ports:
+      - "8900:8900"  # Проброс порта для доступа к Ktor серверу
+    depends_on:
+      - keydb
+    networks:
+      - sleepmonitor-network
+  external_device:
+    build:
+      context: external_device
+      dockerfile: Dockerfile
+    ports:
+      - "8909:8909"
+    networks:
+      - sleepmonitor-network
+
+
+networks:
+  sleepmonitor-network:
+    driver: bridge
+volumes:
+  pgdata:
+  clickhouse_data:

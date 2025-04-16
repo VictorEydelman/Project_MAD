@@ -1,0 +1,12 @@
+ktor:
+    application:
+        modules:
+            - mad.project.ApplicationKt.module
+    deployment:
+        port: 8080
+postgres:
+  url: "jdbc:postgresql://db:5432/studs"
+  user: "s291485"
+  password: "qwe"
+clickhouse:
+  url: "jdbc:clickhouse://localhost:8123/default"
