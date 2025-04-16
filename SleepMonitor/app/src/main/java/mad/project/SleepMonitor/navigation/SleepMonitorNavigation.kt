@@ -22,14 +22,7 @@ sealed class Screen(val route: String) {
 fun SleepMonitorNavigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Screen.SplashScreen.route) {
-        composable(Screen.SplashScreen.route) {
-            SplashScreen {
-                navController.navigate(Screen.LoginScreen.route) {
-                    popUpTo(Screen.SplashScreen.route) { inclusive = true }
-                }
-            }
-        }
+    NavHost(navController = navController, startDestination = Screen.LoginScreen.route) {
 
         composable(Screen.LoginScreen.route) {
             LoginScreen(navController)
@@ -37,6 +30,10 @@ fun SleepMonitorNavigation() {
         composable(Screen.SignUpScreen.route) {
             SignUpScreen(navController)
         }
+        composable(Screen.SplashScreen.route) {
+            SplashScreen(navController)
+        }
+
         composable(Screen.MainScreen.route) {
             MainScreen(navController)
         }
