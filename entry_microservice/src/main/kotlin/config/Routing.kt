@@ -1,5 +1,6 @@
 package ru.itmo.config
 
+import io.github.smiley4.ktoropenapi.get
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
@@ -9,7 +10,7 @@ import ru.itmo.routes.authRoutes
 
 fun Application.configureRouting() {
     routing {
-        route("/api") {
+        route("/api/v1") {
             authRoutes()
 
             authenticate {
@@ -18,7 +19,6 @@ fun Application.configureRouting() {
                     call.respond(SimpleResponse.success("user: $username"))
                 }
             }
-
         }
     }
 }
