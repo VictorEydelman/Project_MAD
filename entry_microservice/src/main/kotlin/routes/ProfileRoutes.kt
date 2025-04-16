@@ -19,7 +19,7 @@ fun Route.profileRoutes() {
             response { code(HttpStatusCode.OK) { body<SimpleResponse>() } }
         }) { request ->
             val username = call.principal<String>()!!
-            KeyDBAPI.updateProfile(ProfileUpdateRequest(username, request))
+            KeyDBAPI.updateProfile(username, request)
             call.respond(SimpleResponse.success())
         }
         get("/get", {

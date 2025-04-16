@@ -35,6 +35,7 @@ dependencies {
     implementation("io.ktor:ktor-server-host-common:$ktor_version")
     implementation("io.ktor:ktor-server-status-pages:$ktor_version")
     implementation("io.ktor:ktor-server-config-yaml:$ktor_version")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.3")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("redis.clients:jedis:5.2.0")
     implementation("org.mindrot:jbcrypt:0.4")
