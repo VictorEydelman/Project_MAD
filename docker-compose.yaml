@@ -75,10 +75,20 @@ services:
     build:
       context: logic_microservice  # Контекст сборки (папка с Dockerfile)
       dockerfile: Dockerfile  # Имя Dockerfile
+    volumes:
+      - ./logs:/app/logs
     ports:
       - "8900:8900"  # Проброс порта для доступа к Ktor серверу
     depends_on:
       - keydb
+    networks:
+      - sleepmonitor-network
+  external_device:
+    build:
+      context: external_device
+      dockerfile: Dockerfile
+    ports:
+      - "8909:8909"
     networks:
       - sleepmonitor-network
 
