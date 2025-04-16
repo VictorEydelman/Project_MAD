@@ -38,8 +38,8 @@ fun LoginScreen(navController: NavController) {
             ButtonComponent(
                 value = "LOGIN",
                 onClick = {
-                    // Логика перехода на MainScreen
-                    navController.navigate(Screen.MainScreen.route) {
+                    navController.navigate(Screen.SplashScreen.route) {
+
                         popUpTo(Screen.LoginScreen.route) { inclusive = true } // Закрываем текущий экран
                     }
                 }

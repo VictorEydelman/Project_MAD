@@ -1,4 +1,5 @@
-package mad.project.SleepMonitor.screens
+
+package mad.project.SleepMonitor.screens;
 
 
 import androidx.compose.foundation.Image
@@ -18,28 +19,37 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.delay
 import mad.project.SleepMonitor.R
-import androidx.navigation.NavController
+import mad.project.SleepMonitor.navigation.Screen
+
 
 @Composable
-fun SplashScreen(onTimeout: () -> Unit = {}) {
+
+
+fun SplashScreen(navController: NavController) {
     LaunchedEffect(Unit) {
-        delay(2000)
-        onTimeout()
+        delay(2000) // Задержка для отображения сплэш-скрина
+        // Переходим на LoginScreen
+        navController.navigate(Screen.MainScreen.route) {
+            popUpTo(Screen.SplashScreen.route) { inclusive = true }
+        }
     }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color(0xFF011222),
-    ){
+    ) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
-        ){
+        ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
-            ){
+            ) {
                 Text(
                     text = "Sleep ",
                     color = Color.White,
@@ -51,7 +61,6 @@ fun SplashScreen(onTimeout: () -> Unit = {}) {
                     contentDescription = "Logo",
                     modifier = Modifier.size(30.dp)
                 )
-
             }
         }
     }
@@ -60,5 +69,6 @@ fun SplashScreen(onTimeout: () -> Unit = {}) {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreviewOfSplashScreen() {
-    SplashScreen()
+    val navController = rememberNavController()
+    SplashScreen(navController = navController)
 }
