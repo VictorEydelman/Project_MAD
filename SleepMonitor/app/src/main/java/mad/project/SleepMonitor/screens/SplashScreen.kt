@@ -1,3 +1,6 @@
+package mad.project.SleepMonitor.screens
+
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import mad.project.SleepMonitor.R
+import androidx.navigation.NavController
 
 @Composable
 fun SplashScreen(onTimeout: () -> Unit = {}) {

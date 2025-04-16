@@ -1,6 +1,6 @@
 @file:Suppress("DEPRECATION")
 
-package com.example.myapplication.components
+package mad.project.SleepMonitor.components
 
 import androidx.compose.foundation.text.ClickableText
 import android.util.Log
@@ -119,9 +119,10 @@ fun PasswordFieldComponent() {
 }
 
 @Composable
-fun ButtonComponent(value: String) {
+
+fun ButtonComponent(value: String, onClick: () -> Unit) {
     Button(
-        onClick = { },
+        onClick = onClick, // добавляем обработчик нажатия
         modifier = Modifier
             .fillMaxWidth()
             .height(54.dp),
@@ -139,6 +140,7 @@ fun ButtonComponent(value: String) {
         )
     }
 }
+
 
 @Composable
 fun ClickableLoginTextComponent(initialText: String, clickableText: String, tag: String, onTextSelected: (String) -> Unit) {
