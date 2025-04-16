@@ -2,7 +2,9 @@ package ru.itmo.keydb
 
 import KeyDBClient
 import io.ktor.http.*
+import ru.itmo.dto.keydb.ProfileUpdateRequest
 import ru.itmo.exception.StatusException
+import ru.itmo.model.Profile
 import ru.itmo.model.User
 
 object KeyDBAPI {
@@ -23,7 +25,17 @@ object KeyDBAPI {
 
     suspend fun saveUser(user: User) {
         val res = keydb.sendRequest("save-user", user, Boolean::class.java)
-        if (res==null || !res) throw StatusException("Unable to save user", HttpStatusCode.InternalServerError)
+        if (res == null || !res) throw StatusException("Unable to save user", HttpStatusCode.InternalServerError)
+    }
+
+    suspend fun updateProfile(request: ProfileUpdateRequest) {
+        val res = keydb.sendRequest("update-profile", request, Boolean::class.java)
+        if (res == null || !res) throw StatusException("Unable to update profile", HttpStatusCode.InternalServerError)
+    }
+
+    suspend fun getProfile(username: String): Profile {
+        return keydb.sendRequest("get-profile", username, Profile::class.java)
+            ?: throw StatusException("Unable to get profile", HttpStatusCode.InternalServerError)
     }
 
 }

@@ -1,14 +1,14 @@
 package ru.itmo.routes
 
 import io.github.smiley4.ktoropenapi.get
-import io.ktor.http.*
 import io.github.smiley4.ktoropenapi.post
+import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
 import io.ktor.server.response.*
-import ru.itmo.dto.AuthRequest
-import ru.itmo.dto.AuthResponse
-import ru.itmo.dto.CheckAuthResponse
+import ru.itmo.dto.api.AuthRequest
+import ru.itmo.dto.api.AuthResponse
+import ru.itmo.dto.api.CheckAuthResponse
 import ru.itmo.service.AuthService
 
 fun Route.authRoutes() {

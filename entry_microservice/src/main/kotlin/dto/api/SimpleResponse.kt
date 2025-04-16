@@ -1,4 +1,4 @@
-package ru.itmo.dto
+package ru.itmo.dto.api
 
 data class SimpleResponse(
     val success: Boolean,
