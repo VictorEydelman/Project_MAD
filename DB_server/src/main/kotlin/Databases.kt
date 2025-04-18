@@ -7,16 +7,18 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.launch
-import mad.project.Service.clickhouse.SleepStatisticService
-import mad.project.Service.postgres.AlcoholUsageService
-import mad.project.Service.postgres.CaffeineUsageService
-import mad.project.Service.postgres.GenderService
-import mad.project.Service.postgres.PhysicalConditionService
-import mad.project.Service.postgres.SettingsService
 import java.sql.Connection
 import java.sql.DriverManager
-import mad.project.Service.postgres.Users
-import mad.project.Service.postgres.UsersService
+import mad.project.service.clickhouse.SleepStatisticService
+import mad.project.service.postgres.Frequency
+import mad.project.service.postgres.FrequencyService
+import mad.project.service.postgres.Gender
+import mad.project.service.postgres.GenderService
+import mad.project.service.postgres.Settings
+import mad.project.service.postgres.SettingsService
+import mad.project.service.postgres.Users
+import mad.project.service.postgres.UsersService
+import java.sql.Date
 import java.sql.Timestamp
 
 fun Application.configureDatabases() {
@@ -26,13 +28,10 @@ fun Application.configureDatabases() {
     val cityService = CityService(dbConnection)
     val usersService = UsersService(dbConnection)
     val genderService = GenderService(dbConnection)
-    val alcoholUsageService = AlcoholUsageService(dbConnection)
-    val caffeineUsageService = CaffeineUsageService(dbConnection)
-    val physicalConditionService = PhysicalConditionService(dbConnection)
     val settingsService = SettingsService(dbConnection)
+    val frequency = FrequencyService(dbConnection)
     val sleepStatisticService = SleepStatisticService(clickHouseConnection)
     val keyDBClient = KeyDBClient()
-    val user = mad.project.UsersService
 
     launch {
         keyDBClient.subscribeWithResponse("get-user", String::class.java, { username: String ->
@@ -58,26 +57,26 @@ fun Application.configureDatabases() {
             }
         }*/
         // Create city
-        post("/citie") {
-            println("cds")
-
-            val user = call.receive<Users>()
-            usersService.insert(user)
-            println(usersService.findByUsernameAndPassword(user))
-            //val settings = Settings.
-            //settingsService.insert()
+        val u: String = "k"
+        post("/user") {
+            val user = Users(u,u)
+            println(usersService.getUserByUsername(u))
+            println(usersService.insert(user))
+            println(usersService.getUserByUsername(u))
             call.respond(HttpStatusCode.Created, 1)
         }
 
         // Read city
-        get("/cities/{id}") {
-            val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
-            try {
-                val city = cityService.read(id)
-                call.respond(HttpStatusCode.OK, city)
-            } catch (e: Exception) {
-                call.respond(HttpStatusCode.NotFound)
-            }
+        post("/setting") {
+            val settings = Settings(u,Date(111111), Gender.Male, Frequency.ThreeTimesADay,
+                Frequency.ThreeTimesADay, Frequency.ThreeTimesADay)
+            val i = settingsService.insert(settings)
+            println(i)
+            println(settingsService.get(u))
+            val settings2 = Settings(u,Date(111111), Gender.Female, Frequency.ThreeTimesADay,
+                Frequency.ThreeTimesADay, Frequency.ThreeTimesADay)
+            println(settingsService.update(settings2))
+            println(settingsService.get(u))
         }
     
         // Update city
@@ -91,7 +90,7 @@ fun Application.configureDatabases() {
             println("ssd")
             val t = sleepStatisticService.getSleepStatisticInterval("d", Timestamp(111), Timestamp(222))
             println(t)
-            val f = sleepStatisticService.addSleepData("d", Timestamp(150),11.2,3)
+            val f = sleepStatisticService.addSleepData("d", Timestamp(150), 11.2F,3)
             println(f)
             val g = sleepStatisticService.getSleepStatisticInterval("d", Timestamp(111), Timestamp(222))
             println(g)

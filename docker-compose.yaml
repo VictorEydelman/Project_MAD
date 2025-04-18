@@ -37,6 +37,9 @@ services:
       - sleepmonitor-network
 
   db_server:
+    stdin_open: true
+    tty: true
+    container_name: db-serv
     build:
       context: DB_server  # Контекст сборки (папка с Dockerfile)
       dockerfile: Dockerfile  # Имя Dockerfile

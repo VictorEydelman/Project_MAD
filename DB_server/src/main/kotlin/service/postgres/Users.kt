@@ -1,4 +1,4 @@
-package mad.project.Service.postgres
+package mad.project.service.postgres
 
 import kotlinx.serialization.Serializable
 import java.sql.Connection
@@ -16,11 +16,12 @@ class UsersService(private val connection: Connection){
         private const val GET_USER = "SELECT * FROM USERS WHERE username = ?"
         private const val FIND_BY_USERNAME_AND_PASSWORD = "SELECT count(*) FROM users WHERE username = ? and password = ?"
         private const val UPDATE_CITY = "UPDATE cities SET name = ?, population = ? WHERE id = ?"
-        private const val DELETE_CITY = "DELETE FROM cities WHERE id = ?"
+        private const val DROP_TABLE = "DROP TABLE IF EXISTS users"
 
     }
     init {
         val statement = connection.createStatement()
+        statement.executeUpdate(DROP_TABLE)
         statement.executeUpdate(CREATE_TABLE_USERS)
     }
 
