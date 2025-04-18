@@ -6,9 +6,8 @@ import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import ru.itmo.dto.api.ProfileResponse
+import ru.itmo.dto.api.DataResponse
 import ru.itmo.dto.api.SimpleResponse
-import ru.itmo.dto.keydb.ProfileUpdateRequest
 import ru.itmo.keydb.KeyDBAPI
 import ru.itmo.model.Profile
 
@@ -23,11 +22,11 @@ fun Route.profileRoutes() {
             call.respond(SimpleResponse.success())
         }
         get("/get", {
-            response { code(HttpStatusCode.OK) { body<ProfileResponse>() } }
+            response { code(HttpStatusCode.OK) { body<DataResponse<Profile>>() } }
         }) {
             val username = call.principal<String>()!!
             val profile = KeyDBAPI.getProfile(username)
-            call.respond(ProfileResponse(profile))
+            call.respond(DataResponse.of(profile))
         }
     }
 }
