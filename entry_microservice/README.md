@@ -439,3 +439,175 @@ true
 
 ---
 
+## Спецификация всех `data` классов в формате JSON
+
+---
+
+### 🔹 `User`
+```json
+{
+  "username": "user123",
+  "password": "secure-password"
+}
+```
+
+---
+
+### 🔹 `AuthRequest`
+```json
+{
+  "username": "user123",
+  "password": "secure-password"
+}
+```
+
+---
+
+### 🔹 `AuthResponse`
+```json
+{
+  "username": "user123",
+  "token": "jwt.token.here",
+  "success": true
+}
+```
+
+---
+
+### 🔹 `CheckAuthResponse`
+```json
+{
+  "username": "user123",
+  "success": true
+}
+```
+
+---
+
+### 🔹 `SimpleResponse`
+```json
+{
+  "success": true,
+  "message": "Operation completed successfully"
+}
+```
+
+---
+
+### 🔹 `DataResponse<T>` (обобщённый пример)
+```json
+{
+  "data": { /* тип данных зависит от запроса */ },
+  "message": null,
+  "success": true
+}
+```
+
+---
+
+### 🔹 `Profile`
+```json
+{
+  "birth_date": 915148800.0,
+  "gender": "Male",
+  "physical_activity": "OnceADay",
+  "caffeine_consumption": "TwiceAWeek",
+  "alcohol_consumption": "Never",
+  "asleep_time": 82800.0,
+  "awake_time": 25200.0
+}
+```
+
+---
+
+### 🔹 `TimePreference`
+```json
+{
+  "asleep_time": 82800.0,
+  "awake_time": 25200.0
+}
+```
+
+---
+
+### 🔹 `Period`
+```json
+{
+  "from": 1713300000.0,
+  "to": 1713904800.0
+}
+```
+
+---
+
+### 🔹 `SleepDataPiece`
+```json
+{
+  "timestamp": 1713397200.0,
+  "pulse": 62,
+  "phase": "LIGHT"
+}
+```
+
+---
+
+### 🔹 `SleepData` (typealias `List<SleepDataPiece>`)
+```json
+[
+  {
+    "timestamp": 1713397200.0,
+    "pulse": 62,
+    "phase": "DEEP"
+  },
+  {
+    "timestamp": 1713400800.0,
+    "pulse": 65,
+    "phase": "REM"
+  }
+]
+```
+
+---
+
+### 🔹 `Report`
+```json
+{
+  "total_sleep": 28800.0,
+  "awakenings": 2,
+  "avg_awake": 600.0,
+  "avg_asleep": 7200.0,
+  "data": [ /* SleepData */ ]
+}
+```
+
+---
+
+### 🔹 `SleepSession`
+```json
+{
+  "start_time": 1713393600.0,
+  "end_time": 1713422400.0,
+  "report": { /* Report */ }
+}
+```
+
+---
+
+### 🔹 `UserRequest<T>` (обёртка)
+Пример с `Profile`:
+```json
+{
+  "username": "user123",
+  "data": {
+    "birth_date": 915148800.0,
+    "gender": "Female",
+    "physical_activity": "Rarely",
+    "caffeine_consumption": "Often",
+    "alcohol_consumption": "Never",
+    "asleep_time": 79200.0,
+    "awake_time": 25200.0
+  }
+}
+```
+
+---
