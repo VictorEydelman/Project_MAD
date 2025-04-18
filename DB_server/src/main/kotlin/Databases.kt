@@ -68,12 +68,12 @@ fun Application.configureDatabases() {
 
         // Read city
         post("/setting") {
-            val settings = Settings(u,Date(111111), Gender.Male, Frequency.ThreeTimesADay,
+            val settings = Settings(u,"s","d",Date(111111), Gender.Male, Frequency.ThreeTimesADay,
                 Frequency.ThreeTimesADay, Frequency.ThreeTimesADay)
             val i = settingsService.insert(settings)
             println(i)
             println(settingsService.get(u))
-            val settings2 = Settings(u,Date(111111), Gender.Female, Frequency.ThreeTimesADay,
+            val settings2 = Settings(u,"s","d", Date(111111), Gender.Female, Frequency.ThreeTimesADay,
                 Frequency.ThreeTimesADay, Frequency.ThreeTimesADay)
             println(settingsService.update(settings2))
             println(settingsService.get(u))

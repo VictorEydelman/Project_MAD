@@ -12,12 +12,14 @@ import java.sql.SQLException
 import java.sql.Statement
 
 @Serializable
-data class Settings(val username: String, @Contextual val birthday: Date, val gender: Gender, val physicalCondition: Frequency, val caffeineUsage: Frequency, val alcoholUsage: Frequency)
+data class Settings(val username: String, val name: String, val surname: String, @Contextual val birthday: Date, val gender: Gender, val physicalCondition: Frequency, val caffeineUsage: Frequency, val alcoholUsage: Frequency)
 class SettingsService(private val connection: Connection){
     companion object {
         private const val CREATE_TABLE_SETTINGS =
             """CREATE TABLE IF NOT EXISTS SETTINGS (
                 USERNAME VARCHAR(255) PRIMARY KEY,
+                NAME VARCHAR(255),
+                SURNAME VARCHAR(255),
                 BIRTHDAY DATE,
                 GENDER gender,
                 PHYSICALCONDITION frequency,
@@ -26,9 +28,9 @@ class SettingsService(private val connection: Connection){
             );"""
         private const val SELECT_SETTING_BY_USERNAME = "SELECT * FROM SETTINGS WHERE USERNAME = ?"
         private const val INSERT_SETTING =
-            "INSERT INTO SETTINGS (USERNAME, BIRTHDAY, GENDER, PHYSICALCONDITION, CAFFEINEUSAGE, ALCOHOLUSAGE) VALUES (?, ?, ?, ?, ?, ?)"
+            "INSERT INTO SETTINGS (USERNAME, NAME, SURNAME, BIRTHDAY, GENDER, PHYSICALCONDITION, CAFFEINEUSAGE, ALCOHOLUSAGE) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
         private const val UPDATE_SETTING =
-            "UPDATE SETTINGS SET BIRTHDAY = ?, GENDER = ?, PHYSICALCONDITION = ?, CAFFEINEUSAGE = ?, ALCOHOLUSAGE = ? WHERE USERNAME = ?"
+            "UPDATE SETTINGS SET NAME = ?, SURNAME = ?, BIRTHDAY = ?, GENDER = ?, PHYSICALCONDITION = ?, CAFFEINEUSAGE = ?, ALCOHOLUSAGE = ? WHERE USERNAME = ?"
         private const val DROP_TABLE = "DROP TABLE IF EXISTS SETTINGS"
 
     }
@@ -42,11 +44,13 @@ class SettingsService(private val connection: Connection){
         try {
             val statement = connection.prepareStatement(INSERT_SETTING)
             statement.setString(1, settings.username)
-            statement.setObject(2, settings.birthday)
-            statement.setObject(3, settings.gender.name,java.sql.Types.OTHER)
-            statement.setObject(4,settings.physicalCondition.name,java.sql.Types.OTHER)
-            statement.setObject(5,settings.caffeineUsage.name,java.sql.Types.OTHER)
-            statement.setObject(6,settings.alcoholUsage.name,java.sql.Types.OTHER)
+            statement.setString(2, settings.name)
+            statement.setString(3, settings.surname)
+            statement.setObject(4, settings.birthday)
+            statement.setObject(5, settings.gender.name,java.sql.Types.OTHER)
+            statement.setObject(6, settings.physicalCondition.name,java.sql.Types.OTHER)
+            statement.setObject(7, settings.caffeineUsage.name,java.sql.Types.OTHER)
+            statement.setObject(8, settings.alcoholUsage.name,java.sql.Types.OTHER)
             statement.executeUpdate()
             return true
         } catch (e: SQLException){
@@ -58,11 +62,13 @@ class SettingsService(private val connection: Connection){
         try {
             val statement = connection.prepareStatement(UPDATE_SETTING)
             statement.setObject(1, settings.birthday)
-            statement.setObject(2, settings.gender.name,java.sql.Types.OTHER)
-            statement.setObject(3,settings.physicalCondition.name,java.sql.Types.OTHER)
-            statement.setObject(4,settings.caffeineUsage.name,java.sql.Types.OTHER)
-            statement.setObject(5,settings.alcoholUsage.name,java.sql.Types.OTHER)
-            statement.setString(6,settings.username)
+            statement.setString(2, settings.name)
+            statement.setString(3, settings.surname)
+            statement.setObject(4, settings.gender.name,java.sql.Types.OTHER)
+            statement.setObject(5,settings.physicalCondition.name,java.sql.Types.OTHER)
+            statement.setObject(6,settings.caffeineUsage.name,java.sql.Types.OTHER)
+            statement.setObject(7,settings.alcoholUsage.name,java.sql.Types.OTHER)
+            statement.setString(8,settings.username)
             statement.executeUpdate()
             return true
         } catch (e: SQLException){
@@ -78,6 +84,8 @@ class SettingsService(private val connection: Connection){
 
         if(result.next()){
             val user = result.getString("USERNAME")
+            val name = result.getString("NAME")
+            val surname = result.getString("SURNAME")
             val birthday = result.getObject("BIRTHDAY") as? Date ?: throw Exception("Неверный формат даты")
             val gender = result.getString("GENDER")?.let { Gender.valueOf(it) }
                 ?: throw Exception("Неверное значение для пола")
@@ -88,7 +96,7 @@ class SettingsService(private val connection: Connection){
             val alcoholUsage = result.getString("AlcoholUsage")?.let { Frequency.valueOf(it) }
                 ?: throw Exception("Неверное значение для употребления алкоголя")
 
-            return Settings(user, birthday, gender, physicalCondition, caffeineUsage, alcoholUsage)
+            return Settings(user, name, surname, birthday, gender, physicalCondition, caffeineUsage, alcoholUsage)
         } else{
             throw Exception("Нету настроек")
         }
