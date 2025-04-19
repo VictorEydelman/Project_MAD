@@ -5,6 +5,8 @@ import io.ktor.http.*
 import ru.itmo.dto.keydb.UserRequest
 import ru.itmo.exception.StatusException
 import ru.itmo.model.*
+import java.time.Duration
+import java.time.Instant
 
 object KeyDBAPI {
 
@@ -19,6 +21,7 @@ object KeyDBAPI {
     }
 
     suspend fun getUser(username: String): User? {
+        //return User("string", "\$2a\$10\$psRAmWI6dkKEsovSmDTUEe5MPMtnw.hp329LlZ4y4jfWcmnbKGaii")
         return keydb.sendRequest("get-user", username, User::class.java)
     }
 
@@ -48,12 +51,23 @@ object KeyDBAPI {
     }
 
     suspend fun getLastSleepSession(username: String): SleepSession {
+//        return SleepSession(
+//            Instant.now(),
+//            Instant.now(),
+//            Report(
+//                Duration.ofHours(8),
+//                1,
+//                Duration.ofMinutes(30),
+//                Duration.ofHours(7),
+//                listOf()
+//            )
+//        )
         val res = keydb.sendRequest("get-last-sleep", username, SleepSession::class.java)
         return res ?: throw StatusException("Unable to get last sleep session", HttpStatusCode.InternalServerError)
     }
 
     suspend fun calculateRecommendedAsleepTime(username: String, timePreference: TimePreference): TimePreference {
-        val res = keydb.sendRequest("calculate-recommended-asleep-time", username, TimePreference::class.java)
+        val res = keydb.sendRequest("calculate-recommended-asleep-time", UserRequest(username, timePreference), TimePreference::class.java)
         return res ?: throw StatusException("Unable to calculate recommended asleep time", HttpStatusCode.InternalServerError)
     }
 
