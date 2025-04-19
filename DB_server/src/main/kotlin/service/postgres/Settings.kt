@@ -82,7 +82,7 @@ class SettingsService(private val connection: Connection){
         }
     }
     fun save(settingUser: setting_user): Boolean{
-        var settings = settingUser.setting
+        var settings = settingUser.data
         settings.username = settingUser.username
         if(settingNotExist(settings.username)){
             return insert(settings)
