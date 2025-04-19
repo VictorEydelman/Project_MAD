@@ -1,8 +1,8 @@
 package mad.project.service.postgres
 
+import mad.project.SettingUser
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import mad.project.dto.setting_user
 import java.sql.Connection
 import java.sql.Date
 import java.sql.SQLException
@@ -84,7 +84,7 @@ class SettingsService(private val connection: Connection){
             //throw Exception("Пользователь с таким именем уже существует.")
         }
     }
-    fun save(settingUser: setting_user): Boolean{
+    fun save(settingUser: SettingUser): Boolean{
         var settings = settingUser.data
         settings.username = settingUser.username
         if(settingNotExist(settings.username)){

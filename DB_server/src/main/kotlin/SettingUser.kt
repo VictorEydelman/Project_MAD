@@ -1,7 +1,6 @@
-package mad.project.dto
-
+package mad.project
 import kotlinx.serialization.Serializable
 import mad.project.service.postgres.Settings
 
 @Serializable
-data class setting_user (val username: String, val data: Settings)
+data class SettingUser (val username: String, val data: Settings)

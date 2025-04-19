@@ -150,6 +150,8 @@ class KeyDBClient(
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun subscribe(channel: String, onMessage: (String) -> Unit, repeat: Boolean = false) {
         println("Subscribing to channel: $channel")
+        println("Connecting to Redis at $host:$port") // Вывод адреса для подключения
+
         withContext(Dispatchers.IO) {
             // Создаем временное соединение для подписки
             Jedis(host, port).use { tempJedis ->
