@@ -23,112 +23,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import mad.project.SleepMonitor.R  // Убедитесь, что импортируется правильный R файл
+import mad.project.SleepMonitor.navigation.Screen
+import mad.project.SleepMonitor.ui.common.AppScaffold
 
 @Composable
 fun MainScreen(navController: NavController) {
-    // Состояние для отслеживания активной вкладки
-    val selectedTab = remember { mutableStateOf("main") }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF0A1624))
-    ) {
-        // Основной контент с отступами сверху
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .padding(top = 48.dp) // Большой отступ сверху
-        ) {
-            Header()
-            Spacer(modifier = Modifier.height(16.dp)) // Уменьшенный отступ между Header и картинкой
-            ImageSection() // Картинка на всю ширину
-            Spacer(modifier = Modifier.height(16.dp)) // Отступ перед блоками
-            TimeCardsGrid() // Блоки с карточками
-            Spacer(modifier = Modifier.height(32.dp)) // Увеличенный отступ
-
-            Spacer(modifier = Modifier.height(32.dp)) // Увеличенный отступ
-        }
-
-        // Навигационная панель
-        BottomNavBar(navController = navController, selectedTab = selectedTab)
+    AppScaffold(navController = navController) {
+        Header()
+        Spacer(modifier = Modifier.height(16.dp))
+        ImageSection()
+        Spacer(modifier = Modifier.height(16.dp))
+        TimeCardsGrid()
+        Spacer(modifier = Modifier.height(32.dp))
     }
+
 }
 
-@Composable
-fun BottomNavBar(navController: NavController, selectedTab: MutableState<String>) {
-    NavigationBar(
-        containerColor = Color(0xFF152238),
-        tonalElevation = 8.dp
-    ) {
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    Icons.Default.Home,
-                    contentDescription = "Home",
-                    modifier = Modifier.size(24.dp)
-                )
-            },
-            label = {
-                Text(
-                    "home",
-                    fontSize = 12.sp,
-                    color = Color.White
-                )
-            },
-            selected = selectedTab.value == "main",  // Проверяем, если это текущий экран
-            onClick = {
-                selectedTab.value = "main"
-                navController.navigate("main") {
-                    popUpTo("main") { inclusive = true } // При переходе удаляем все экраны из стека
-                }
-            }
-        )
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_bar_chart),
-                    contentDescription = "Abilities",
-                    modifier = Modifier.size(24.dp)
-                )
-            },
-            label = {
-                Text(
-                    "abilities",
-                    fontSize = 12.sp,
-                    color = Color.White
-                )
-            },
-            selected = selectedTab.value == "abilities", // Проверка для активной вкладки
-            onClick = {
-                selectedTab.value = "abilities"
-                navController.navigate("abilities")
-            }
-        )
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    Icons.Default.Person,
-                    contentDescription = "Profile",
-                    modifier = Modifier.size(24.dp)
-                )
-            },
-            label = {
-                Text(
-                    "profile",
-                    fontSize = 12.sp,
-                    color = Color.White
-                )
-            },
-            selected = selectedTab.value == "profile",  // Проверка для активной вкладки
-            onClick = {
-                selectedTab.value = "profile"
-                navController.navigate("profile_screen")
-            }
-        )
-    }
-}
 @Composable
 fun Header() {
     Column(

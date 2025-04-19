@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import mad.project.SleepMonitor.screens.AbilitiesScreen
 import mad.project.SleepMonitor.screens.SplashScreen
 import mad.project.SleepMonitor.screens.LoginScreen
 import mad.project.SleepMonitor.screens.SignUpScreen
@@ -16,6 +17,7 @@ sealed class Screen(val route: String) {
     object SignUpScreen : Screen("signup_screen")
     object MainScreen : Screen("main_screen")
     object ProfileScreen : Screen("profile_screen")
+    object AbilitiesScreen : Screen("abilities")
 }
 
 @Composable
@@ -39,6 +41,9 @@ fun SleepMonitorNavigation() {
         }
         composable(Screen.ProfileScreen.route) {
             ProfileScreen(navController)
+        }
+        composable(Screen.AbilitiesScreen.route) {
+            AbilitiesScreen(navController = navController)
         }
     }
 }
