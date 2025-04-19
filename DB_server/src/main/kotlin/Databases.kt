@@ -56,6 +56,11 @@ fun Application.configureDatabases() {
             settingsService.get(user)
         })
     }
+    launch {
+        keyDBClient.subscribeWithResponse("temporary-NULL-profile", String::class.java, { user->
+            settingsService.temporaryToNull(user)
+        })
+    }
     routing {
 
         val u = "k"
@@ -73,14 +78,17 @@ fun Application.configureDatabases() {
                 Alarm(time = Time(223), alarm = true),
                 BedTime(time = Time(21231), remindBeforeBad = true, remindMeToSleep = false),
                 BedTime(time = Time(21231), remindBeforeBad = true, remindMeToSleep = false))
-            val i = settingsService.insert(settings)
+            val s= setting_user(settings.username,settings)
+            val i = settingsService.save(s)
             println(i)
             val settings3: Settings = settingsService.get(u)
             println(settings3)
             settings3.gender= Gender.Female
             settings3.alarmTemporary=null
-            println(settingsService.update(settings3))
+            val m= setting_user(settings.username,settings3)
+            println(settingsService.save(m))
             println(settingsService.get(u))
+            println(settingsService.temporaryToNull(u))
         }
     }
 }

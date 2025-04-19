@@ -58,6 +58,8 @@ class SettingsService(private val connection: Connection){
                     "alarmTemporary = ?, " +
                     "bedTimeRecurring = ?, " +
                     "bedTimeTemporary = ? WHERE USERNAME = ?"
+        private const val UPDATE_Temporary = "PDATE SETTINGS SET alarmTemporary = ?," +
+                "bedTimeTemporary = ? WHERE USERNAME = ?"
         private const val DROP_TABLE = "DROP TABLE IF EXISTS SETTINGS"
         private const val EXIST_SETTING = "SELECT count(*) FROM SETTINGS WHERE username = ?"
     }
@@ -227,6 +229,18 @@ class SettingsService(private val connection: Connection){
         } else{
             throw Exception("Нету настроек")
         }
+    }
 
+    fun temporaryToNull(username: String): Boolean{
+        try {
+            val statement = connection.prepareStatement(UPDATE_Temporary)
+            statement.setNull(1, java.sql.Types.INTEGER)
+            statement.setNull(2, java.sql.Types.INTEGER)
+            statement.setString(3, username)
+            return true
+        } catch (e: SQLException){
+            return false
+            throw Exception(e)
+        }
     }
 }
