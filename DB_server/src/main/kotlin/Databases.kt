@@ -7,6 +7,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.launch
+import mad.project.dto.setting_user
 import java.sql.Connection
 import java.sql.DriverManager
 import mad.project.service.clickhouse.SleepStatisticService
@@ -46,12 +47,12 @@ fun Application.configureDatabases() {
         })
     }
     launch {
-        keyDBClient.subscribeWithResponse("save-setting", Settings::class.java, { setting ->
-            settingsService.save(setting)
+        keyDBClient.subscribeWithResponse("update-profile", setting_user::class.java, { setting_user ->
+            settingsService.save(setting_user)
         })
     }
     launch {
-        keyDBClient.subscribeWithResponse("get-setting", String::class.java, { user->
+        keyDBClient.subscribeWithResponse("get-profile", String::class.java, { user->
             settingsService.get(user)
         })
     }

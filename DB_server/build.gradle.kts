@@ -29,6 +29,7 @@ dependencies {
     implementation(libs.ktor.server.tomcat.jakarta)
     implementation(libs.logback.classic)
     implementation(libs.ktor.server.config.yaml)
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.3")
     implementation("ru.yandex.clickhouse:clickhouse-jdbc:0.1.36")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm")
     implementation("io.ktor:ktor-server-tomcat-jakarta:2.3.4")
@@ -41,6 +42,7 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host:2.0.0") // Замените на актуальную версию
     testImplementation("io.ktor:ktor-server-tests:2.0.0") // Замените на актуальную версию
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.7.10")
+
 }
 kotlin {
     jvmToolchain(17)

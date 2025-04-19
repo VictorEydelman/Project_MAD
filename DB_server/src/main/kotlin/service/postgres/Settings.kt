@@ -2,16 +2,18 @@ package mad.project.service.postgres
 
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import mad.project.dto.setting_user
 import java.sql.Connection
 import java.sql.Date
 import java.sql.SQLException
 
 @Serializable
-data class Settings(val username: String, val name: String, val surname: String,
-                    @Contextual val birthday: Date, var gender: Gender,
-                    val physicalCondition: Frequency, val caffeineUsage: Frequency,
-                    val alcoholUsage: Frequency, val alarmRecurring: Alarm?, var alarmTemporary: Alarm?,
-                    val bedTimeRecurring: BedTime?, var bedTimeTemporary: BedTime?)
+data class Settings(
+    var username: String = "", val name: String, val surname: String,
+    @Contextual val birthday: Date, var gender: Gender,
+    val physicalCondition: Frequency, val caffeineUsage: Frequency,
+    val alcoholUsage: Frequency, val alarmRecurring: Alarm?, var alarmTemporary: Alarm?,
+    val bedTimeRecurring: BedTime?, var bedTimeTemporary: BedTime?)
 class SettingsService(private val connection: Connection){
     companion object {
         private const val CREATE_TABLE_SETTINGS =
@@ -79,7 +81,9 @@ class SettingsService(private val connection: Connection){
             //throw Exception("Пользователь с таким именем уже существует.")
         }
     }
-    fun save(settings: Settings): Boolean{
+    fun save(settingUser: setting_user): Boolean{
+        var settings = settingUser.setting
+        settings.username = settingUser.username
         if(settingNotExist(settings.username)){
             return insert(settings)
         } else{
