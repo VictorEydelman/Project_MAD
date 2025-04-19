@@ -115,5 +115,5 @@ fun Application.connectToPostgres(embedded: Boolean): Connection {
 fun Application.connectToClickHouse(): Connection {
     val url = environment.config.property("clickhouse.url").getString() // Убедитесь, что ClickHouse запущен на этом адресе
     Class.forName("ru.yandex.clickhouse.ClickHouseDriver")
-    return DriverManager.getConnection("jdbc:clickhouse://172.18.0.4:8123","default","")
+    return DriverManager.getConnection(url,"default","")
 }
