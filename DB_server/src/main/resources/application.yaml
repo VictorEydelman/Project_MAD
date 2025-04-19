@@ -8,3 +8,5 @@ postgres:
   url: "jdbc:postgresql://db:5432/studs"
   user: "s291485"
   password: "qwe"
+clickhouse:
+  url: "jdbc:clickhouse://clickhouse-server:8123/default"

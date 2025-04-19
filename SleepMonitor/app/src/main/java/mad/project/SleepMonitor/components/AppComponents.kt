@@ -1,4 +1,6 @@
-package com.example.myapplication.components
+@file:Suppress("DEPRECATION")
+
+package mad.project.SleepMonitor.components
 
 import androidx.compose.foundation.text.ClickableText
 import android.util.Log
@@ -8,18 +10,15 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.*
 import androidx.compose.ui.text.input.*
-import com.example.myapplication.R
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.text.SpanStyle
@@ -42,7 +41,7 @@ fun NormalTextComponent(value: String){
                 fontWeight = FontWeight.Medium,
                 fontStyle = FontStyle.Normal
             ),
-            color = colorResource(id = R.color.colorText)
+            color = Color.White
         )
     }
 }
@@ -57,20 +56,22 @@ fun TitleTextComponent(value: String){
             fontWeight = FontWeight.Medium,
             fontStyle = FontStyle.Normal
         ),
-        color = colorResource(id = R.color.colorText)
+        color = Color.White
     )
 }
 
 @Composable
-fun TextFieldComponent(){
+fun TextFieldComponent() {
     val textValue = remember {
         mutableStateOf("")
     }
     OutlinedTextField(
         modifier = Modifier.fillMaxWidth(),
-        colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = Color.White,
-            textColor = Color.Black,
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor = Color.White,
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
             cursorColor = Color.Black,
             focusedIndicatorColor = Color.White,
             unfocusedIndicatorColor = Color.Gray
@@ -78,8 +79,9 @@ fun TextFieldComponent(){
         keyboardActions = KeyboardActions.Default,
         value = textValue.value,
         onValueChange = {
-            textValue.value  = it
-        }
+            textValue.value = it
+        },
+        textStyle = TextStyle(fontSize = 16.sp)
     )
 }
 
@@ -89,9 +91,11 @@ fun PasswordFieldComponent() {
     val passwordVisible = remember { mutableStateOf(false) }
     OutlinedTextField(
         modifier = Modifier.fillMaxWidth(),
-        colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = Color.White,
-            textColor = Color.Black,
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor = Color.White,
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
             cursorColor = Color.Black,
             focusedIndicatorColor = Color.White,
             unfocusedIndicatorColor = Color.Gray
@@ -99,6 +103,7 @@ fun PasswordFieldComponent() {
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         value = password.value,
         onValueChange = { password.value = it },
+        textStyle = TextStyle(fontSize = 16.sp),
         trailingIcon = {
             val icon = if (passwordVisible.value) { Icons.Filled.Visibility
             } else { Icons.Filled.VisibilityOff }
@@ -114,45 +119,40 @@ fun PasswordFieldComponent() {
 }
 
 @Composable
-fun ButtonComponent(Value: String) {
+
+fun ButtonComponent(value: String, onClick: () -> Unit) {
     Button(
-        onClick = { },
+        onClick = onClick, // добавляем обработчик нажатия
         modifier = Modifier
             .fillMaxWidth()
             .height(54.dp),
         contentPadding = PaddingValues(),
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = colorResource(id = R.color.blue_magenta),
+            containerColor = Color(0xFF313050),
             contentColor = Color.White
         ),
         shape = RoundedCornerShape(46.dp)
     ) {
         Text(
-            text = "LOGIN",
+            text = value,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold
         )
     }
-
 }
 
-@Composable
-fun ClickableLoginTextComponent(initialText: String, registerText: String, onTextSelected: (String) -> Unit) {
-    val annotatedString = buildAnnotatedString {
-        withStyle(style = SpanStyle(color = Color.White)) {
-            append(initialText)
-        }
-        withStyle(style = SpanStyle(color = colorResource(id = R.color.LoginText))) {
-            pushStringAnnotation(tag = registerText, annotation = registerText)
-            append(registerText)
-        }
-    }
 
+@Composable
+fun ClickableLoginTextComponent(initialText: String, clickableText: String, tag: String, onTextSelected: (String) -> Unit) {
+    val annotatedString = buildAnnotatedString {
+        withStyle(style = SpanStyle(color = Color.White)) { append("$initialText ") }
+        pushStringAnnotation(tag = tag, annotation = tag)
+        withStyle(style = SpanStyle(color = Color(0xFF9D91FF))) { append(clickableText) }
+        pop()
+    }
     ClickableText(
         text = annotatedString,
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 18.dp),
+        modifier = Modifier.fillMaxWidth().heightIn(min = 18.dp),
         style = TextStyle(
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
@@ -160,13 +160,10 @@ fun ClickableLoginTextComponent(initialText: String, registerText: String, onTex
             textAlign = TextAlign.Center
         ),
         onClick = { offset ->
-            annotatedString.getStringAnnotations(offset, offset)
-                .firstOrNull()?.let { span ->
-                    Log.d("ClickableTextComponent", "${span.item}")
-                    if (span.item == registerText) {
-                        onTextSelected(span.item)
-                    }
-                }
+            annotatedString.getStringAnnotations(start = offset, end = offset).firstOrNull()?.let { span ->
+                Log.d("ClickableTextComponent", "Clicked on: ${span.item}")
+                onTextSelected(span.item)
+            }
         }
     )
 }

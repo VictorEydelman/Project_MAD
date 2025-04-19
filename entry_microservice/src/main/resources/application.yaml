@@ -9,5 +9,5 @@ jwt:
   expiration: 6
   secret: "secret"
 keydb:
-  host: "keydb"
+  host: "172.21.78.255"
   port: 6379
