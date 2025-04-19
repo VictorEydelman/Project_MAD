@@ -5,13 +5,12 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import java.sql.Connection
-import java.sql.Date
 import java.sql.SQLException
 import java.sql.Statement
 import java.sql.Time
 
 @Serializable
-data class Alarm(val id: Int, @Contextual val time: Time, val alarm: Boolean)
+data class Alarm(val id: Int = -1, @Contextual val time: Time, val alarm: Boolean)
 class AlarmService(private val connection: Connection){
     companion object {
         private const val CREATE_TABLE_ALARM =
@@ -28,15 +27,15 @@ class AlarmService(private val connection: Connection){
         val statement = connection.createStatement()
         statement.executeUpdate(CREATE_TABLE_ALARM)
     }
-    suspend fun save(alarm: Alarm): Int = withContext(Dispatchers.IO){
+    fun save(alarm: Alarm?): Int{
         try {
             val statement = connection.prepareStatement(INSERT_Alarm, Statement.RETURN_GENERATED_KEYS)
-            statement.setObject(1, alarm.time)
-            statement.setBoolean(2, alarm.alarm)
+            alarm?.let { statement.setObject(1, it.time) }
+            alarm?.let { statement.setBoolean(2, it.alarm) }
             statement.executeUpdate()
             val generatedKeys = statement.generatedKeys
             if (generatedKeys.next()) {
-                return@withContext generatedKeys.getInt(1)
+                return generatedKeys.getInt(1)
             } else {
                 throw Exception("Unable to retrieve the id")
             }
@@ -45,19 +44,19 @@ class AlarmService(private val connection: Connection){
         }
     }
 
-    suspend fun update(alarm: Alarm){
+    fun update(alarm: Alarm?){
         try {
             val statement = connection.prepareStatement(UPDATE_ALARM)
-            statement.setObject(1, alarm.time)
-            statement.setBoolean(2, alarm.alarm)
-            statement.setInt(3,alarm.id)
+            alarm?.let { statement.setObject(1, it.time) }
+            alarm?.let { statement.setBoolean(2, it.alarm) }
+            alarm?.let { statement.setInt(3,it.id) }
 
             statement.executeUpdate()
         } catch (e: SQLException){
             throw Exception("Ошибка с бд")
         }
     }
-    suspend fun get(id: Int): Alarm{
+    fun get(id: Int): Alarm{
         val statement = connection.prepareStatement(SELECT_ALARM_BY_ID)
         statement.setInt(1,id);
         val result = statement.executeQuery()

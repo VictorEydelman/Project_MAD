@@ -21,7 +21,7 @@ class UsersService(private val connection: Connection){
     }
     init {
         val statement = connection.createStatement()
-        statement.executeUpdate(DROP_TABLE)
+        //statement.executeUpdate(DROP_TABLE)
         statement.executeUpdate(CREATE_TABLE_USERS)
     }
 

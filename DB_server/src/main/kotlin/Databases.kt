@@ -10,6 +10,8 @@ import kotlinx.coroutines.launch
 import java.sql.Connection
 import java.sql.DriverManager
 import mad.project.service.clickhouse.SleepStatisticService
+import mad.project.service.postgres.Alarm
+import mad.project.service.postgres.BedTime
 import mad.project.service.postgres.Frequency
 import mad.project.service.postgres.FrequencyService
 import mad.project.service.postgres.Gender
@@ -19,13 +21,13 @@ import mad.project.service.postgres.SettingsService
 import mad.project.service.postgres.Users
 import mad.project.service.postgres.UsersService
 import java.sql.Date
+import java.sql.Time
 import java.sql.Timestamp
 
 fun Application.configureDatabases() {
     println("f")
     val dbConnection: Connection = connectToPostgres(embedded = false)
     val clickHouseConnection: Connection = connectToClickHouse()
-    val cityService = CityService(dbConnection)
     val usersService = UsersService(dbConnection)
     val genderService = GenderService(dbConnection)
     val settingsService = SettingsService(dbConnection)
@@ -43,21 +45,19 @@ fun Application.configureDatabases() {
             usersService.insert(user=user)
         })
     }
-
+    launch {
+        keyDBClient.subscribeWithResponse("save-setting", Settings::class.java, { setting ->
+            settingsService.save(setting)
+        })
+    }
+    launch {
+        keyDBClient.subscribeWithResponse("get-setting", String::class.java, { user->
+            settingsService.get(user)
+        })
+    }
     routing {
-        /*runBlocking {
-            while (true) {
-                keyDBClient.receiveRequest("getuser", { Username -> usersService.getUserByUsername(username = Username)},
-                    Users::class.java)
-            }
-        }
-        runBlocking {
-            while (true) {
-                keyDBClient.receiveRequest("requestChannel", { _ -> "OK" }, String::class.java)
-            }
-        }*/
-        // Create city
-        val u: String = "k"
+
+        val u = "k"
         post("/user") {
             val user = Users(u,u)
             println(usersService.getUserByUsername(u))
@@ -66,41 +66,20 @@ fun Application.configureDatabases() {
             call.respond(HttpStatusCode.Created, 1)
         }
 
-        // Read city
         post("/setting") {
             val settings = Settings(u,"s","d",Date(111111), Gender.Male, Frequency.ThreeTimesADay,
-                Frequency.ThreeTimesADay, Frequency.ThreeTimesADay)
+                Frequency.ThreeTimesADay, Frequency.ThreeTimesADay, Alarm(time = Time(222), alarm = true),
+                Alarm(time = Time(223), alarm = true),
+                BedTime(time = Time(21231), remindBeforeBad = true, remindMeToSleep = false),
+                BedTime(time = Time(21231), remindBeforeBad = true, remindMeToSleep = false))
             val i = settingsService.insert(settings)
             println(i)
+            val settings3: Settings = settingsService.get(u)
+            println(settings3)
+            settings3.gender= Gender.Female
+            settings3.alarmTemporary=null
+            println(settingsService.update(settings3))
             println(settingsService.get(u))
-            val settings2 = Settings(u,"s","d", Date(111111), Gender.Female, Frequency.ThreeTimesADay,
-                Frequency.ThreeTimesADay, Frequency.ThreeTimesADay)
-            println(settingsService.update(settings2))
-            println(settingsService.get(u))
-        }
-    
-        // Update city
-        put("/cities/{id}") {
-            val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
-            val user = call.receive<City>()
-            cityService.update(id, user)
-            call.respond(HttpStatusCode.OK)
-        }
-        get("/sleep"){
-            println("ssd")
-            val t = sleepStatisticService.getSleepStatisticInterval("d", Timestamp(111), Timestamp(222))
-            println(t)
-            val f = sleepStatisticService.addSleepData("d", Timestamp(150), 11.2F,3)
-            println(f)
-            val g = sleepStatisticService.getSleepStatisticInterval("d", Timestamp(111), Timestamp(222))
-            println(g)
-            call.respond(HttpStatusCode.OK,g)
-        }
-        // Delete city
-        delete("/cities/{id}") {
-            val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
-            cityService.delete(id)
-            call.respond(HttpStatusCode.OK)
         }
     }
 }
