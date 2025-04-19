@@ -24,6 +24,7 @@ import mad.project.service.postgres.UsersService
 import java.sql.Date
 import java.sql.Time
 import java.sql.Timestamp
+import java.time.LocalDate
 
 fun Application.configureDatabases() {
     println("f")
@@ -31,8 +32,8 @@ fun Application.configureDatabases() {
     val clickHouseConnection: Connection = connectToClickHouse()
     val usersService = UsersService(dbConnection)
     val genderService = GenderService(dbConnection)
-    val settingsService = SettingsService(dbConnection)
     val frequency = FrequencyService(dbConnection)
+    val settingsService = SettingsService(dbConnection)
     val sleepStatisticService = SleepStatisticService(clickHouseConnection)
     val keyDBClient = KeyDBClient()
 
@@ -73,7 +74,8 @@ fun Application.configureDatabases() {
         }
 
         post("/setting") {
-            val settings = Settings(u,"s","d",Date(111111), Gender.Male, Frequency.ThreeTimesADay,
+
+            val settings = Settings(u,"s","d", LocalDate.of(2024,1,1), Gender.Male, Frequency.ThreeTimesADay,
                 Frequency.ThreeTimesADay, Frequency.ThreeTimesADay, Alarm(time = Time(222), alarm = true),
                 Alarm(time = Time(223), alarm = true),
                 BedTime(time = Time(21231), remindBeforeBad = true, remindMeToSleep = false),

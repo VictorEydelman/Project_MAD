@@ -6,11 +6,12 @@ import mad.project.dto.setting_user
 import java.sql.Connection
 import java.sql.Date
 import java.sql.SQLException
+import java.time.LocalDate
 
 @Serializable
 data class Settings(
     var username: String = "", val name: String, val surname: String,
-    @Contextual val birthday: Date, var gender: Gender,
+    @Contextual val birthday: LocalDate, var gender: Gender,
     val physicalCondition: Frequency, val caffeineUsage: Frequency,
     val alcoholUsage: Frequency, val alarmRecurring: Alarm?, var alarmTemporary: Alarm?,
     val bedTimeRecurring: BedTime?, var bedTimeTemporary: BedTime?)
@@ -225,7 +226,7 @@ class SettingsService(private val connection: Connection){
             if(bedtem_id != 0) {
                 bedtem = BedTime.get(bedtem_id)
             }
-            return Settings(user, name, surname, birthday, gender, physicalCondition, caffeineUsage, alcoholUsage, alrec, altem, bedrec, bedtem)
+            return Settings(user, name, surname, birthday.toLocalDate(), gender, physicalCondition, caffeineUsage, alcoholUsage, alrec, altem, bedrec, bedtem)
         } else{
             throw Exception("Нету настроек")
         }
