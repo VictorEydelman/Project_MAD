@@ -1,13 +1,13 @@
 package mad.project
 
 import KeyDBClient
+import mad.project.SettingUser
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.launch
-import mad.project.dto.setting_user
 import java.sql.Connection
 import java.sql.DriverManager
 import mad.project.service.clickhouse.SleepStatisticService
@@ -48,7 +48,7 @@ fun Application.configureDatabases() {
         })
     }
     launch {
-        keyDBClient.subscribeWithResponse("update-profile", setting_user::class.java, { setting_user ->
+        keyDBClient.subscribeWithResponse("update-profile", SettingUser::class.java, { setting_user ->
             settingsService.save(setting_user)
         })
     }
@@ -80,14 +80,16 @@ fun Application.configureDatabases() {
                 Alarm(time = Time(223), alarm = true),
                 BedTime(time = Time(21231), remindBeforeBad = true, remindMeToSleep = false),
                 BedTime(time = Time(21231), remindBeforeBad = true, remindMeToSleep = false))
-            val s= setting_user(settings.username,settings)
+            val s= SettingUser(settings.username,settings)
             val i = settingsService.save(s)
             println(i)
-            val settings3: Settings = settingsService.get(u)
+            val settings3: SettingWithOutUser = settingsService.get(u)
+            val settings2: Settings = settings
+
             println(settings3)
             settings3.gender= Gender.Female
             settings3.alarmTemporary=null
-            val m= setting_user(settings.username,settings3)
+            val m= SettingUser(settings.username,settings2)
             println(settingsService.save(m))
             println(settingsService.get(u))
             println(settingsService.temporaryToNull(u))

@@ -1,8 +1,9 @@
 package mad.project.service.postgres
 
+import mad.project.SettingUser
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import mad.project.dto.setting_user
+import mad.project.SettingWithOutUser
 import java.sql.Connection
 import java.sql.Date
 import java.sql.SQLException
@@ -84,7 +85,7 @@ class SettingsService(private val connection: Connection){
             //throw Exception("Пользователь с таким именем уже существует.")
         }
     }
-    fun save(settingUser: setting_user): Boolean{
+    fun save(settingUser: SettingUser): Boolean{
         var settings = settingUser.data
         settings.username = settingUser.username
         if(settingNotExist(settings.username)){
@@ -122,10 +123,27 @@ class SettingsService(private val connection: Connection){
             statement.setObject(6, settings.physicalCondition.name,java.sql.Types.OTHER)
             statement.setObject(7, settings.caffeineUsage.name,java.sql.Types.OTHER)
             statement.setObject(8, settings.alcoholUsage.name,java.sql.Types.OTHER)
-            alrec?.let { statement.setInt(9, it) }
-            altem?.let { statement.setInt(10, it) }
-            bedrec?.let { statement.setInt(11, it) }
-            bedtem?.let { statement.setInt(12, it) }
+
+            if (alrec != null) {
+                statement.setInt(9, alrec)
+            } else {
+                statement.setNull(9, java.sql.Types.INTEGER) // Устанавливаем null для alarmRecurring
+            }
+            if (altem != null) {
+                statement.setInt(10, altem)
+            } else {
+                statement.setNull(10, java.sql.Types.INTEGER) // Устанавливаем null для alarmTemporary
+            }
+            if (bedrec != null) {
+                statement.setInt(11, bedrec)
+            } else {
+                statement.setNull(11, java.sql.Types.INTEGER) // Устанавливаем null для alarmRecurring
+            }
+            if (bedtem != null) {
+                statement.setInt(12, bedtem)
+            } else {
+                statement.setNull(12, java.sql.Types.INTEGER) // Устанавливаем null для alarmTemporary
+            }
             statement.executeUpdate()
             return true
         } catch (e: SQLException){
@@ -186,7 +204,7 @@ class SettingsService(private val connection: Connection){
         }
     }
 
-    fun get(username: String): Settings{
+    fun get(username: String): SettingWithOutUser{
         val statement = connection.prepareStatement(SELECT_SETTING_BY_USERNAME)
         statement.setString(1,username);
         val result = statement.executeQuery()
@@ -226,7 +244,7 @@ class SettingsService(private val connection: Connection){
             if(bedtem_id != 0) {
                 bedtem = BedTime.get(bedtem_id)
             }
-            return Settings(user, name, surname, birthday.toLocalDate(), gender, physicalCondition, caffeineUsage, alcoholUsage, alrec, altem, bedrec, bedtem)
+            return SettingWithOutUser(name, surname, birthday.toLocalDate(), gender, physicalCondition, caffeineUsage, alcoholUsage, alrec, altem, bedrec, bedtem)
         } else{
             throw Exception("Нету настроек")
         }
