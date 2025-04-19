@@ -174,7 +174,7 @@ class SettingsService(private val connection: Connection){
             statement.executeUpdate()
             return true
         } catch (e: SQLException){
-           // return false
+            return false
             throw Exception(e)
         }
     }
