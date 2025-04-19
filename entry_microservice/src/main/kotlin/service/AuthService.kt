@@ -1,12 +1,11 @@
 package ru.itmo.service
 
-import KeyDBClient
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.http.*
 import org.mindrot.jbcrypt.BCrypt
 import ru.itmo.config.getJwtConfig
-import ru.itmo.dto.AuthRequest
+import ru.itmo.dto.api.AuthRequest
 import ru.itmo.exception.StatusException
 import ru.itmo.keydb.KeyDBAPI
 import ru.itmo.model.User

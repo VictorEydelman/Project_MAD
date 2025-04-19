@@ -1,11 +1,10 @@
 package ru.itmo.exception
 
 import io.ktor.http.*
-import io.ktor.serialization.*
 import io.ktor.server.plugins.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
-import ru.itmo.dto.SimpleResponse
+import ru.itmo.dto.api.SimpleResponse
 
 fun StatusPagesConfig.exceptionHandler() {
     exception<StatusException> { call, cause ->

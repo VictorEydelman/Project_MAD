@@ -1,3 +1,4 @@
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -26,6 +27,9 @@ class KeyDBClient(
     // Глобальный экземпляр Jedis для публикации и выполнения команд.
     private val jedis: Jedis by lazy { Jedis(host, port) }
     private val objectMapper = jacksonObjectMapper()
+    init {
+        objectMapper.registerModules(JavaTimeModule())
+    }
 
     /**
      * Отправляет запрос через указанный канал и ожидает ответ.
