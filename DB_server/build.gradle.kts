@@ -1,8 +1,9 @@
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.ktor)
-    alias(libs.plugins.kotlin.plugin.serialization)
+    kotlin("jvm") version "2.1.10"
+    kotlin("plugin.serialization") version "1.9.0"
+    application
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "mad.project"
@@ -28,6 +29,7 @@ dependencies {
     implementation(libs.ktor.server.tomcat.jakarta)
     implementation(libs.logback.classic)
     implementation(libs.ktor.server.config.yaml)
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.3")
     implementation("ru.yandex.clickhouse:clickhouse-jdbc:0.1.36")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm")
     implementation("io.ktor:ktor-server-tomcat-jakarta:2.3.4")
@@ -40,22 +42,18 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host:2.0.0") // Замените на актуальную версию
     testImplementation("io.ktor:ktor-server-tests:2.0.0") // Замените на актуальную версию
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.7.10")
-}
 
-tasks.withType<JavaCompile> {
-    sourceCompatibility = "17"
-    targetCompatibility = "17"
+}
+kotlin {
+    jvmToolchain(17)
 }
 
 application {
     mainClass.set("mad.project.ApplicationKt")
 }
-
-kotlin {
-    jvmToolchain(17)
-}
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8" // Убедитесь, что версия соответствует вашей JDK
+tasks.withType<JavaCompile> {
+    sourceCompatibility = "17"
+    targetCompatibility = "17"
 }
 tasks.shadowJar {
     archiveBaseName.set("db_server")

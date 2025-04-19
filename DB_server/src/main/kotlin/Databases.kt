@@ -7,32 +7,34 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.launch
-import mad.project.Service.clickhouse.SleepStatisticService
-import mad.project.Service.postgres.AlcoholUsageService
-import mad.project.Service.postgres.CaffeineUsageService
-import mad.project.Service.postgres.GenderService
-import mad.project.Service.postgres.PhysicalConditionService
-import mad.project.Service.postgres.SettingsService
+import mad.project.dto.setting_user
 import java.sql.Connection
 import java.sql.DriverManager
-import mad.project.Service.postgres.Users
-import mad.project.Service.postgres.UsersService
+import mad.project.service.clickhouse.SleepStatisticService
+import mad.project.service.postgres.Alarm
+import mad.project.service.postgres.BedTime
+import mad.project.service.postgres.Frequency
+import mad.project.service.postgres.FrequencyService
+import mad.project.service.postgres.Gender
+import mad.project.service.postgres.GenderService
+import mad.project.service.postgres.Settings
+import mad.project.service.postgres.SettingsService
+import mad.project.service.postgres.Users
+import mad.project.service.postgres.UsersService
+import java.sql.Date
+import java.sql.Time
 import java.sql.Timestamp
 
 fun Application.configureDatabases() {
     println("f")
     val dbConnection: Connection = connectToPostgres(embedded = false)
     val clickHouseConnection: Connection = connectToClickHouse()
-    val cityService = CityService(dbConnection)
     val usersService = UsersService(dbConnection)
     val genderService = GenderService(dbConnection)
-    val alcoholUsageService = AlcoholUsageService(dbConnection)
-    val caffeineUsageService = CaffeineUsageService(dbConnection)
-    val physicalConditionService = PhysicalConditionService(dbConnection)
     val settingsService = SettingsService(dbConnection)
+    val frequency = FrequencyService(dbConnection)
     val sleepStatisticService = SleepStatisticService(clickHouseConnection)
     val keyDBClient = KeyDBClient()
-    val user = mad.project.UsersService
 
     launch {
         keyDBClient.subscribeWithResponse("get-user", String::class.java, { username: String ->
@@ -44,64 +46,49 @@ fun Application.configureDatabases() {
             usersService.insert(user=user)
         })
     }
-
+    launch {
+        keyDBClient.subscribeWithResponse("update-profile", setting_user::class.java, { setting_user ->
+            settingsService.save(setting_user)
+        })
+    }
+    launch {
+        keyDBClient.subscribeWithResponse("get-profile", String::class.java, { user->
+            settingsService.get(user)
+        })
+    }
+    launch {
+        keyDBClient.subscribeWithResponse("temporary-NULL-profile", String::class.java, { user->
+            settingsService.temporaryToNull(user)
+        })
+    }
     routing {
-        /*runBlocking {
-            while (true) {
-                keyDBClient.receiveRequest("getuser", { Username -> usersService.getUserByUsername(username = Username)},
-                    Users::class.java)
-            }
-        }
-        runBlocking {
-            while (true) {
-                keyDBClient.receiveRequest("requestChannel", { _ -> "OK" }, String::class.java)
-            }
-        }*/
-        // Create city
-        post("/citie") {
-            println("cds")
 
-            val user = call.receive<Users>()
-            usersService.insert(user)
-            println(usersService.findByUsernameAndPassword(user))
-            //val settings = Settings.
-            //settingsService.insert()
+        val u = "k"
+        post("/user") {
+            val user = Users(u,u)
+            println(usersService.getUserByUsername(u))
+            println(usersService.insert(user))
+            println(usersService.getUserByUsername(u))
             call.respond(HttpStatusCode.Created, 1)
         }
 
-        // Read city
-        get("/cities/{id}") {
-            val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
-            try {
-                val city = cityService.read(id)
-                call.respond(HttpStatusCode.OK, city)
-            } catch (e: Exception) {
-                call.respond(HttpStatusCode.NotFound)
-            }
-        }
-    
-        // Update city
-        put("/cities/{id}") {
-            val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
-            val user = call.receive<City>()
-            cityService.update(id, user)
-            call.respond(HttpStatusCode.OK)
-        }
-        get("/sleep"){
-            println("ssd")
-            val t = sleepStatisticService.getSleepStatisticInterval("d", Timestamp(111), Timestamp(222))
-            println(t)
-            val f = sleepStatisticService.addSleepData("d", Timestamp(150),11.2,3)
-            println(f)
-            val g = sleepStatisticService.getSleepStatisticInterval("d", Timestamp(111), Timestamp(222))
-            println(g)
-            call.respond(HttpStatusCode.OK,g)
-        }
-        // Delete city
-        delete("/cities/{id}") {
-            val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
-            cityService.delete(id)
-            call.respond(HttpStatusCode.OK)
+        post("/setting") {
+            val settings = Settings(u,"s","d",Date(111111), Gender.Male, Frequency.ThreeTimesADay,
+                Frequency.ThreeTimesADay, Frequency.ThreeTimesADay, Alarm(time = Time(222), alarm = true),
+                Alarm(time = Time(223), alarm = true),
+                BedTime(time = Time(21231), remindBeforeBad = true, remindMeToSleep = false),
+                BedTime(time = Time(21231), remindBeforeBad = true, remindMeToSleep = false))
+            val s= setting_user(settings.username,settings)
+            val i = settingsService.save(s)
+            println(i)
+            val settings3: Settings = settingsService.get(u)
+            println(settings3)
+            settings3.gender= Gender.Female
+            settings3.alarmTemporary=null
+            val m= setting_user(settings.username,settings3)
+            println(settingsService.save(m))
+            println(settingsService.get(u))
+            println(settingsService.temporaryToNull(u))
         }
     }
 }
