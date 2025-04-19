@@ -83,11 +83,13 @@ fun Application.configureDatabases() {
             val s= SettingUser(settings.username,settings)
             val i = settingsService.save(s)
             println(i)
-            val settings3: Settings = settingsService.get(u)
+            val settings3: SettingWithOutUser = settingsService.get(u)
+            val settings2: Settings = settings
+
             println(settings3)
             settings3.gender= Gender.Female
             settings3.alarmTemporary=null
-            val m= SettingUser(settings.username,settings3)
+            val m= SettingUser(settings.username,settings2)
             println(settingsService.save(m))
             println(settingsService.get(u))
             println(settingsService.temporaryToNull(u))
