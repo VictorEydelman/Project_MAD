@@ -14,12 +14,26 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
-
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
     implementation("io.ktor:ktor-server-core-jvm:2.3.4")
     implementation("io.ktor:ktor-server-netty-jvm:2.3.4")
     implementation("io.ktor:ktor-client-core-jvm:2.3.4")
     implementation("io.ktor:ktor-client-cio-jvm:2.3.4")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation("redis.clients:jedis:5.2.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.0")
+    implementation("io.ktor:ktor-client-jackson:2.3.7")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.3")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
+    implementation("io.ktor:ktor-client-core:2.3.7")
+    implementation("io.ktor:ktor-client-cio:2.3.7")
+    implementation("io.ktor:ktor-client-jackson:2.3.7")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.3")
+
+    // ИЛИ для kotlinx.serialization
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
 
     implementation("ch.qos.logback:logback-classic:1.4.8")
 
@@ -37,7 +51,7 @@ kotlin {
 }
 
 application {
-    mainClass.set("ru.itmo.MainKt")
+    mainClass.set("MainKt")
 }
 
 tasks.shadowJar {
@@ -45,6 +59,6 @@ tasks.shadowJar {
     archiveClassifier.set("")
     archiveVersion.set("")
     manifest {
-        attributes["Main-Class"] = "ru.itmo.MainKt"
+        attributes["Main-Class"] = "MainKt"
     }
 }

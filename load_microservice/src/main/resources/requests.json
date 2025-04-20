@@ -1,14 +1,56 @@
 [
   {
-    "address": "login",
-    "method": "post",
-    "body": "{\"login\": \"$1\", \"password\": \"$2\"}",
+    "address": "/api/v1/auth/register",
+    "method": "POST",
+    "body": "{ \"username\": $1, \"password\": $2 }",
     "args": ["string", "string"]
   },
   {
-    "address": "profile",
-    "method": "get",
+    "address": "/api/v1/auth/login",
+    "method": "POST",
+    "body": "{ \"username\": $1, \"password\": $2 }",
+    "args": ["string", "string"]
+  },
+  {
+    "address": "/api/v1/auth/check",
+    "method": "GET",
     "body": "",
     "args": []
+  },
+  {
+    "address": "/api/v1/profile/update",
+    "method": "POST",
+    "body": "{ \"birth_date\": $1, \"gender\": $2, \"physical_activity\": $3, \"caffeine_consumption\": $4, \"alcohol_consumption\": $5, \"asleep_time\": $6, \"awake_time\": $7 }",
+    "args": ["date:yyyy-MM-dd", "string", "string", "string", "string", "string", "string"]
+  },
+  {
+    "address": "/api/v1/profile/get",
+    "method": "GET",
+    "body": "",
+    "args": []
+  },
+  {
+    "address": "/api/v1/sleep/upload",
+    "method": "POST",
+    "body": "[ $1 ]",
+    "args": ["string"]
+  },
+  {
+    "address": "/api/v1/sleep/make-report",
+    "method": "POST",
+    "body": "{ \"from\": $1, \"to\": $2 }",
+    "args": ["float", "float"]
+  },
+  {
+    "address": "/api/v1/sleep/last-sleep",
+    "method": "GET",
+    "body": "",
+    "args": []
+  },
+  {
+    "address": "/api/v1/sleep/calculate-recommended-asleep-time",
+    "method": "POST",
+    "body": "{ \"asleep_time\": $1, \"awake_time\": $2 }",
+    "args": ["float", "float"]
   }
 ]
