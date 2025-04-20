@@ -103,7 +103,12 @@ enum class Gender {
   - **Описание**: Получает настройки пользователя по имени.
   - **Параметры**: username: String
   - **Ответ**: Settings
+    temporary-NULL-profile
 
+- **temporary-NULL-profile**:
+  - **Описание**: Обнуление временных значений alarm и bedTime.
+  - **Параметры**: username: String
+  - **Ответ**: Boolean
 ---
 
 ## Таблица SleepStatistic
