@@ -14,8 +14,8 @@ data class Settings(
     var username: String = "", val name: String, val surname: String,
     @Contextual val birthday: LocalDate, var gender: Gender,
     val physicalCondition: Frequency, val caffeineUsage: Frequency,
-    val alcoholUsage: Frequency, val alarmRecurring: Alarm?, var alarmTemporary: Alarm?,
-    val bedTimeRecurring: BedTime?, var bedTimeTemporary: BedTime?)
+    val alcoholUsage: Frequency, var alarmRecurring: Alarm?, var alarmTemporary: Alarm?,
+    var bedTimeRecurring: BedTime?, var bedTimeTemporary: BedTime?)
 class SettingsService(private val connection: Connection){
     companion object {
         private const val CREATE_TABLE_SETTINGS =
@@ -108,7 +108,7 @@ class SettingsService(private val connection: Connection){
             val BedTime = BedTimeService(connection)
             var bedrec: Int? = null
             if(settings.bedTimeRecurring!=null) {
-                bedrec = BedTime.save(settings.bedTimeRecurring)
+                bedrec = BedTime.save(settings.bedTimeRecurring!!)
             }
             var bedtem: Int? = null
             if(settings.bedTimeTemporary!=null) {
@@ -162,7 +162,7 @@ class SettingsService(private val connection: Connection){
             }
             val BedTime = BedTimeService(connection)
             if(settings.bedTimeRecurring!=null) {
-                BedTime.update(settings.bedTimeRecurring)
+                BedTime.update(settings.bedTimeRecurring!!)
             }
             if(settings.bedTimeTemporary!=null) {
                 BedTime.update(settings.bedTimeTemporary!!)
@@ -176,7 +176,7 @@ class SettingsService(private val connection: Connection){
             statement.setObject(6,settings.caffeineUsage.name,java.sql.Types.OTHER)
             statement.setObject(7,settings.alcoholUsage.name,java.sql.Types.OTHER)
             if (settings.alarmRecurring != null) {
-                statement.setInt(8, settings.alarmRecurring.id)
+                statement.setInt(8, settings.alarmRecurring!!.id)
             } else {
                 statement.setNull(8, java.sql.Types.INTEGER) // Устанавливаем null для alarmRecurring
             }
@@ -186,7 +186,7 @@ class SettingsService(private val connection: Connection){
                 statement.setNull(9, java.sql.Types.INTEGER) // Устанавливаем null для alarmTemporary
             }
             if (settings.bedTimeRecurring != null) {
-                statement.setInt(10, settings.bedTimeRecurring.id)
+                statement.setInt(10, settings.bedTimeRecurring!!.id)
             } else {
                 statement.setNull(10, java.sql.Types.INTEGER) // Устанавливаем null для alarmRecurring
             }
@@ -222,8 +222,10 @@ class SettingsService(private val connection: Connection){
                 ?: throw Exception("Неверное значение для употребления кофеина")
             val alcoholUsage = result.getString("AlcoholUsage")?.let { Frequency.valueOf(it) }
                 ?: throw Exception("Неверное значение для употребления алкоголя")
+            println(result)
             val alrec_id = result.getInt("alarmRecurring")
             val altem_id = result.getInt("alarmTemporary")
+            println(alrec_id)
             val Alarm = AlarmService(connection)
             var alrec: Alarm? = null
             if(alrec_id != 0) {

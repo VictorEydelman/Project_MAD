@@ -8,6 +8,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.launch
+import mad.project.service.clickhouse.SleepInterval
+import mad.project.service.clickhouse.SleepStatistic
 import java.sql.Connection
 import java.sql.DriverManager
 import mad.project.service.clickhouse.SleepStatisticService
@@ -21,10 +23,13 @@ import mad.project.service.postgres.Settings
 import mad.project.service.postgres.SettingsService
 import mad.project.service.postgres.Users
 import mad.project.service.postgres.UsersService
+import org.joda.time.DateTime
 import java.sql.Date
 import java.sql.Time
 import java.sql.Timestamp
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 fun Application.configureDatabases() {
     println("f")
@@ -62,6 +67,18 @@ fun Application.configureDatabases() {
             settingsService.temporaryToNull(user)
         })
     }
+    launch {
+        keyDBClient.subscribeWithResponse("get-sleepStatistic-Interval",
+            SleepInterval::class.java, { sleepInterval->
+            sleepStatisticService.getSleepStatisticInterval(sleepInterval)
+        })
+    }
+    launch {
+        keyDBClient.subscribeWithResponse("save-sleepStatistic",
+            SleepStatistic::class.java, { sleepStatistic->
+            sleepStatisticService.addSleepData(sleepStatistic)
+        })
+    }
     routing {
 
         val u = "k"
@@ -75,7 +92,7 @@ fun Application.configureDatabases() {
 
         post("/setting") {
 
-            val settings = Settings(u,"s","d", LocalDate.of(2024,1,1), Gender.Male, Frequency.ThreeTimesADay,
+            val settings = Settings(u,"s","d", LocalDate.of(2024,1,1), Gender.male, Frequency.ThreeTimesADay,
                 Frequency.ThreeTimesADay, Frequency.ThreeTimesADay, Alarm(time = Time(222), alarm = true),
                 Alarm(time = Time(223), alarm = true),
                 BedTime(time = Time(21231), remindBeforeBad = true, remindMeToSleep = false),
@@ -84,15 +101,32 @@ fun Application.configureDatabases() {
             val i = settingsService.save(s)
             println(i)
             val settings3: SettingWithOutUser = settingsService.get(u)
-            val settings2: Settings = settings
+            val settings2: Settings =settings
+            settings2.alarmTemporary=settings3.alarmTemporary
+            settings2.alarmRecurring=settings3.alarmRecurring
+            settings2.bedTimeRecurring=settings3.bedTimeRecurring
+            settings2.bedTimeTemporary=settings3.bedTimeTemporary
 
             println(settings3)
-            settings3.gender= Gender.Female
-            settings3.alarmTemporary=null
+            settings2.gender= Gender.female
+            settings2.alarmTemporary=null
             val m= SettingUser(settings.username,settings2)
             println(settingsService.save(m))
             println(settingsService.get(u))
             println(settingsService.temporaryToNull(u))
+        }
+
+        post("/sleep"){
+            val sleepStatistic = SleepStatistic(u, LocalDateTime.of(2024,4,20,11,1,6),2.1F,"DEEP")
+            val sleepStatistic2 = SleepStatistic(u, LocalDateTime.of(2024,4,20,11,1,10),2.3F,"LIGHT")
+            println(sleepStatisticService.addSleepData(sleepStatistic))
+            println(sleepStatisticService.addSleepData(sleepStatistic2))
+            val sleepInterval = SleepInterval(u, LocalDateTime.of(2024,4,20,11,1,4), LocalDateTime.of(2024,4,20,11,1,15))
+            val list = sleepStatisticService.getSleepStatisticInterval(sleepInterval)
+            for (i in list){
+                println(i)
+            }
+
         }
     }
 }
