@@ -88,7 +88,7 @@ enum class Frequency {
 }
 
 enum class Gender {
-    Male, Female, Null
+    male, female, Null
 }
 ```
 
@@ -111,11 +111,11 @@ enum class Gender {
 ### Структура таблицы
 
 ```sql
-SLEEPSTATISTIC (
-    username String,
-    timestamp DateTime,
-    pulse UFloat32,
-    sleep_phase Enum8('drowsiness' = 1, 'shallow' = 2, 'deep' = 3, 'fast' = 4, 'wakefulness' = 5)
+SleepStatistic (
+     username String,
+     timestamp DateTime,
+     pulse Float32,
+     sleep_phase Enum8('AWAKE' = 1, 'DROWSY' = 2, 'LIGHT' = 3, 'DEEP' = 4, 'REM' = 5)
 )
 ```
 
@@ -123,11 +123,18 @@ SLEEPSTATISTIC (
 
 ```kotlin
 data class SleepStatistic(
-    val username: String,
-    val timestamp: Timestamp,
-    val pulse: Double,
-    val sleepPhase: Int
+  val username: String, 
+  @Contextual val timestamp: LocalDateTime, 
+  val pulse: Float, 
+  val sleepPhase: String
 )
+
+data class SleepInterval(
+  val username: String, 
+  @Contextual val start: LocalDateTime,
+  @Contextual val end: LocalDateTime
+)
+
 ```
 
 ### Запросы
@@ -137,13 +144,10 @@ data class SleepStatistic(
   - **Параметры**: SleepStatistic
   - **Ответ**: Boolean
 
-- **get-SleepStatistic-Interval**:
+- **get-sleepStatistic-Interval**:
   - **Описание**: Получает статистику сна за указанный интервал.
-  - **Параметры**:
-    - username: String
-    - start: Timestamp
-    - end: Timestamp
-  - **Ответ**: List<Map<String, Any>>
+  - **Параметры**: SleepInterval
+  - **Ответ**: List<SleepStatistic>
 
 ---
 

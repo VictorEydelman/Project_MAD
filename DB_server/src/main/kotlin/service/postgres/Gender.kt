@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import java.sql.Connection
 
 @Serializable
-enum class Gender {Male, Female, Null}
+enum class Gender {male, female, Null}
 class GenderService(private val connection: Connection){
     companion object {
         private const val CREATE_TYPE_GENDER =

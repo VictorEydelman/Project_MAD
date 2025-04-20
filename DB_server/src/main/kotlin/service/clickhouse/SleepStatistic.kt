@@ -2,54 +2,63 @@ package mad.project.service.clickhouse
 
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import org.joda.time.DateTime
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.Timestamp
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Serializable
-data class SleepStatistic(val username: String, @Contextual val timestamp: Timestamp, val pulse: Float, val sleepPhase: Int)
+data class SleepStatistic(val username: String, @Contextual val timestamp: LocalDateTime, val pulse: Float, val sleepPhase: String)
+@Serializable
+data class SleepInterval(val username: String, @Contextual val start: LocalDateTime, @Contextual val end: LocalDateTime)
 class SleepStatisticService(val connection: Connection){
     companion object{
+        val drop ="""drop table IF EXISTS SleepStatistic"""
         val createTableSleepStatistic = """
             CREATE TABLE IF NOT EXISTS SleepStatistic (
                 username String,
                 timestamp DateTime,
                 pulse Float32,
-                sleep_phase Enum8('drowsiness' = 1, 'shallow' = 2, 'deep' = 3, 'fast ' = 4, 'wakefulness' = 5)
+                sleep_phase Enum8('AWAKE' = 1, 'DROWSY' = 2, 'LIGHT' = 3, 'DEEP' = 4, 'REM' = 5)
             ) ENGINE = MergeTree()
             ORDER BY (username, timestamp)
         """.trimIndent()
     }
     init {
+        connection.createStatement().execute(drop)
         connection.createStatement().execute(createTableSleepStatistic)
     }
-    fun getSleepStatisticInterval(username: String, start: Timestamp, end: Timestamp){
-        val now = LocalDateTime.now()
+    fun getSleepStatisticInterval(sleepInterval: SleepInterval): List<SleepStatistic>{
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-        val yesterday = now.minusDays(1).format(formatter)
+        val startFormat = sleepInterval.start.format(formatter)
+        val endFormat = sleepInterval.end.format(formatter)
 
         val query = """
             SELECT * FROM SleepStatistic 
-            WHERE username = $username 
-            AND timestamp BETWEEN '$start' AND '$end' 
+            WHERE username = '${sleepInterval.username}'
+            AND timestamp BETWEEN '$startFormat' AND '$endFormat'
             ORDER BY timestamp
         """.trimIndent()
 
         val resultSet = connection.createStatement().executeQuery(query)
-        val results = mutableListOf<Map<String, Any>>()
+        val results = ArrayList<SleepStatistic>()
         while (resultSet.next()) {
-            val sleepDataMap = mutableMapOf<String, Any>()
-            sleepDataMap["username"] = resultSet.getInt("username")
-            sleepDataMap["timestamp"] = resultSet.getTimestamp("timestamp")
-            sleepDataMap["pulse"] = resultSet.getFloat("pulse")
-            sleepDataMap["sleep_phase"] = resultSet.getInt("sleep_phase")
-
-            results.add(sleepDataMap)
+            val timestamp: Timestamp = resultSet.getTimestamp("timestamp")
+            val localDateTime = timestamp.toInstant().atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+            val sleepStatistic = SleepStatistic(resultSet.getString("username"),
+                localDateTime, resultSet.getFloat("pulse"),
+                resultSet.getString("sleep_phase"))
+            results.add(sleepStatistic)
         }
+        return results
     }
-    fun addSleepData(username: String, timestamp: Timestamp, pulse: Float, sleepPhase: Int): Boolean {
+    fun addSleepData(sleepStatistic: SleepStatistic): Boolean {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        val timestamp = sleepStatistic.timestamp.format(formatter)
         var preparedStatement: PreparedStatement? = null
         return try {
             val query = """
@@ -58,10 +67,10 @@ class SleepStatisticService(val connection: Connection){
         """.trimIndent()
 
             preparedStatement = connection.prepareStatement(query)
-            preparedStatement.setString(1, username)
+            preparedStatement.setString(1, sleepStatistic.username)
             preparedStatement.setObject(2, timestamp)
-            preparedStatement.setFloat(3,pulse)
-            preparedStatement.setInt(4, sleepPhase)
+            preparedStatement.setFloat(3, sleepStatistic.pulse)
+            preparedStatement.setString(4, sleepStatistic.sleepPhase)
 
             return preparedStatement.executeUpdate() > 0
         } catch (e: Exception) {
@@ -70,5 +79,8 @@ class SleepStatisticService(val connection: Connection){
         } finally {
             preparedStatement?.close()
         }
+    }
+    fun getPercentageSleepInterval(username: String, start: LocalDateTime, end: LocalDateTime){
+
     }
 }
