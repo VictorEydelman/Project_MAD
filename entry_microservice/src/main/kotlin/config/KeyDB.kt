@@ -9,7 +9,7 @@ import ru.itmo.model.User
 
 fun Application.configureKeyDB() {
     val keyDBConfig = environment.config.config("keydb")
-    val host = keyDBConfig.property("host").getString()
+    val host = "keydb"
     val port = keyDBConfig.property("port").getString().toInt()
 
     KeyDBAPI.init(host, port)
