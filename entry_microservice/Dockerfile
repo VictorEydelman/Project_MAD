@@ -1,11 +1,23 @@
-# Используйте официальный образ OpenJDK
+# Используйте официальный образ OpenJDK для сборки
+FROM gradle:8.4-jdk17 AS build
+
+# Установите рабочую директорию
+WORKDIR /app
+
+# Копируйте файлы сборки Gradle
+COPY . .
+
+# Выполните сборку приложения
+RUN gradle clean build --no-daemon
+
+# Используйте официальный образ OpenJDK для выполнения приложения
 FROM openjdk:17-slim
 
 # Установите рабочую директорию
 WORKDIR /app
 
-# Копируйте файл сборки (например, jar-файл) в контейнер
-COPY build/libs/entry_microservice-all.jar app.jar
+# Копируйте собранный jar-файл из предыдущего этапа
+COPY --from=build /app/build/libs/entry_microservice-all.jar app.jar
 
 # Укажите команду для запуска приложения
 CMD ["java", "-jar", "app.jar"]
