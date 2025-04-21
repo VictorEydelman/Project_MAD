@@ -28,7 +28,7 @@ class SleepStatisticService(val connection: Connection){
         """.trimIndent()
     }
     init {
-        connection.createStatement().execute(drop)
+        //connection.createStatement().execute(drop)
         connection.createStatement().execute(createTableSleepStatistic)
     }
     fun getSleepStatisticInterval(sleepInterval: SleepInterval): List<SleepStatistic>{
