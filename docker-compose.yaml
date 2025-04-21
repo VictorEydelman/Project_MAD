@@ -46,12 +46,15 @@ services:
     ports:
       - "8080:8080"  # Проброс порта для доступа к Ktor серверу
     depends_on:
-      - db  # Зависимость от базы данных
-      - keydb
-      - clickhouse-server
+      - db  # Зависимость от базы данных postgres
+      - keydb # Зависимость от keydb
+      - clickhouse-server # Зависимость от базы данных clickhouse
     networks:
       - sleepmonitor-network
   entry:
+    stdin_open: true
+    tty: true
+    container_name: entry
     build:
       context: entry_microservice  # Контекст сборки (папка с Dockerfile)
       dockerfile: Dockerfile  # Имя Dockerfile

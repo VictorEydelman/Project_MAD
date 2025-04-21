@@ -63,4 +63,3 @@ tasks.shadowJar {
         attributes["Main-Class"] = "mad.project.ApplicationKt"
     }
 }
-
