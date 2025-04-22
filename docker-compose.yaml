@@ -95,8 +95,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8909:8909"
-    networks:
-      - sleepmonitor-network
 
 
 networks:

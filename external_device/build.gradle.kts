@@ -1,7 +1,6 @@
 plugins {
     kotlin("jvm") version "2.1.20"
-    application
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("io.ktor.plugin") version "2.3.5"
 }
 
 group = "org.example"
@@ -28,14 +27,6 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.4.11")
 }
 
-tasks.shadowJar {
-    archiveBaseName.set("external_device")
-    archiveClassifier.set("")
-    archiveVersion.set("")
-    manifest {
-        attributes["Main-Class"] = "org.example.MainKt"
-    }
-}
 
 tasks.test {
     useJUnitPlatform()

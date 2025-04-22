@@ -1,17 +1,23 @@
-# Используйте официальный образ OpenJDK
-#FROM openjdk:17-slim
-#
-## Установите рабочую директорию
-#WORKDIR /app
-FROM gradle:8-jdk17 as builder
-WORKDIR /app
-COPY . .
-RUN gradle clean shadowJar
+# Используйте официальный образ OpenJDK для сборки
+FROM gradle:8.4-jdk17 AS build
 
-FROM openjdk:17-slim
+# Установите рабочую директорию
 WORKDIR /app
-# Копируйте файл сборки (например, jar-файл) в контейнер
-COPY build/libs/external_device.jar app.jar
+
+# Копируйте файлы сборки Gradle
+COPY . .
+
+# Выполните сборку приложения
+RUN gradle clean build --no-daemon
+
+# Используйте официальный образ OpenJDK для выполнения приложения
+FROM openjdk:17-slim
+
+# Установите рабочую директорию
+WORKDIR /app
+
+# Копируйте собранный jar-файл из предыдущего этапа
+COPY --from=build /app/build/libs/external_device-all.jar app.jar
 
 # Укажите команду для запуска приложения
 CMD ["java", "-jar", "app.jar"]
