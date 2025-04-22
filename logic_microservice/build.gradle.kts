@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.1.10"
+    id("io.ktor.plugin") version "2.3.5"
 }
 
 group = "ru.itmo"
@@ -24,9 +25,6 @@ tasks.test {
 kotlin {
     jvmToolchain(17)
 }
-tasks.withType<Jar> {
-    manifest {
-        attributes["Main-Class"] = "ru.itmo.MainKt"
-    }
-    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+application {
+    mainClass = "ru.itmo.MainKt"
 }
