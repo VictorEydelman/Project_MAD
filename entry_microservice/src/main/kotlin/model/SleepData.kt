@@ -13,3 +13,14 @@ data class SleepDataPiece(
 )
 
 typealias SleepData = List<SleepDataPiece>
+
+enum class Weekday {
+    Mon, Tue, Wed, Thu, Fri, Sat, Sun
+}
+
+data class WeekdaySleep(
+    val weekday: Weekday,
+    val asleepHours: Double,
+)
+
+typealias WeekdaySleepDistribution = List<WeekdaySleep>

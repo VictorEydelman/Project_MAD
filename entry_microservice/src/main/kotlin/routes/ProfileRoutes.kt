@@ -32,7 +32,7 @@ fun Route.profileRoutes() {
             response { code(HttpStatusCode.OK) { body<SimpleResponse>() } }
         }) {
             val username = call.principal<String>()!!
-            KeyDBAPI.clearTemporaries(username)
+            KeyDBAPI.clearProfileTemporaries(username)
             call.respond(SimpleResponse.success())
         }
     }

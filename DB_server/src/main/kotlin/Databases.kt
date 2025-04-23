@@ -63,7 +63,7 @@ fun Application.configureDatabases() {
         })
     }
     launch {
-        keyDBClient.subscribeWithResponse("temporary-NULL-profile", String::class.java, { user->
+        keyDBClient.subscribeWithResponse("clear-profile-temporaries", String::class.java, { user->
             settingsService.temporaryToNull(user)
         })
     }

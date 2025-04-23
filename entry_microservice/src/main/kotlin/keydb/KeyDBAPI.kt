@@ -5,8 +5,6 @@ import io.ktor.http.*
 import ru.itmo.dto.keydb.UserRequest
 import ru.itmo.exception.StatusException
 import ru.itmo.model.*
-import java.time.Duration
-import java.time.Instant
 
 object KeyDBAPI {
 
@@ -40,8 +38,8 @@ object KeyDBAPI {
         return res ?: throw StatusException("Unable to get profile", HttpStatusCode.InternalServerError)
     }
 
-    suspend fun clearTemporaries(username: String) {
-        val res = keydb.sendRequest("temporary-NULL-profile", username, Boolean::class.java)
+    suspend fun clearProfileTemporaries(username: String) {
+        val res = keydb.sendRequest("clear-profile-temporaries", username, Boolean::class.java)
         if (res == null || !res) throw StatusException("Unable to clear temporaries", HttpStatusCode.InternalServerError)
     }
 
@@ -50,30 +48,14 @@ object KeyDBAPI {
         if (res == null || !res) throw StatusException("Unable to upload sleep data", HttpStatusCode.InternalServerError)
     }
 
-    suspend fun makeSleepReport(username: String, period: Period): Report {
-        val res = keydb.sendRequest("make-sleep-report", UserRequest(username, period), Report::class.java)
+    suspend fun makeSleepReport(username: String, period: String): Report {
+        val res = keydb.sendRequest("make-$period-report", username, Report::class.java)
         return res ?: throw StatusException("Unable to make sleep report", HttpStatusCode.InternalServerError)
     }
 
-    suspend fun getLastSleepSession(username: String): SleepSession {
-//        return SleepSession(
-//            Instant.now(),
-//            Instant.now(),
-//            Report(
-//                Duration.ofHours(8),
-//                1,
-//                Duration.ofMinutes(30),
-//                Duration.ofHours(7),
-//                listOf()
-//            )
-//        )
-        val res = keydb.sendRequest("get-last-sleep", username, SleepSession::class.java)
-        return res ?: throw StatusException("Unable to get last sleep session", HttpStatusCode.InternalServerError)
-    }
-
-    suspend fun calculateRecommendedAsleepTime(username: String, timePreference: TimePreference): TimePreference {
-        val res = keydb.sendRequest("calculate-recommended-asleep-time", UserRequest(username, timePreference), TimePreference::class.java)
-        return res ?: throw StatusException("Unable to calculate recommended asleep time", HttpStatusCode.InternalServerError)
+    suspend fun calculateRecommendedTimes(username: String): TimePreference {
+        val res = keydb.sendRequest("calculate-recommended-times", username, TimePreference::class.java)
+        return res ?: throw StatusException("Unable to calculate recommended times", HttpStatusCode.InternalServerError)
     }
 
 }
