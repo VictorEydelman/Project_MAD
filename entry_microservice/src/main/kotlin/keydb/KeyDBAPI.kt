@@ -40,6 +40,11 @@ object KeyDBAPI {
         return res ?: throw StatusException("Unable to get profile", HttpStatusCode.InternalServerError)
     }
 
+    suspend fun clearTemporaries(username: String) {
+        val res = keydb.sendRequest("temporary-NULL-profile", username, Boolean::class.java)
+        if (res == null || !res) throw StatusException("Unable to clear temporaries", HttpStatusCode.InternalServerError)
+    }
+
     suspend fun uploadSleepData(username: String, sleepData: SleepData) {
         val res = keydb.sendRequest("upload-sleep", UserRequest(username, sleepData), Boolean::class.java)
         if (res == null || !res) throw StatusException("Unable to upload sleep data", HttpStatusCode.InternalServerError)
