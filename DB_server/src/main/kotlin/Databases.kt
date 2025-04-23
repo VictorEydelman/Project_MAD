@@ -1,10 +1,9 @@
 package mad.project
 
 import KeyDBClient
-import mad.project.SettingUser
+import com.fasterxml.jackson.core.type.TypeReference
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.launch
@@ -23,13 +22,9 @@ import mad.project.service.postgres.Settings
 import mad.project.service.postgres.SettingsService
 import mad.project.service.postgres.Users
 import mad.project.service.postgres.UsersService
-import org.joda.time.DateTime
-import java.sql.Date
 import java.sql.Time
-import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 
 fun Application.configureDatabases() {
     println("f")
@@ -53,9 +48,9 @@ fun Application.configureDatabases() {
         })
     }
     launch {
-        keyDBClient.subscribeWithResponse("update-profile", SettingUser::class.java, { setting_user ->
-            settingsService.save(setting_user)
-        })
+        val requestType = object : TypeReference<DataUser<Settings>>() {}
+        keyDBClient.subscribeWithResponse("update-profile", requestType, { setting_user: DataUser<Settings> ->
+            settingsService.save(setting_user)})
     }
     launch {
         keyDBClient.subscribeWithResponse("get-profile", String::class.java, { user->
@@ -74,8 +69,9 @@ fun Application.configureDatabases() {
         })
     }
     launch {
-        keyDBClient.subscribeWithResponse("save-sleepStatistic",
-            SleepStatistic::class.java, { sleepStatistic->
+        val requestType = object : TypeReference<DataUser<List<SleepStatistic>>>() {}
+        keyDBClient.subscribeWithResponse("upload-sleep",
+            requestType, { sleepStatistic: DataUser<List<SleepStatistic>> ->
             sleepStatisticService.addSleepData(sleepStatistic)
         })
     }
@@ -97,7 +93,7 @@ fun Application.configureDatabases() {
                 Alarm(time = Time(223), alarm = true),
                 BedTime(time = Time(21231), remindBeforeBad = true, remindMeToSleep = false),
                 BedTime(time = Time(21231), remindBeforeBad = true, remindMeToSleep = false))
-            val s= SettingUser(settings.username,settings)
+            val s= DataUser<Settings>(settings.username,settings)
             val i = settingsService.save(s)
             println(i)
             val settings3: SettingWithOutUser = settingsService.get(u)
@@ -110,7 +106,7 @@ fun Application.configureDatabases() {
             println(settings3)
             settings2.gender= Gender.female
             settings2.alarmTemporary=null
-            val m= SettingUser(settings.username,settings2)
+            val m = DataUser<Settings>(settings.username,settings2)
             println(settingsService.save(m))
             println(settingsService.get(u))
             println(settingsService.temporaryToNull(u))
@@ -119,8 +115,10 @@ fun Application.configureDatabases() {
         post("/sleep"){
             val sleepStatistic = SleepStatistic(u, LocalDateTime.of(2024,4,20,11,1,6),2.1F,"DEEP")
             val sleepStatistic2 = SleepStatistic(u, LocalDateTime.of(2024,4,20,11,1,10),2.3F,"LIGHT")
-            println(sleepStatisticService.addSleepData(sleepStatistic))
-            println(sleepStatisticService.addSleepData(sleepStatistic2))
+            val s: List<SleepStatistic> = listOf(sleepStatistic,sleepStatistic2)
+            val d = DataUser<List<SleepStatistic>>(u,s)
+            println(sleepStatisticService.addSleepData(d))
+            //println(sleepStatisticService.addSleepData(sleepStatistic2))
             val sleepInterval = SleepInterval(u, LocalDateTime.of(2024,4,20,11,1,4), LocalDateTime.of(2024,4,20,11,1,15))
             val list = sleepStatisticService.getSleepStatisticInterval(sleepInterval)
             for (i in list){

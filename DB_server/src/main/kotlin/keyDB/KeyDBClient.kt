@@ -1,3 +1,4 @@
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -9,6 +10,7 @@ import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
 import redis.clients.jedis.JedisPubSub
 import java.util.UUID
+import kotlin.reflect.KClass
 
 /**
  * Класс KeyDBClient реализует коммуникацию через KeyDB/Redis для обмена запросами и ответами.
@@ -101,6 +103,18 @@ class KeyDBClient(
     suspend fun <TRequest : Any, TResponse: Any> subscribeWithResponse(
         channel: String,
         requestType: Class<TRequest>,
+        messageHandler: (TRequest) -> TResponse?,
+        responseTTL: Long = 10
+    ) {
+        subscribeWithResponse(channel, { requestJson ->
+            // Десериализуем запрос в тип TRequest и вызываем обработчик.
+            objectMapper.writeValueAsString(
+                messageHandler(objectMapper.readValue(requestJson, requestType)))
+        }, responseTTL)
+    }
+    suspend fun <TRequest : Any, TResponse: Any> subscribeWithResponse(
+        channel: String,
+        requestType: TypeReference<TRequest>,
         messageHandler: (TRequest) -> TResponse?,
         responseTTL: Long = 10
     ) {
