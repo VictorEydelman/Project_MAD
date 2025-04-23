@@ -4,6 +4,7 @@ import java.time.Duration
 import java.time.LocalTime
 
 data class Report(
+    val quality: Int,
     val startTime: LocalTime,
     val endTime: LocalTime,
     val totalSleep: Duration,

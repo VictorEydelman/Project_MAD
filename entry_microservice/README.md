@@ -68,6 +68,7 @@ data class Profile(
 )
 
 data class Report(
+    val quality: Int,
     val startTime: LocalTime,
     val endTime: LocalTime,
     val totalSleep: Duration,
