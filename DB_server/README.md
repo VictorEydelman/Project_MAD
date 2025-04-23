@@ -78,6 +78,23 @@ data class Settings(
      var alarmTemporary: Alarm?,
      val bedTimeRecurring: BedTime?,
      var bedTimeTemporary: BedTime?)
+data class SettingUser (
+  val username: String,
+  val data: Settings
+)
+data class SettingWithOutUser(
+  val name: String,
+  val surname: String,
+  @Contextual val birthday: LocalDate,
+  var gender: Gender,
+  val physicalCondition: Frequency,
+  val caffeineUsage: Frequency,
+  val alcoholUsage: Frequency,
+  val alarmRecurring: Alarm?,
+  var alarmTemporary: Alarm?,
+  val bedTimeRecurring: BedTime?,
+  var bedTimeTemporary: BedTime?
+)
 ```
 
 ### Перечисления
@@ -94,16 +111,15 @@ enum class Gender {
 
 ### Запросы
 
-- **save-setting**: 
+- **update-profile**: 
   - **Описание**: Сохраняет или обновляет настройки пользователя.
-  - **Параметры**: Settings
+  - **Параметры**: SettingUser
   - **Ответ**: Boolean
 
-- **get-setting**: 
+- **get-profile**: 
   - **Описание**: Получает настройки пользователя по имени.
   - **Параметры**: username: String
-  - **Ответ**: Settings
-    temporary-NULL-profile
+  - **Ответ**: SettingWithOutUser
 
 - **temporary-NULL-profile**:
   - **Описание**: Обнуление временных значений alarm и bedTime.
