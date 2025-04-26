@@ -88,7 +88,7 @@ fun Application.configureDatabases() {
 
         post("/setting") {
 
-            val settings = Settings(u,"s","d", LocalDate.of(2024,1,1), Gender.male, Frequency.ThreeTimesADay,
+            val settings = Settings(u,"s","d", LocalDate.of(2024,1,1), Gender.Male, Frequency.ThreeTimesADay,
                 Frequency.ThreeTimesADay, Frequency.ThreeTimesADay, Alarm(time = Time(222), alarm = true),
                 Alarm(time = Time(223), alarm = true),
                 BedTime(time = Time(21231), remindBeforeBad = true, remindMeToSleep = false),
@@ -104,7 +104,7 @@ fun Application.configureDatabases() {
             settings2.bedTimeTemporary=settings3.bedTimeTemporary
 
             println(settings3)
-            settings2.gender= Gender.female
+            settings2.gender= Gender.Female
             settings2.alarmTemporary=null
             val m = DataUser<Settings>(settings.username,settings2)
             println(settingsService.save(m))
