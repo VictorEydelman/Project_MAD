@@ -1,56 +1,92 @@
 [
   {
-    "address": "/api/v1/auth/register",
+    "address": "/auth/register",
     "method": "POST",
     "body": "{ \"username\": $1, \"password\": $2 }",
-    "args": ["string", "string"]
+    "args": ["username", "password"]
   },
   {
-    "address": "/api/v1/auth/login",
+    "address": "/auth/login",
     "method": "POST",
     "body": "{ \"username\": $1, \"password\": $2 }",
-    "args": ["string", "string"]
+    "args": ["username", "password"]
   },
   {
-    "address": "/api/v1/auth/check",
+    "address": "/auth/check",
     "method": "GET",
     "body": "",
     "args": []
   },
   {
-    "address": "/api/v1/profile/update",
+    "address": "/profile/update",
     "method": "POST",
-    "body": "{ \"birth_date\": $1, \"gender\": $2, \"physical_activity\": $3, \"caffeine_consumption\": $4, \"alcohol_consumption\": $5, \"asleep_time\": $6, \"awake_time\": $7 }",
-    "args": ["date:yyyy-MM-dd", "string", "string", "string", "string", "string", "string"]
+    "body": "{ \"name\": $1, \"surname\": $2, \"birthday\": $3, \"gender\": $4, \"physicalCondition\": $5, \"caffeineUsage\": $6, \"alcoholUsage\": $7, \"alarmRecurring\": { \"time\": $8, \"alarm\": $9 }, \"alarmTemporary\": { \"time\": $10, \"alarm\": $11 }, \"bedTimeRecurring\": { \"time\": $12, \"remindMeToSleep\": $13, \"remindBeforeBad\": $14 }, \"bedTimeTemporary\": { \"time\": $15, \"remindMeToSleep\": $16, \"remindBeforeBad\": $17 } }",
+    "args": [
+      "string",
+      "string",
+      "date",
+      "enum:Male:Female:Null",
+      "enum:OnceADay:TwiceADay:ThreeTimesADay:OnceEveryTwoDays:TwiceAWeek:ThreeTimesAWeek:Rarely:Often:Never",
+      "enum:OnceADay:TwiceADay:ThreeTimesADay:OnceEveryTwoDays:TwiceAWeek:ThreeTimesAWeek:Rarely:Often:Never",
+      "enum:OnceADay:TwiceADay:ThreeTimesADay:OnceEveryTwoDays:TwiceAWeek:ThreeTimesAWeek:Rarely:Often:Never",
+      "time",
+      "boolean",
+      "time",
+      "boolean",
+      "time",
+      "boolean",
+      "boolean",
+      "time",
+      "boolean",
+      "boolean"
+    ]
   },
   {
-    "address": "/api/v1/profile/get",
+    "address": "/profile/get",
     "method": "GET",
     "body": "",
     "args": []
   },
   {
-    "address": "/api/v1/sleep/upload",
+    "address": "/profile/clear-temporaries",
     "method": "POST",
-    "body": "[ $1 ]",
-    "args": ["string"]
+    "body": "",
+    "args": []
   },
   {
-    "address": "/api/v1/sleep/make-report",
+    "address": "/sleep/upload",
     "method": "POST",
-    "body": "{ \"from\": $1, \"to\": $2 }",
-    "args": ["float", "float"]
+    "body": "$1",
+    "args": ["array:sleepdata"]
   },
   {
-    "address": "/api/v1/sleep/last-sleep",
+    "address": "/sleep/daily-report",
     "method": "GET",
     "body": "",
     "args": []
   },
   {
-    "address": "/api/v1/sleep/calculate-recommended-asleep-time",
+    "address": "/sleep/weekly-report",
+    "method": "GET",
+    "body": "",
+    "args": []
+  },
+  {
+    "address": "/sleep/all-time-report",
+    "method": "GET",
+    "body": "",
+    "args": []
+  },
+  {
+    "address": "/sleep/last-sleep",
+    "method": "GET",
+    "body": "",
+    "args": []
+  },
+  {
+    "address": "/sleep/recommended-times",
     "method": "POST",
-    "body": "{ \"asleep_time\": $1, \"awake_time\": $2 }",
-    "args": ["float", "float"]
+    "body": "",
+    "args": []
   }
 ]
