@@ -1,15 +1,20 @@
 package mad.project.SleepMonitor.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import mad.project.SleepMonitor.screens.AbilitiesScreen
+import mad.project.SleepMonitor.data.network.RetrofitInstance
+import mad.project.SleepMonitor.data.repository.AnalyticsRepositoryImpl
+import mad.project.SleepMonitor.factory.AnalyticsViewModelFactory
+import mad.project.SleepMonitor.screens.AnalyticsScreen
 import mad.project.SleepMonitor.screens.SplashScreen
 import mad.project.SleepMonitor.screens.LoginScreen
 import mad.project.SleepMonitor.screens.SignUpScreen
 import mad.project.SleepMonitor.screens.MainScreen
 import mad.project.SleepMonitor.screens.ProfileScreen
+import mad.project.SleepMonitor.viewmodels.AnalyticsViewModel
 
 sealed class Screen(val route: String) {
     object SplashScreen : Screen("splash_screen") // Экран сплеша
@@ -17,12 +22,14 @@ sealed class Screen(val route: String) {
     object SignUpScreen : Screen("signup_screen")
     object MainScreen : Screen("main_screen")
     object ProfileScreen : Screen("profile_screen")
-    object AbilitiesScreen : Screen("abilities")
+    object AnalyticsScreen : Screen("analytics_screen")
 }
 
 @Composable
 fun SleepMonitorNavigation() {
     val navController = rememberNavController()
+    val apiService = RetrofitInstance.analyticsApi
+    val repository = AnalyticsRepositoryImpl(apiService)
 
     NavHost(navController = navController, startDestination = Screen.LoginScreen.route) {
 
@@ -42,8 +49,11 @@ fun SleepMonitorNavigation() {
         composable(Screen.ProfileScreen.route) {
             ProfileScreen(navController)
         }
-        composable(Screen.AbilitiesScreen.route) {
-            AbilitiesScreen(navController = navController)
+        composable(Screen.AnalyticsScreen.route) {
+            val factory = AnalyticsViewModelFactory(repository)
+            val analyticsViewModel: AnalyticsViewModel = viewModel(factory = factory)
+
+            AnalyticsScreen(navController = navController, viewModel = analyticsViewModel)
         }
     }
 }
