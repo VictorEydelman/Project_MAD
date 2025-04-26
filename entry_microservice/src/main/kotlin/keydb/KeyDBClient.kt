@@ -1,3 +1,4 @@
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -110,7 +111,18 @@ class KeyDBClient(
                 messageHandler(objectMapper.readValue(requestJson, requestType)))
         }, responseTTL)
     }
-
+    suspend fun <TRequest : Any, TResponse: Any> subscribeWithResponse(
+        channel: String,
+        requestType: TypeReference<TRequest>,
+        messageHandler: (TRequest) -> TResponse?,
+        responseTTL: Long = 10
+    ) {
+        subscribeWithResponse(channel, { requestJson ->
+            // Десериализуем запрос в тип TRequest и вызываем обработчик.
+            objectMapper.writeValueAsString(
+                messageHandler(objectMapper.readValue(requestJson, requestType)))
+        }, responseTTL)
+    }
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun subscribe(
         channel: String,

@@ -2,6 +2,7 @@ package mad.project.service.clickhouse
 
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import mad.project.DataUser
 import org.joda.time.DateTime
 import java.sql.Connection
 import java.sql.PreparedStatement
@@ -11,7 +12,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Serializable
-data class SleepStatistic(val username: String, @Contextual val timestamp: LocalDateTime, val pulse: Float, val sleepPhase: String)
+data class SleepStatistic(var username: String, @Contextual val timestamp: LocalDateTime, val pulse: Float, val sleepPhase: String)
 @Serializable
 data class SleepInterval(val username: String, @Contextual val start: LocalDateTime, @Contextual val end: LocalDateTime)
 class SleepStatisticService(val connection: Connection){
@@ -28,7 +29,7 @@ class SleepStatisticService(val connection: Connection){
         """.trimIndent()
     }
     init {
-        //connection.createStatement().execute(drop)
+        connection.createStatement().execute(drop)
         connection.createStatement().execute(createTableSleepStatistic)
     }
     fun getSleepStatisticInterval(sleepInterval: SleepInterval): List<SleepStatistic>{
@@ -56,29 +57,39 @@ class SleepStatisticService(val connection: Connection){
         }
         return results
     }
-    fun addSleepData(sleepStatistic: SleepStatistic): Boolean {
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-        val timestamp = sleepStatistic.timestamp.format(formatter)
-        var preparedStatement: PreparedStatement? = null
-        return try {
-            val query = """
-            INSERT INTO SleepStatistic (username, timestamp, pulse, sleep_phase) 
-            VALUES (?, ?, ?, ?)
-        """.trimIndent()
+    fun addSleepData(sleepStatistics: DataUser<List<SleepStatistic>>): Boolean {
+        var error = true
+        for (sleepStatistic in sleepStatistics.data) {
+            println(sleepStatistic)
+            sleepStatistic.username=sleepStatistics.username
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            val timestamp = sleepStatistic.timestamp.format(formatter)
+            var preparedStatement: PreparedStatement? = null
+            try {
+                val query = """
+                    INSERT INTO SleepStatistic (username, timestamp, pulse, sleep_phase) 
+                    VALUES (?, ?, ?, ?)
+                """.trimIndent()
 
-            preparedStatement = connection.prepareStatement(query)
-            preparedStatement.setString(1, sleepStatistic.username)
-            preparedStatement.setObject(2, timestamp)
-            preparedStatement.setFloat(3, sleepStatistic.pulse)
-            preparedStatement.setString(4, sleepStatistic.sleepPhase)
+                preparedStatement = connection.prepareStatement(query)
+                preparedStatement.setString(1, sleepStatistic.username)
+                preparedStatement.setObject(2, timestamp)
+                preparedStatement.setFloat(3, sleepStatistic.pulse)
+                preparedStatement.setString(4, sleepStatistic.sleepPhase)
 
-            return preparedStatement.executeUpdate() > 0
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return false
-        } finally {
-            preparedStatement?.close()
+                error = preparedStatement.executeUpdate() > 0
+                //return true
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return false
+            } finally {
+                preparedStatement?.close()
+            }
+            if(!error){
+                return false
+            }
         }
+        return true
     }
     fun getPercentageSleepInterval(username: String, start: LocalDateTime, end: LocalDateTime){
 

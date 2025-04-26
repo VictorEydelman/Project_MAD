@@ -9,7 +9,7 @@ import mad.project.service.postgres.Settings
 import java.time.LocalDate
 
 @Serializable
-data class SettingUser (val username: String, val data: Settings)
+data class DataUser<T> (val username: String, val data: T)
 @Serializable
 data class SettingWithOutUser(val name: String, val surname: String,
                               @Contextual val birthday: LocalDate, var gender: Gender,
