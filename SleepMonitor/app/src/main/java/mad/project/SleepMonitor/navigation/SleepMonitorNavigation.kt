@@ -8,7 +8,10 @@ import androidx.navigation.compose.rememberNavController
 import mad.project.SleepMonitor.data.network.RetrofitInstance
 import mad.project.SleepMonitor.data.repository.AnalyticsRepositoryImpl
 import mad.project.SleepMonitor.factory.AnalyticsViewModelFactory
+import mad.project.SleepMonitor.notification.NotificationService
+import mad.project.SleepMonitor.screens.AlarmScreen
 import mad.project.SleepMonitor.screens.AnalyticsScreen
+import mad.project.SleepMonitor.screens.BedTimeScreen
 import mad.project.SleepMonitor.screens.SplashScreen
 import mad.project.SleepMonitor.screens.LoginScreen
 import mad.project.SleepMonitor.screens.SignUpScreen
@@ -23,10 +26,12 @@ sealed class Screen(val route: String) {
     object MainScreen : Screen("main_screen")
     object ProfileScreen : Screen("profile_screen")
     object AnalyticsScreen : Screen("analytics_screen")
+    object AlarmScreen : Screen("alarm")
+    object BedTimeScreen : Screen("bedtime")
 }
 
 @Composable
-fun SleepMonitorNavigation() {
+fun SleepMonitorNavigation(notification: NotificationService) {
     val navController = rememberNavController()
     val apiService = RetrofitInstance.analyticsApi
     val repository = AnalyticsRepositoryImpl(apiService)
@@ -48,6 +53,12 @@ fun SleepMonitorNavigation() {
         }
         composable(Screen.ProfileScreen.route) {
             ProfileScreen(navController)
+        }
+        composable(Screen.AlarmScreen.route) {
+            AlarmScreen(navController, notification)
+        }
+        composable(Screen.BedTimeScreen.route) {
+            BedTimeScreen(navController, notification)
         }
         composable(Screen.AnalyticsScreen.route) {
             val factory = AnalyticsViewModelFactory(repository)
