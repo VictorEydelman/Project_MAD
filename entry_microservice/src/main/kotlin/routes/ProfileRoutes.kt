@@ -28,5 +28,12 @@ fun Route.profileRoutes() {
             val profile = KeyDBAPI.getProfile(username)
             call.respond(DataResponse.of(profile))
         }
+        post("/clear-temporaries", {
+            response { code(HttpStatusCode.OK) { body<SimpleResponse>() } }
+        }) {
+            val username = call.principal<String>()!!
+            KeyDBAPI.clearProfileTemporaries(username)
+            call.respond(SimpleResponse.success())
+        }
     }
 }

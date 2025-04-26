@@ -22,9 +22,7 @@ class KeyDBClient(
     poolConfig: JedisPoolConfig = defaultPoolConfig()
 ) {
     private val pool = JedisPool(poolConfig, host, port)
-    private val objectMapper = jacksonObjectMapper().apply {
-        registerModules(JavaTimeModule())
-    }
+    private val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
 
     companion object {
         private fun defaultPoolConfig(): JedisPoolConfig {

@@ -22,29 +22,24 @@ fun Route.sleepRoutes() {
             call.respond(SimpleResponse.success())
         }
 
-        post<Period>("/make-report", {
-            request { body<Period>() }
+        get("/{period}-report", {
+            request { pathParameter<String>("period") {
+                description = "Allowed values: daily, weekly, all-time"
+                example("daily") {value="daily"}
+            } }
             response { code(HttpStatusCode.OK) { body<DataResponse<Report>>() } }
-        }) { request ->
+        }) {
             val username = call.principal<String>()!!
-            val report = KeyDBAPI.makeSleepReport(username, request)
+            val period = call.pathParameters["period"]!!
+            val report = KeyDBAPI.makeSleepReport(username, period)
             call.respond(DataResponse.of(report))
         }
 
-        get("/last-sleep", {
-            response { code(HttpStatusCode.OK) { body<DataResponse<SleepSession>>() } }
+        get("/recommended-times", {
+            response { code(HttpStatusCode.OK) { body<DataResponse<TimePreference>>() } }
         }) {
             val username = call.principal<String>()!!
-            val sleepSession = KeyDBAPI.getLastSleepSession(username)
-            call.respond(DataResponse.of(sleepSession))
-        }
-
-        post<TimePreference>("/calculate-recommended-asleep-time", {
-            request { body<TimePreference>() }
-            response { code(HttpStatusCode.OK) { body<DataResponse<TimePreference>>() } }
-        }) { request ->
-            val username = call.principal<String>()!!
-            val timePreference = KeyDBAPI.calculateRecommendedAsleepTime(username, request)
+            val timePreference = KeyDBAPI.calculateRecommendedTimes(username)
             call.respond(DataResponse.of(timePreference))
         }
     }

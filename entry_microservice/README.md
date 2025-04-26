@@ -6,668 +6,213 @@
 
 ## ⚙️ Особенности сериализации
 
-> **Примечание:** Все значения времени сериализуются как **timestamp** (число секунд с начала эпохи):
-- `Instant` → `1702944000.0` (Unix timestamp, с дробной частью)
-- `LocalDate` → `1702944000.0` (полночь UTC в этот день)
-- `LocalTime` → `36000.0` (количество секунд от начала суток)
-- `Duration` → `3600.0` (длительность в секундах)
+Для корректной (де-)сериализации объектов необходимо использовать
+Jackson object mapper с модулем JavaTimeModule (jackson-datatype-jsr310), в KeyDBClient уже настроен:
+
+```kotlin
+val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
+```
 
 ---
 
-## 🔐 Аутентификация
+## 🧱 1. Модель данных
 
-### Регистрация
+### Enum'ы
 
-**POST** `/auth/register`
+```kotlin
+enum class Gender {
+    Male, Female, Null
+}
 
-**Request:**
-```json
-{
-  "username": "user123",
-  "password": "secret"
+enum class Periodicity {
+    OnceADay, TwiceADay, ThreeTimesADay,
+    OnceEveryTwoDays, TwiceAWeek, ThreeTimesAWeek,
+    Rarely, Often, Never, Null
+}
+
+enum class SleepPhase {
+    AWAKE, DROWSY, LIGHT, DEEP, REM
+}
+
+enum class Weekday {
+    Mon, Tue, Wed, Thu, Fri, Sat, Sun
 }
 ```
 
-**Response:**
-```json
-{
-  "username": "user123",
-  "token": "jwt-token-string",
-  "success": true
-}
+### Основные data классы
+
+```kotlin
+data class Alarm(
+    val time: LocalTime,
+    val alarm: Boolean,
+)
+
+data class BedTime(
+    val time: LocalTime,
+    val remindMeToSleep: Boolean,
+    val remindBeforeBad: Boolean,
+)
+
+data class Profile(
+    val name: String,
+    val surname: String,
+    val birthday: LocalDate,
+    val gender: Gender,
+    val physicalCondition: Periodicity,
+    val caffeineUsage: Periodicity,
+    val alcoholUsage: Periodicity,
+    val alarmRecurring: Alarm?,
+    var alarmTemporary: Alarm?,
+    val bedTimeRecurring: BedTime?,
+    var bedTimeTemporary: BedTime?,
+)
+
+data class Report(
+    val quality: Int,
+    val startTime: LocalTime,
+    val endTime: LocalTime,
+    val totalSleep: Duration,
+    val awakenings: Int,
+    val avgAwake: Duration,
+    val avgAsleep: Duration,
+    val avgToFallAsleep: Duration,
+    val data: SleepData?,
+    val distribution: WeekdaySleepDistribution?,
+)
+
+data class SleepDataPiece(
+    val timestamp: Instant,
+    val pulse: Int,
+    val phase: SleepPhase,
+)
+
+typealias SleepData = List<SleepDataPiece>
+
+data class WeekdaySleep(
+    val weekday: Weekday,
+    val asleepHours: Double,
+)
+
+typealias WeekdaySleepDistribution = List<WeekdaySleep>
+
+data class TimePreference(
+    val asleepTime: LocalTime,
+    val awakeTime: LocalTime,
+)
+
+data class User(
+    val username: String,
+    val password: String,
+)
+```
+
+### DTO API
+
+```kotlin
+data class AuthRequest(
+    val username: String,
+    val password: String,
+)
+
+data class AuthResponse(
+    val username: String,
+    val token: String,
+    val success: Boolean = true,
+)
+
+data class CheckAuthResponse(
+    val username: String?,
+    val success: Boolean,
+)
+
+data class DataResponse<T>(
+    val data: T,
+    val message: String? = null,
+    val success: Boolean = true,
+)
+
+data class SimpleResponse(
+    val success: Boolean,
+    val message: String?,
+)
+```
+
+### DTO KeyDB
+
+```kotlin
+data class UserRequest<T>(
+    val username: String,
+    val data: T,
+)
 ```
 
 ---
 
-### Вход
+## 🌐 2. API Маршруты (Routes)
 
-**POST** `/auth/login`
+### 🔐 `/auth`
 
-**Request:**
-```json
-{
-  "username": "user123",
-  "password": "secret"
-}
-```
-
-**Response:**
-```json
-{
-  "username": "user123",
-  "token": "jwt-token-string",
-  "success": true
-}
-```
+| Метод  | Путь           | Тело запроса       | Ответ            |
+|--------|----------------|--------------------|------------------|
+| POST   | /register      | `AuthRequest`      | `AuthResponse`   |
+| POST   | /login         | `AuthRequest`      | `AuthResponse`   |
+| GET    | /check         | (авторизация JWT)  | `CheckAuthResponse` |
 
 ---
 
-### Проверка авторизации
+### 👤 `/profile`
 
-**GET** `/auth/check`
-
-**Response:**
-```json
-{
-  "username": "user123",
-  "success": true
-}
-```
+| Метод  | Путь                   | Тело запроса | Ответ              |
+|--------|------------------------|--------------|--------------------|
+| POST   | /update                | `Profile`    | `SimpleResponse`   |
+| GET    | /get                   | -            | `DataResponse<Profile>` |
+| POST   | /clear-temporaries     | -            | `SimpleResponse`   |
 
 ---
 
-## 👤 Профиль (требует авторизации)
+### 💤 `/sleep`
 
-### Обновить профиль
-
-**POST** `/profile/update`
-
-**Request:**
-```json
-{
-  "birth_date": 915148800.0,
-  "gender": "Male",
-  "physical_activity": "OnceADay",
-  "caffeine_consumption": "TwiceAWeek",
-  "alcohol_consumption": "Never",
-  "asleep_time": 82800.0,
-  "awake_time": 25200.0
-}
-```
-
-> `birth_date` – 01.01.1999 UTC, `asleep_time` – 23:00, `awake_time` – 07:00
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": null
-}
-```
+| Метод  | Путь                          | Тело запроса         | Ответ                        |
+|--------|-------------------------------|----------------------|------------------------------|
+| POST   | /upload                       | `SleepData`          | `SimpleResponse`             |
+| GET    | /daily-report                 | -                    | `DataResponse<Report>`       |
+| GET    | /weekly-report                | -                    | `DataResponse<Report>`       |
+| GET    | /all-time-report              | -                    | `DataResponse<Report>`       |
+| GET    | /recommended-times            | -                    | `DataResponse<TimePreference>` |
 
 ---
 
-### Получить профиль
+## 🔌 3. KeyDB API
 
-**GET** `/profile/get`
+### 📦 Каналы (Pub/Sub) через KeyDB
 
-**Response:**
-```json
-{
-  "data": {
-    "birth_date": 915148800.0,
-    "gender": "Male",
-    "physical_activity": "OnceADay",
-    "caffeine_consumption": "TwiceAWeek",
-    "alcohol_consumption": "Never",
-    "asleep_time": 82800.0,
-    "awake_time": 25200.0
-  },
-  "message": null,
-  "success": true
-}
-```
+#### 🔐 Авторизация
+
+| Канал       | Тип запроса     | Ответ          | Микросервис |
+|-------------|------------------|----------------|--------------|
+| `get-user`  | `String` (username) | `User?`       | DB          |
+| `save-user` | `User`             | `Boolean`     | DB          |
 
 ---
 
-## 🛌 Сон (требует авторизации)
+#### 👤 Профиль
 
-### Загрузить данные сна
-
-**POST** `/sleep/upload`
-
-**Request:**
-```json
-[
-  {
-    "timestamp": 1713397200.0,
-    "pulse": 62,
-    "phase": "LIGHT"
-  },
-  {
-    "timestamp": 1713400800.0,
-    "pulse": 60,
-    "phase": "DEEP"
-  }
-]
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": null
-}
-```
+| Канал                  | Тип запроса                        | Ответ      | Микросервис |
+|------------------------|-------------------------------------|------------|-------------|
+| `update-profile`       | `UserRequest<Profile>`             | `Boolean`  | DB          |
+| `get-profile`          | `String` (username)                | `Profile`  | DB          |
+| `clear-profile-temporaries` | `String` (username)          | `Boolean`  | DB          |
 
 ---
 
-### Сформировать отчет о сне за период
-
-**POST** `/sleep/make-report`
-
-**Request:**
-```json
-{
-  "from": 1713300000.0,
-  "to": 1713904800.0
-}
-```
-
-**Response:**
-```json
-{
-  "data": {
-    "total_sleep": 28800.0,
-    "awakenings": 2,
-    "avg_awake": 900.0,
-    "avg_asleep": 7200.0,
-    "data": [
-      {
-        "timestamp": 1713397200.0,
-        "pulse": 62,
-        "phase": "LIGHT"
-      }
-    ]
-  },
-  "message": null,
-  "success": true
-}
-```
-
----
-
-### Получить последнюю сессию сна
-
-**GET** `/sleep/last-sleep`
-
-**Response:**
-```json
-{
-  "data": {
-    "start_time": 1713393600.0,
-    "end_time": 1713422400.0,
-    "report": {
-      "total_sleep": 28800.0,
-      "awakenings": 1,
-      "avg_awake": 600.0,
-      "avg_asleep": 3600.0,
-      "data": [...]
-    }
-  },
-  "message": null,
-  "success": true
-}
-```
-
----
-
-### Рассчитать рекомендованное время сна
-
-**POST** `/sleep/calculate-recommended-asleep-time`
-
-**Request:**
-```json
-{
-  "asleep_time": 82800.0,
-  "awake_time": 25200.0
-}
-```
-
-**Response:**
-```json
-{
-  "data": {
-    "asleep_time": 81900.0,
-    "awake_time": 25200.0
-  },
-  "message": null,
-  "success": true
-}
-```
-
----
-
-## 📦 Форматы ответов
-
-### DataResponse<T>
-```json
-{
-  "data": T,
-  "message": "string or null",
-  "success": true
-}
-```
-
-### SimpleResponse
-```json
-{
-  "success": true/false,
-  "message": "string or null"
-}
-```
-
----
-
-## 🛡️ Авторизация
-
-Для всех защищённых эндпоинтов (`/profile`, `/sleep/*`) необходимо добавить заголовок:
-
-```
-Authorization: Bearer <jwt-token>
-```
-
----
-
-Вот документация для микросервисов, подписывающихся на **KeyDB pub/sub каналы**. Она описывает, какие сообщения ожидаются по каждому каналу, кто инициирует запрос, и какой микросервис (DB или Logic) должен на него отреагировать.
-
----
-
-# 📡 KeyDB: Протокол взаимодействия микросервисов
-
-Обмен сообщениями между микросервисами происходит через **KeyDB** по модели **Request-Response** в формате JSON.
-
-Каждое сообщение отправляется на именованный канал и содержит:
-- **Request**: входные данные
-- **Response**: результат обработки
-
----
-
-## 🗂 Структура обёртки (если используется)
-
-Для большинства сообщений используется следующая обёртка:
-
-```json
-{
-  "username": "user123",
-  "data": { ... }
-}
-```
-
----
-
-## 📬 Каналы и обработчики
-
-### 🔹 `get-user`
-- **Кому**: `DB`
-- **Тип запроса**: `String` (username)
-- **Ответ**: `User`
-
-#### Пример запроса:
-```json
-"user123"
-```
-
-#### Пример ответа:
-```json
-{
-  "username": "user123",
-  "password": "hashed-password"
-}
-```
-
----
-
-### 🔹 `save-user`
-- **Кому**: `DB`
-- **Тип запроса**: `User`
-- **Ответ**: `Boolean`
-
-#### Пример запроса:
-```json
-{
-  "username": "user123",
-  "password": "hashed-password"
-}
-```
-
-#### Пример ответа:
-```json
-true
-```
-
----
-
-### 🔹 `update-profile`
-- **Кому**: `DB`
-- **Тип запроса**: `UserRequest<Profile>`
-- **Ответ**: `Boolean`
-
-#### Пример запроса:
-```json
-{
-  "username": "user123",
-  "data": {
-    "birth_date": 915148800.0,
-    "gender": "Male",
-    "physical_activity": "OnceADay",
-    "caffeine_consumption": "TwiceAWeek",
-    "alcohol_consumption": "Never",
-    "asleep_time": 82800.0,
-    "awake_time": 25200.0
-  }
-}
-```
-
----
-
-### 🔹 `get-profile`
-- **Кому**: `DB`
-- **Тип запроса**: `String` (username)
-- **Ответ**: `Profile`
-
----
-
-### 🔹 `upload-sleep`
-- **Кому**: `DB`
-- **Тип запроса**: `UserRequest<SleepData>`
-- **Ответ**: `Boolean`
-
-#### Пример запроса:
-```json
-{
-  "username": "user123",
-  "data": [
-    {
-      "timestamp": 1713397200.0,
-      "pulse": 62,
-      "phase": "LIGHT"
-    }
-  ]
-}
-```
-
----
-
-### 🔹 `make-sleep-report`
-- **Кому**: `Logic`
-- **Тип запроса**: `UserRequest<Period>`
-- **Ответ**: `Report`
-
-#### Пример запроса:
-```json
-{
-  "username": "user123",
-  "data": {
-    "from": 1713300000.0,
-    "to": 1713904800.0
-  }
-}
-```
-
----
-
-### 🔹 `get-last-sleep`
-- **Кому**: `Logic`
-- **Тип запроса**: `String` (username)
-- **Ответ**: `SleepSession`
-
----
-
-### 🔹 `calculate-recommended-asleep-time`
-- **Кому**: `Logic`
-- **Тип запроса**: `UserRequest<TimePreference>`
-- **Ответ**: `TimePreference`
-
----
-
-## ✅ Общие правила
-
-- **Типы данных** сериализуются через Jackson с включенной опцией `WRITE_DATES_AS_TIMESTAMPS`.
-- Все даты и времена (например, `Instant`, `LocalDate`, `Duration`) передаются как **числа** — количество секунд.
-- Ответ всегда ожидается синхронно (в рамках pub/sub паттерна KeyDB).
-
----
-
-## Спецификация всех `data` классов в формате JSON
-
----
-
-### 🔹 `User`
-```json
-{
-  "username": "user123",
-  "password": "secure-password"
-}
-```
-
----
-
-### 🔹 `AuthRequest`
-```json
-{
-  "username": "user123",
-  "password": "secure-password"
-}
-```
-
----
-
-### 🔹 `AuthResponse`
-```json
-{
-  "username": "user123",
-  "token": "jwt.token.here",
-  "success": true
-}
-```
-
----
-
-### 🔹 `CheckAuthResponse`
-```json
-{
-  "username": "user123",
-  "success": true
-}
-```
-
----
-
-### 🔹 `SimpleResponse`
-```json
-{
-  "success": true,
-  "message": "Operation completed successfully"
-}
-```
-
----
-
-### 🔹 `DataResponse<T>` (обобщённый пример)
-```json
-{
-  "data": { /* тип данных зависит от запроса */ },
-  "message": null,
-  "success": true
-}
-```
-
----
-
-### 🔹 `Profile`
-```json
-{
-  "birth_date": 915148800.0,
-  "gender": "Male",
-  "physical_activity": "OnceADay",
-  "caffeine_consumption": "TwiceAWeek",
-  "alcohol_consumption": "Never",
-  "asleep_time": 82800.0,
-  "awake_time": 25200.0
-}
-```
-
----
-
-### 🔹 `TimePreference`
-```json
-{
-  "asleep_time": 82800.0,
-  "awake_time": 25200.0
-}
-```
-
----
-
-### 🔹 `Period`
-```json
-{
-  "from": 1713300000.0,
-  "to": 1713904800.0
-}
-```
-
----
-
-### 🔹 `SleepDataPiece`
-```json
-{
-  "timestamp": 1713397200.0,
-  "pulse": 62,
-  "phase": "LIGHT"
-}
-```
-
----
-
-### 🔹 `SleepData` (typealias `List<SleepDataPiece>`)
-```json
-[
-  {
-    "timestamp": 1713397200.0,
-    "pulse": 62,
-    "phase": "DEEP"
-  },
-  {
-    "timestamp": 1713400800.0,
-    "pulse": 65,
-    "phase": "REM"
-  }
-]
-```
-
----
-
-### 🔹 `Report`
-```json
-{
-  "total_sleep": 28800.0,
-  "awakenings": 2,
-  "avg_awake": 600.0,
-  "avg_asleep": 7200.0,
-  "data": [ /* SleepData */ ]
-}
-```
-
----
-
-### 🔹 `SleepSession`
-```json
-{
-  "start_time": 1713393600.0,
-  "end_time": 1713422400.0,
-  "report": { /* Report */ }
-}
-```
-
----
-
-### 🔹 `UserRequest<T>` (обёртка)
-Пример с `Profile`:
-```json
-{
-  "username": "user123",
-  "data": {
-    "birth_date": 915148800.0,
-    "gender": "Female",
-    "physical_activity": "Rarely",
-    "caffeine_consumption": "Often",
-    "alcohol_consumption": "Never",
-    "asleep_time": 79200.0,
-    "awake_time": 25200.0
-  }
-}
-```
-
----
-
-## 🧩 Перечисления (Enums)
-
-### 🔹 `Gender`
-
-Пол пользователя.
-
-```json
-"Male" | "Female" | "Null"
-```
-
-| Значение | Описание          |
-|----------|-------------------|
-| `Male`   | Мужской           |
-| `Female` | Женский           |
-| `Null`   | Не указано / нет данных |
-
----
-
-### 🔹 `Periodicity`
-
-Периодичность какого-либо действия (физ. активность, кофеин, алкоголь и т.д.).
-
-```json
-"OnceADay" | "TwiceADay" | "ThreeTimesADay" | "OnceEveryTwoDays" |
-"TwiceAWeek" | "ThreeTimesAWeek" | "Rarely" | "Often" | "Never" | "Null"
-```
-
-| Значение             | Описание                        |
-|----------------------|---------------------------------|
-| `OnceADay`           | 1 раз в день                    |
-| `TwiceADay`          | 2 раза в день                   |
-| `ThreeTimesADay`     | 3 раза в день                   |
-| `OnceEveryTwoDays`   | Раз в два дня                   |
-| `TwiceAWeek`         | 2 раза в неделю                 |
-| `ThreeTimesAWeek`    | 3 раза в неделю                 |
-| `Rarely`             | Редко                           |
-| `Often`              | Часто                           |
-| `Never`              | Никогда                         |
-| `Null`               | Не указано / нет данных         |
-
----
-
-### 🔹 `SleepPhase`
-
-Фаза сна.
-
-```json
-"AWAKE" | "DROWSY" | "LIGHT" | "DEEP" | "REM"
-```
-
-| Значение  | Описание                |
-|-----------|-------------------------|
-| `AWAKE`   | Бодрствование           |
-| `DROWSY`  | Дремота / лёгкий сон    |
-| `LIGHT`   | Лёгкая фаза сна         |
-| `DEEP`    | Глубокий сон            |
-| `REM`     | Фаза быстрого сна (REM) |
+#### 💤 Сон
+
+| Канал                 | Тип запроса                                | Ответ        | Микросервис |
+|-----------------------|---------------------------------------------|--------------|-------------|
+| `upload-sleep`        | `UserRequest<SleepData>`                   | `Boolean`    | DB          |
+| `make-daily-report`   | `String` (username)                        | `Report`     | Logic       |
+| `make-weekly-report`  | `String` (username)                        | `Report`     | Logic       |
+| `make-all-time-report`| `String` (username)                        | `Report`     | Logic       |
+| `calculate-recommended-times` | `String` (username)               | `TimePreference` | Logic   |
 
 ---

@@ -15,7 +15,7 @@ fun Route.authRoutes() {
     route("/auth") {
         post<AuthRequest>("/register", {
             request { body<AuthRequest>() }
-            response { code(HttpStatusCode.OK) { body<AuthResponse>() } }
+            response { code(HttpStatusCode.Created) { body<AuthResponse>() } }
         }) { request ->
             val token = AuthService.register(request)
             val response = AuthResponse(request.username, token)
@@ -31,12 +31,14 @@ fun Route.authRoutes() {
             call.respond(HttpStatusCode.OK, response)
         }
 
-        get("/check", {
-            response { code(HttpStatusCode.OK) { body<CheckAuthResponse>() } }
-        }) {
-            val username = call.principal<String>()
-            val response = CheckAuthResponse(username, username != null)
-            call.respond(HttpStatusCode.OK, response)
+        authenticate {
+            get("/check", {
+                response { code(HttpStatusCode.OK) { body<CheckAuthResponse>() } }
+            }) {
+                val username = call.principal<String>()
+                val response = CheckAuthResponse(username, username != null)
+                call.respond(HttpStatusCode.OK, response)
+            }
         }
     }
 }
