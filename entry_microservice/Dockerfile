@@ -4,7 +4,14 @@ FROM gradle:8.4-jdk17 AS build
 # Установите рабочую директорию
 WORKDIR /app
 
-# Копируйте файлы сборки Gradle
+# Копируйте только файлы, необходимые для загрузки зависимостей
+COPY build.gradle.kts settings.gradle.kts gradle.properties ./
+COPY gradle gradle
+
+# Загрузите зависимости
+RUN gradle dependencies --no-daemon
+
+# Теперь копируем остальные файлы приложения
 COPY . .
 
 # Выполните сборку приложения

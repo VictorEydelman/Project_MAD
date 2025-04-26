@@ -1,10 +1,14 @@
-FROM gradle:8-jdk17 as builder
+FROM gradle:8.4-jdk17 as builder
 WORKDIR /app
-COPY . .
 
+COPY build.gradle.kts settings.gradle.kts gradle.properties ./
+COPY gradle gradle
+RUN gradle dependencies --no-daemon
+
+COPY . .
 RUN gradle clean shadowJar --no-daemon
 
-FROM gradle:8-jdk17 as tester
+FROM gradle:8.4-jdk17 as tester
 WORKDIR /app
 COPY --from=builder /app .
 RUN gradle test --info
