@@ -10,7 +10,9 @@
 Jackson object mapper с модулем JavaTimeModule (jackson-datatype-jsr310), в KeyDBClient уже настроен:
 
 ```kotlin
-val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
+val objectMapper = jacksonObjectMapper()
+    .registerModule(JavaTimeModule())
+    .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
 ```
 
 ---
@@ -81,9 +83,9 @@ data class Report(
 )
 
 data class SleepDataPiece(
-    val timestamp: Instant,
+    val timestamp: LocalDateTime,
     val pulse: Int,
-    val phase: SleepPhase,
+    val sleepPhase: SleepPhase,
 )
 
 typealias SleepData = List<SleepDataPiece>

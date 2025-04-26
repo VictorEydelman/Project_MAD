@@ -5,6 +5,10 @@ import io.ktor.http.*
 import ru.itmo.dto.keydb.UserRequest
 import ru.itmo.exception.StatusException
 import ru.itmo.model.*
+import java.time.Duration
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 object KeyDBAPI {
 
@@ -49,6 +53,24 @@ object KeyDBAPI {
     }
 
     suspend fun makeSleepReport(username: String, period: String): Report {
+//        return Report(
+//            90,
+//            LocalTime.now(),
+//            LocalTime.now(),
+//            Duration.ofHours(1),
+//            10,
+//            Duration.ofMinutes(5),
+//            Duration.ofMinutes(5),
+//            Duration.ofMinutes(5),
+//            listOf(
+//                SleepDataPiece(
+//                    LocalDateTime.now(),
+//                    10,
+//                    SleepPhase.REM
+//                )
+//            ),
+//            null
+//        )
         val res = keydb.sendRequest("make-$period-report", username, Report::class.java)
         return res ?: throw StatusException("Unable to make sleep report", HttpStatusCode.InternalServerError)
     }

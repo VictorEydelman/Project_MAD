@@ -1,15 +1,15 @@
 package ru.itmo.model
 
-import java.time.Instant
+import java.time.LocalDateTime
 
 enum class SleepPhase {
     AWAKE, DROWSY, LIGHT, DEEP, REM
 }
 
 data class SleepDataPiece(
-    val timestamp: Instant,
+    val timestamp: LocalDateTime,
     val pulse: Int,
-    val phase: SleepPhase,
+    val sleepPhase: SleepPhase,
 )
 
 typealias SleepData = List<SleepDataPiece>

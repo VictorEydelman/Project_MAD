@@ -12,7 +12,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Serializable
-data class SleepStatistic(var username: String, @Contextual val timestamp: LocalDateTime, val pulse: Float, val sleepPhase: String)
+data class SleepStatistic(var username: String = "", @Contextual val timestamp: LocalDateTime, val pulse: Float, val sleepPhase: String)
 @Serializable
 data class SleepInterval(val username: String, @Contextual val start: LocalDateTime, @Contextual val end: LocalDateTime)
 class SleepStatisticService(val connection: Connection){

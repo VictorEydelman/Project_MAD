@@ -10,6 +10,7 @@ fun Application.configureSerialization() {
     install(ContentNegotiation) {
         jackson {
             registerModule(JavaTimeModule())
+            disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             enable(SerializationFeature.INDENT_OUTPUT)
         }
     }

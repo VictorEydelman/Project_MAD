@@ -1,4 +1,5 @@
 import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -22,7 +23,9 @@ class KeyDBClient(
     poolConfig: JedisPoolConfig = defaultPoolConfig()
 ) {
     private val pool = JedisPool(poolConfig, host, port)
-    private val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
+    private val objectMapper = jacksonObjectMapper()
+        .registerModule(JavaTimeModule())
+        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
 
     companion object {
         private fun defaultPoolConfig(): JedisPoolConfig {
