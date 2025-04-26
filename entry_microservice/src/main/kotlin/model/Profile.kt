@@ -3,7 +3,7 @@ package ru.itmo.model
 import java.time.LocalDate
 import java.time.LocalTime
 
-enum class Gender { male, female, Null }
+enum class Gender { Male, Female, Null }
 enum class Periodicity { OnceADay, TwiceADay, ThreeTimesADay, OnceEveryTwoDays, TwiceAWeek, ThreeTimesAWeek, Rarely, Often, Never, Null }
 
 data class Alarm(val time: LocalTime, val alarm: Boolean)
