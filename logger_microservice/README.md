@@ -6,12 +6,16 @@
 2. Проинициализовать Logger с помощью KeyDB клиента и названия
 
 Пример:
+
 ```kotlin
 val keydb = KeyDBClient()
-Logger.init(keydb, "EntryMicroservice")
-```
+Logger.init(keydb, "EntryMicroservice") // Замените на ваше имя
 
-Класс Logger:
+Logger.info("Hello, world!")
+```
+Сообщение уйдет в микросервис Logger
+
+Класс Logger для создания:
 ```kotlin
 import KeyDBClient
 import java.time.LocalTime
