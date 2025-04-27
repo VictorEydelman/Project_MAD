@@ -13,14 +13,14 @@ WORKDIR /app
 COPY --from=builder /app .
 RUN gradle test --info
 
-FROM openjdk:17-slim
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=builder /app/build/libs/db_server.jar app.jar
 COPY --from=builder /app/build/resources/main /app/resources
 CMD ["java", "-jar", "app.jar"]
 EXPOSE 8080
 # Используйте официальный образ OpenJDK
-#FROM openjdk:17-slim
+#FROM eclipse-temurin:17-jre-alpine
 
 # Установите рабочую директорию
 #WORKDIR /app
