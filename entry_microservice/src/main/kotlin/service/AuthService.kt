@@ -16,6 +16,11 @@ import kotlin.time.toJavaInstant
 
 object AuthService {
 
+    /**
+     * Создать JWT токен, содержащий имя пользователя как Subject
+     * @param username Имя пользователя токена
+     * @return JWT токен
+     */
     @OptIn(ExperimentalTime::class)
     private fun createToken(username: String): String {
         val config = getJwtConfig()
@@ -28,6 +33,11 @@ object AuthService {
             .sign(Algorithm.HMAC256(config.property("secret").getString()))
     }
 
+    /**
+     * Зарегистировать нового пользователя
+     * @param request Объект с именем пользователя и паролем
+     * @return JWT токен
+     */
     suspend fun register(request: AuthRequest): String {
         val userEx = KeyDBAPI.getUser(request.username)
         if (userEx != null) throw StatusException("User ${request.username} already exists")
@@ -38,6 +48,11 @@ object AuthService {
         return createToken(user.username)
     }
 
+    /**
+     * Авторизировать существующего пользователя
+     * @param request Объект с именем пользователя и паролем
+     * @return JWT токен
+     */
     suspend fun login(request: AuthRequest): String {
         val user = KeyDBAPI.getUser(request.username) ?: throw StatusException("User ${request.username} not found")
         if (BCrypt.checkpw(request.password, user.password))
