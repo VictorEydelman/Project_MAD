@@ -1,10 +1,11 @@
 package ru.itmo.service
+import KeyDBClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.itmo.model.*
 import java.time.*
 
-class ReportService(private val queueService: QueueService) {
+class ReportService(private val keydb: KeyDBClient) {
 
     suspend fun makeDailyReport(username: String): Report = withContext(Dispatchers.IO) {
         val now = LocalDateTime.now()
@@ -66,19 +67,18 @@ class ReportService(private val queueService: QueueService) {
     }
 
     private suspend fun getSleepStatistics(username: String, start: LocalDateTime, end: LocalDateTime): SleepData {
-        val response = queueService.sendCommand(
-            command = "get-sleepStatistic-Interval",
-            payload = SleepInterval(username, start, end),
-            responseType = List::class.java
-        ) as List<Map<String, Any>>
-
-        return response.map { map ->
-            SleepDataPiece(
-                timestamp = LocalDateTime.parse(map["timestamp"] as String),
-                pulse = (map["pulse"] as Double).toInt(),
-                sleepPhase = SleepPhase.valueOf(map["sleepPhase"] as String)
-            )
-        }
+        val response: SleepData = keydb.sendRequest(
+            channel = "get-sleepStatistic-Interval",
+            message = SleepInterval(username, start, end)
+        )!!
+        return response
+//        return response.map { map ->
+//            SleepDataPiece(
+//                timestamp = LocalDateTime.parse(map["timestamp"] as String),
+//                pulse = (map["pulse"] as Double).toInt(),
+//                sleepPhase = SleepPhase.valueOf(map["sleepPhase"] as String)
+//            )
+//        }
     }
 
     private fun calculateQuality(data: SleepData): Int {

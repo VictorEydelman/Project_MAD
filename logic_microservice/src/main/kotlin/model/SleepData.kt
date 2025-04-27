@@ -1,11 +1,13 @@
 package ru.itmo.model
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import java.time.LocalDateTime
 
 enum class SleepPhase {
     AWAKE, DROWSY, LIGHT, DEEP, REM
 }
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class SleepDataPiece(
     val timestamp: LocalDateTime,
     val pulse: Int,

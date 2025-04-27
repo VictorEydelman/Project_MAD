@@ -1,33 +1,30 @@
 package ru.itmo.service
 
+import KeyDBClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import ru.itmo.model.SleepData
-import ru.itmo.model.SleepDataPiece
-import ru.itmo.model.SleepPhase
-import ru.itmo.model.TimePreference
+import ru.itmo.model.*
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalTime
-import kotlin.time.DurationUnit
 
-class RecommendationService(private val queueService: QueueService) {
+class RecommendationService(private val keydb: KeyDBClient) {
 
     suspend fun calculateRecommendedTimes(username: String): TimePreference = withContext(Dispatchers.IO) {
         val now = LocalDateTime.now()
-        val stats = queueService.sendCommand(
-            command = "get-sleepStatistic-Interval",
-            payload = SleepInterval(username, now.minusMonths(1), now),
-            responseType = List::class.java
-        ) as List<Map<String, Any>>
+        val stats: SleepData? = keydb.sendRequest(
+            channel = "get-sleepStatistic-Interval",
+            message = SleepInterval(username, now.minusMonths(1), now)
+        )
 
-        val sleepData = stats.map { map ->
-            SleepDataPiece(
-                timestamp = LocalDateTime.parse(map["timestamp"] as String),
-                pulse = (map["pulse"] as Double).toInt(),
-                sleepPhase = SleepPhase.valueOf(map["sleepPhase"] as String)
-            )
-        }
+        val sleepData = stats!!
+//        val sleepData = stats.map { map ->
+//            SleepDataPiece(
+//                timestamp = LocalDateTime.parse(map["timestamp"] as String),
+//                pulse = (map["pulse"] as Double).toInt(),
+//                sleepPhase = SleepPhase.valueOf(map["sleepPhase"] as String)
+//            )
+//        }
 
         // Логика расчета рекомендаций
         val avgSleepTime = calculateAverageSleepTime(sleepData)
