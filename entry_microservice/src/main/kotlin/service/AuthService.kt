@@ -39,6 +39,11 @@ object AuthService {
      * @return JWT токен
      */
     suspend fun register(request: AuthRequest): String {
+        if (!request.username.matches(Regex("^[a-zA-Z0-9_]{4,32}$")))
+            throw StatusException("Username must be form 4 to 32 characters and contain only alphanumeric and underscore characters")
+        if (request.password.length < 4)
+            throw StatusException("Password must be not less than 4 characters")
+
         val userEx = KeyDBAPI.getUser(request.username)
         if (userEx != null) throw StatusException("User ${request.username} already exists")
         val password = BCrypt.hashpw(request.password, BCrypt.gensalt())
