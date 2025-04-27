@@ -1,5 +1,18 @@
-package ru.itmo
+# Logger Microservice
 
+Чтобы подключиться к Логгеру, нужно:
+
+1. Вставить куда то класс [Logger](src/main/kotlin/Logger.kt)
+2. Проинициализовать Logger с помощью KeyDB клиента и названия
+
+Пример:
+```kotlin
+val keydb = KeyDBClient()
+Logger.init(keydb, "EntryMicroservice")
+```
+
+Класс Logger:
+```kotlin
 import KeyDBClient
 import java.time.LocalTime
 
@@ -51,3 +64,4 @@ object Logger {
     }
 
 }
+```
