@@ -33,13 +33,12 @@ fun SignUpScreen(navController: NavController) {
             NormalTextComponent(value = "Password")
             PasswordFieldComponent()
 
-            Spacer(modifier = Modifier.height(80.dp))
+            Spacer(modifier = Modifier.height(50.dp))
             ButtonComponent(
                 value = "SIGN UP",
                 onClick = {
                     // Переход на главный экран (или другой, в зависимости от твоей логики)
                     navController.navigate(Screen.LoginScreen.route)
-
                 }
             )
             Spacer(modifier = Modifier.height(25.dp))
