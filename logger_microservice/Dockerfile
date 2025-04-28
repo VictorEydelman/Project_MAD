@@ -11,7 +11,7 @@ COPY . .
 
 RUN gradle clean shadowJar --no-daemon
 
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre-noble
 
 WORKDIR /app
 
