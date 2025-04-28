@@ -5,12 +5,12 @@ import retrofit2.Response
 import retrofit2.http.GET
 
 interface AnalyticsApiService {
-    @GET("/sleep/daily-report")
+    @GET("/api/v1/sleep/daily-report")
     suspend fun getDailyReport(): Response<ReportResponseDto>
 
-    @GET("/sleep/weekly-report")
+    @GET("/api/v1/sleep/weekly-report")
     suspend fun getWeeklyReport(): Response<ReportResponseDto>
 
-    @GET("/sleep/all-time-report")
+    @GET("/api/v1/sleep/all-time-report")
     suspend fun getAllTimeReport(): Response<ReportResponseDto>
 }

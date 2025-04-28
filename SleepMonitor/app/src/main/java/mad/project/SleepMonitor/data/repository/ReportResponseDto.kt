@@ -9,8 +9,9 @@ import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.time.format.DateTimeFormatter
-import kotlin.random.Random // Для генерации пульса
+import kotlin.random.Random
 
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 fun createMockReportResponseForDay(): ReportResponseDto {
     val now = Instant.now()
     val startTime = now.minus(1, ChronoUnit.DAYS)
@@ -53,7 +54,6 @@ fun createMockReportResponseForDay(): ReportResponseDto {
 
     // Генерация фаз
     while (currentTime.isBefore(endTime)) {
-        // ... (логика выбора фазы и длительности) ...
         val phaseDurationMinutes: Long
         val nextPhase: String
         val pulseRange: IntRange
@@ -65,7 +65,7 @@ fun createMockReportResponseForDay(): ReportResponseDto {
             else -> { nextPhase = "LIGHT"; phaseDurationMinutes = Random.nextLong(25, 60); pulseRange = 55..70 }
         }
 
-        addPoint(currentTime, nextPhase, pulseRange) // <<< Добавляет в sleepDataPoints
+        addPoint(currentTime, nextPhase, pulseRange)
         val duration = Duration.ofMinutes(phaseDurationMinutes)
 
         if (nextPhase == "AWAKE") nightTotalAwake = nightTotalAwake.plus(duration)
@@ -76,7 +76,7 @@ fun createMockReportResponseForDay(): ReportResponseDto {
         if (currentTime.isAfter(endTime)) {
             val overshoot = Duration.between(endTime, currentTime)
             // --- ИСПРАВЛЕНИЕ ЗДЕСЬ ---
-            if (sleepDataPoints.isNotEmpty()) sleepDataPoints.removeLast() // <<< Используем sleepDataPoints
+            if (sleepDataPoints.isNotEmpty()) sleepDataPoints.removeLast()
             // --- КОНЕЦ ИСПРАВЛЕНИЯ ---
             addPoint(endTime, "AWAKE", 75..85)
             if (lastPhase == "AWAKE") nightTotalAwake = nightTotalAwake.minus(overshoot).coerceAtLeast(Duration.ZERO)
@@ -106,6 +106,7 @@ fun createMockReportResponseForDay(): ReportResponseDto {
 
 // --- Функция для НЕДЕЛЬНЫХ данных (оставляем как было) ---
 // (Мы ее немного почистим для ясности агрегации)
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 fun createMockReportResponseForWeek(): ReportResponseDto {
     val now = Instant.now()
     val allSleepDataPoints = mutableListOf<SleepDataPieceDto>()

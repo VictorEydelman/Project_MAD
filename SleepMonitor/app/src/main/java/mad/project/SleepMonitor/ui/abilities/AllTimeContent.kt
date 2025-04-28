@@ -6,7 +6,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember // Добавляем remember
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -14,12 +14,12 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import mad.project.SleepMonitor.domain.model.Report // Импорт модели Report
+import mad.project.SleepMonitor.domain.model.Report
 import mad.project.SleepMonitor.ui.theme.White
-import java.time.Duration // Импорт Duration
-import java.time.LocalTime // Импорт LocalTime
-import java.time.format.DateTimeFormatter // Импорт форматтера
-import java.time.format.FormatStyle // Импорт стилей форматтера
+import java.time.Duration
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 
 // Форматирует Duration в строку "Xh Ym" или "Ym"
@@ -35,9 +35,6 @@ fun formatDuration(duration: Duration?): String {
     } ?: "--" // Отображение для null
 }
 
-// Форматирует LocalTime в строку (например, "10:30 PM")
-// Используем remember внутри Composable для форматтера
-
 // Преобразует числовое качество в текстовое описание
 fun mapQualityToText(quality: Int): String {
     return when {
@@ -48,11 +45,8 @@ fun mapQualityToText(quality: Int): String {
     }
 }
 
-
 @Composable
 internal fun AllTimeContent(report: Report) {
-
-    // Создаем форматтер для времени внутри Composable с remember
     val timeFormatter = remember { DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT) }
 
     Column(
@@ -79,24 +73,24 @@ internal fun AllTimeContent(report: Report) {
                     verticalArrangement = Arrangement.Center
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        val qualityProgress = report.quality / 100f // Преобразуем Int в Float для прогресса
+                        val qualityProgress = report.quality / 100f
                         CircularProgressIndicator(
-                            progress = { qualityProgress }, // Используем данные из отчета
+                            progress = { qualityProgress },
                             modifier = Modifier.size(80.dp),
-                            color = RingColor, // Убедитесь, что эти цвета определены
+                            color = RingColor,
                             strokeWidth = 8.dp,
                             trackColor = Color.Transparent,
                             strokeCap = StrokeCap.Round
                         )
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text = report.quality.toString(), // Используем данные из отчета
+                                text = report.quality.toString(),
                                 color = White,
                                 fontSize = 25.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
-                                text = mapQualityToText(report.quality), // Используем данные из отчета
+                                text = mapQualityToText(report.quality),
                                 color = White,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.SemiBold
@@ -104,14 +98,13 @@ internal fun AllTimeContent(report: Report) {
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    // Для "All Time" логично показывать среднее качество
                     Text("Average Quality", color = White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                 }
 
                 Spacer(modifier = Modifier.width(16.dp))
 
 
-                // Форматируем время начала и конца
+
                 val startTimeStr = report.startTime?.format(timeFormatter) ?: "--:--"
                 val endTimeStr = report.endTime?.format(timeFormatter) ?: "--:--"
 
@@ -129,7 +122,6 @@ internal fun AllTimeContent(report: Report) {
                             fontWeight = FontWeight.SemiBold
                         )
                         Spacer(modifier = Modifier.height(4.dp))
-                        // Возможно, "Average Time in bed" для All Time? Или оставить так.
                         Text("Time in bed", color = LabelColor, fontSize = 13.sp, fontWeight = FontWeight.Normal)
                     }
                     Row(
@@ -138,7 +130,6 @@ internal fun AllTimeContent(report: Report) {
                     ) {
                         Column(horizontalAlignment = Alignment.Start) {
                             Text(
-                                // Для All Time используем среднее время сна
                                 text = formatDuration(report.avgAsleep),
                                 color = White,
                                 fontSize = 20.sp,
@@ -149,7 +140,6 @@ internal fun AllTimeContent(report: Report) {
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
-                                // Используем отформатированное время конца
                                 text = endTimeStr,
                                 color = White,
                                 fontSize = 20.sp,
@@ -172,7 +162,6 @@ internal fun AllTimeContent(report: Report) {
             Column(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 16.dp)
             ) {
-                // Уточняем заголовок для All Time
                 Text("Sleep Detail", color = White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
@@ -180,22 +169,21 @@ internal fun AllTimeContent(report: Report) {
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(0.9f), // Занимает 90% ширины родителя (внешнего Row)
-                        horizontalArrangement = Arrangement.SpaceBetween // Элементы распределяются внутри этих 90%
+                        modifier = Modifier.fillMaxWidth(0.9f),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        // Используем импортированный SleepDetailItem
                         SleepDetailItem(
-                            value = report.awakenings?.toString() ?: "--", // Обрабатываем null
+                            value = report.awakenings?.toString() ?: "--",
                             labelFirstLine = "Average",
                             labelRest = "Number\nof awakenings"
                         )
                         SleepDetailItem(
-                            value = formatDuration(report.avgAwake), // Используем среднее время пробуждений
+                            value = formatDuration(report.avgAwake),
                             labelFirstLine = "Average",
                             labelRest = "Duration\nof awakenings"
                         )
                         SleepDetailItem(
-                            value = formatDuration(report.avgToFallAsleep), // Используем среднее время засыпания (nullable)
+                            value = formatDuration(report.avgToFallAsleep),
                             labelFirstLine = "Average",
                             labelRest = "Time\nto fall asleep"
                         )
