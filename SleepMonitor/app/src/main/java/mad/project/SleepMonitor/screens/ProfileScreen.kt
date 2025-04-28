@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import mad.project.SleepMonitor.navigation.Screen
 import mad.project.SleepMonitor.ui.common.AppScaffold
 import java.text.SimpleDateFormat
 import java.util.*
@@ -84,8 +85,9 @@ fun ProfileScreen(navController: NavController) {
                     }
 
                     SettingCard(title = "Sleep Settings") {
-                        NavigationField(label = "Alarm Settings", onClick = { navController.navigate("alarm_screen") })
-                        NavigationField(label = "Bed Time Settings", onClick = { navController.navigate("bedtime_screen") })
+                        NavigationField(label = "Alarm Settings", onClick = { navController.navigate(
+                            Screen.AlarmScreen.route) })
+                        NavigationField(label = "Bed Time Settings", onClick = { navController.navigate(Screen.BedTimeScreen.route) })
                         WearableDeviceField(selectedDevice = wearableDevice, onDeviceSelected = { wearableDevice = it })
                     }
 
