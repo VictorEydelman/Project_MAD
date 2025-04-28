@@ -15,21 +15,20 @@ import mad.project.SleepMonitor.states.AnalyticsScreenState
 
 
 class AnalyticsViewModel(
-    private val repository: AnalyticsRepository // Инжектируйте или передавайте экземпляр
+    private val repository: AnalyticsRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AnalyticsScreenState())
     val state: StateFlow<AnalyticsScreenState> = _state.asStateFlow()
 
     init {
-        // Загружаем данные для начального диапазона при инициализации
         fetchReportData(TimeRange.ALL)
     }
 
     fun onTimeRangeSelected(newTimeRange: TimeRange) {
         if (newTimeRange != _state.value.selectedTimeRange || _state.value.report == null) {
             _state.update { it.copy(selectedTimeRange = newTimeRange) }
-            fetchReportData(newTimeRange) // Вызываем обновленную функцию
+            fetchReportData(newTimeRange)
         }
     }
 
@@ -49,7 +48,7 @@ class AnalyticsViewModel(
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            report = result.data, // data здесь non-null из-за логики Success
+                            report = result.data,
                             error = null
                         )
                     }
@@ -58,16 +57,11 @@ class AnalyticsViewModel(
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            // report = null, // Можно оставить старые данные при ошибке
                             error = result.message ?: "Unknown error"
                         )
                     }
                 }
                 is Resource.Loading -> {
-                    // Loading обычно обрабатывается в репозитории или use-case,
-                    // если они возвращают Flow. Здесь у нас suspend-функция.
-                    // Но если бы Resource.Loading возвращался, обработка была бы здесь.
-                    // _state.update { it.copy(isLoading = true) }
                 }
             }
         }
