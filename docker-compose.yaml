@@ -40,6 +40,7 @@ services:
     stdin_open: true
     tty: true
     container_name: db-serv
+    restart: on-failure
     build:
       context: DB_server  # Контекст сборки (папка с Dockerfile)
       dockerfile: Dockerfile  # Имя Dockerfile
@@ -89,6 +90,14 @@ services:
       - ./logs:/app/logs
     ports:
       - "8900:8900"  # Проброс порта для доступа к Ktor серверу
+    depends_on:
+      - keydb
+    networks:
+      - sleepmonitor-network
+  logger:
+    build:
+      context: logger_microservice
+      dockerfile: Dockerfile
     depends_on:
       - keydb
     networks:

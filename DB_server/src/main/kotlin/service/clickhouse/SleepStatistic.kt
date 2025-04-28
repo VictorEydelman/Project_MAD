@@ -15,9 +15,18 @@ import java.time.format.DateTimeFormatter
 data class SleepStatistic(var username: String = "", @Contextual val timestamp: LocalDateTime, val pulse: Float, val sleepPhase: String)
 @Serializable
 data class SleepInterval(val username: String, @Contextual val start: LocalDateTime, @Contextual val end: LocalDateTime)
+
+/**
+ * Класс для работы с таблицей SleepStatistic в базе данных Clickhouse
+ */
 class SleepStatisticService(val connection: Connection){
+    /**
+     * Запросы к таблице:
+     * drop
+     * createTableSleepStatistic
+     */
     companion object{
-        val drop ="""drop table IF EXISTS SleepStatistic"""
+        val drop = """drop table IF EXISTS SleepStatistic"""
         val createTableSleepStatistic = """
             CREATE TABLE IF NOT EXISTS SleepStatistic (
                 username String,
@@ -28,10 +37,18 @@ class SleepStatisticService(val connection: Connection){
             ORDER BY (username, timestamp)
         """.trimIndent()
     }
+    /**
+     * Создание таблицы
+     * Возможно ещё её удаление
+     */
     init {
-        connection.createStatement().execute(drop)
+        //connection.createStatement().execute(drop)
         connection.createStatement().execute(createTableSleepStatistic)
     }
+
+    /**
+     * Достать список данных о сне за опредлелённый интервал пользователя
+     */
     fun getSleepStatisticInterval(sleepInterval: SleepInterval): List<SleepStatistic>{
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
         val startFormat = sleepInterval.start.format(formatter)
@@ -57,10 +74,13 @@ class SleepStatisticService(val connection: Connection){
         }
         return results
     }
+
+    /**
+     * Добавление списка данных по статистике сна пользователя
+     */
     fun addSleepData(sleepStatistics: DataUser<List<SleepStatistic>>): Boolean {
         var error = true
         for (sleepStatistic in sleepStatistics.data) {
-            println(sleepStatistic)
             sleepStatistic.username=sleepStatistics.username
             val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             val timestamp = sleepStatistic.timestamp.format(formatter)
@@ -90,8 +110,5 @@ class SleepStatisticService(val connection: Connection){
             }
         }
         return true
-    }
-    fun getPercentageSleepInterval(username: String, start: LocalDateTime, end: LocalDateTime){
-
     }
 }
