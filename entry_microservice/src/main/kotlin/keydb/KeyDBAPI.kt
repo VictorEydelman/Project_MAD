@@ -16,6 +16,7 @@ object KeyDBAPI {
 
     fun init(host: String, port: Int) {
         keydb = KeyDBClient(host, port)
+        Logger.init(keydb, "EntryMicroservice")
     }
 
     fun close() {

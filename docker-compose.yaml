@@ -90,6 +90,14 @@ services:
       - keydb
     networks:
       - sleepmonitor-network
+  logger:
+    build:
+      context: logger_microservice
+      dockerfile: Dockerfile
+    depends_on:
+      - keydb
+    networks:
+      - sleepmonitor-network
   external_device:
     build:
       context: external_device
