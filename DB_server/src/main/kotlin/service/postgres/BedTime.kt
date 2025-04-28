@@ -11,22 +11,35 @@ import java.sql.Time
 
 @Serializable
 data class BedTime(val id:Int = -1, @Contextual val time: Time, val remindMeToSleep: Boolean, val remindBeforeBad: Boolean)
+/**
+ * Класс для работы с таблицей BedTime в базе данных postgres
+ */
 class BedTimeService(private val connection: Connection){
+    /**
+     * Запросы к таблице:
+     * CREATE_TABLE_BedTime
+     * SELECT_BEDTIME_BY_ID
+     * INSERT_BEDTIME
+     * UPDATE_BEDTIME
+     */
     companion object {
         private const val CREATE_TABLE_BedTime =
             "CREATE TABLE IF NOT EXISTS bedtime (ID SERIAL PRIMARY KEY, time Time, remindMeToSleep Boolean, remindBeforeBad Boolean);"
         private const val SELECT_BEDTIME_BY_ID = "SELECT * FROM bedtime WHERE id = ?"
         private const val INSERT_BEDTIME = "INSERT INTO bedtime (time, remindMeToSleep, remindBeforeBad) VALUES (?, ?, ?)"
-        private const val EXIST_USER = "SELECT count(*) FROM USERS WHERE username = ?"
-        private const val FIND_BY_USERNAME_AND_PASSWORD = "SELECT count(*) FROM users WHERE username = ? and password = ?"
         private const val UPDATE_BEDTIME = "UPDATE bedtime SET time = ?, remindMeToSleep = ?, remindBeforeBad = ? WHERE id = ?"
-        private const val DELETE_CITY = "DELETE FROM cities WHERE id = ?"
-
     }
+    /**
+     * Создание таблицы
+     */
     init {
         val statement = connection.createStatement()
         statement.executeUpdate(CREATE_TABLE_BedTime)
     }
+
+    /**
+     * Сохраняет bedTime
+     */
     fun save(bedTime: BedTime): Int{
         try {
             val statement = connection.prepareStatement(INSERT_BEDTIME, Statement.RETURN_GENERATED_KEYS)
@@ -45,6 +58,9 @@ class BedTimeService(private val connection: Connection){
         }
     }
 
+    /**
+     * Обновляет bedTime
+     */
     fun update(bedTime: BedTime){
         try {
             val statement = connection.prepareStatement(UPDATE_BEDTIME)
@@ -58,6 +74,10 @@ class BedTimeService(private val connection: Connection){
             throw Exception("Ошибка с бд")
         }
     }
+
+    /**
+     * Возвращает BedTime по id
+     */
     fun get(id: Int): BedTime{
         val statement = connection.prepareStatement(SELECT_BEDTIME_BY_ID)
         statement.setInt(1,id);

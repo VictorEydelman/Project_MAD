@@ -3,7 +3,6 @@ package mad.project.service.postgres
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import mad.project.DataUser
-import mad.project.SettingWithOutUser
 import java.sql.Connection
 import java.sql.Date
 import java.sql.SQLException
@@ -16,7 +15,28 @@ data class Settings(
     val physicalCondition: Frequency, val caffeineUsage: Frequency,
     val alcoholUsage: Frequency, var alarmRecurring: Alarm?, var alarmTemporary: Alarm?,
     var bedTimeRecurring: BedTime?, var bedTimeTemporary: BedTime?)
+@Serializable
+data class SettingWithOutUser(val name: String, val surname: String,
+                              @Contextual val birthday: LocalDate, var gender: Gender,
+                              val physicalCondition: Frequency, val caffeineUsage: Frequency,
+                              val alcoholUsage: Frequency, val alarmRecurring: Alarm?, var alarmTemporary: Alarm?,
+                              val bedTimeRecurring: BedTime?, var bedTimeTemporary: BedTime?)
+
+/**
+ * Класс для работы с таблицей Settings в базе данных postgres
+ */
 class SettingsService(private val connection: Connection){
+    /**
+     * Запросы к таблице:
+     * CREATE_TABLE_SETTINGS
+     * SELECT_SETTING_BY_USERNAME
+     * INSERT_SETTING
+     * UPDATE_SETTING
+     * UPDATE_Temporary
+     * DROP_TABLE
+     * EXIST_SETTING
+     * DROP_TABLE
+     */
     companion object {
         private const val CREATE_TABLE_SETTINGS =
             """CREATE TABLE IF NOT EXISTS SETTINGS (
@@ -65,11 +85,20 @@ class SettingsService(private val connection: Connection){
         private const val DROP_TABLE = "DROP TABLE IF EXISTS SETTINGS"
         private const val EXIST_SETTING = "SELECT count(*) FROM SETTINGS WHERE username = ?"
     }
+
+    /**
+     * Создание таблицы
+     * Возможно ещё её удаление
+     */
     init {
         val statement = connection.createStatement()
         //statement.executeUpdate(DROP_TABLE)
         statement.executeUpdate(CREATE_TABLE_SETTINGS)
     }
+
+    /**
+     * Проверяет, что setting пользователя не существует
+     */
     fun settingNotExist(username: String): Boolean {
         try{
             val statement = connection.prepareStatement(EXIST_SETTING)
@@ -85,6 +114,10 @@ class SettingsService(private val connection: Connection){
             //throw Exception("Пользователь с таким именем уже существует.")
         }
     }
+
+    /**
+     * Сохраняет или обновляет setting пользователя
+     */
     fun save(settingUser: DataUser<Settings>): Boolean{
         var settings = settingUser.data
         settings.username = settingUser.username
@@ -94,6 +127,10 @@ class SettingsService(private val connection: Connection){
             return update(settings)
         }
     }
+
+    /**
+     * Добавляет setting пользователя
+     */
     fun insert(settings: Settings): Boolean{
         try {
             val Alarm = AlarmService(connection)
@@ -127,22 +164,22 @@ class SettingsService(private val connection: Connection){
             if (alrec != null) {
                 statement.setInt(9, alrec)
             } else {
-                statement.setNull(9, java.sql.Types.INTEGER) // Устанавливаем null для alarmRecurring
+                statement.setNull(9, java.sql.Types.INTEGER)
             }
             if (altem != null) {
                 statement.setInt(10, altem)
             } else {
-                statement.setNull(10, java.sql.Types.INTEGER) // Устанавливаем null для alarmTemporary
+                statement.setNull(10, java.sql.Types.INTEGER)
             }
             if (bedrec != null) {
                 statement.setInt(11, bedrec)
             } else {
-                statement.setNull(11, java.sql.Types.INTEGER) // Устанавливаем null для alarmRecurring
+                statement.setNull(11, java.sql.Types.INTEGER)
             }
             if (bedtem != null) {
                 statement.setInt(12, bedtem)
             } else {
-                statement.setNull(12, java.sql.Types.INTEGER) // Устанавливаем null для alarmTemporary
+                statement.setNull(12, java.sql.Types.INTEGER)
             }
             statement.executeUpdate()
             return true
@@ -151,6 +188,10 @@ class SettingsService(private val connection: Connection){
             throw Exception(e)
         }
     }
+
+    /**
+     * Обновляет setting пользователя
+     */
     fun update(settings: Settings): Boolean{
         try {
             val Alarm = AlarmService(connection)
@@ -204,6 +245,9 @@ class SettingsService(private val connection: Connection){
         }
     }
 
+    /**
+     * Возвращает setting по username
+     */
     fun get(username: String): SettingWithOutUser{
         val statement = connection.prepareStatement(SELECT_SETTING_BY_USERNAME)
         statement.setString(1,username);
@@ -252,6 +296,9 @@ class SettingsService(private val connection: Connection){
         }
     }
 
+    /**
+     * Удаляет все временные данные о времени
+     */
     fun temporaryToNull(username: String): Boolean{
         try {
             val statement = connection.prepareStatement(UPDATE_Temporary)
