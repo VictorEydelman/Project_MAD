@@ -3,6 +3,7 @@ package mad.project.SleepMonitor.screens
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,7 +34,7 @@ fun MainScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
         ImageSection()
         Spacer(modifier = Modifier.height(16.dp))
-        TimeCardsGrid()
+        TimeCardsGrid(navController)
         Spacer(modifier = Modifier.height(32.dp))
     }
 
@@ -97,7 +98,7 @@ fun ImageSection() {
     }
 }
 @Composable
-fun TimeCardsGrid() {
+fun TimeCardsGrid(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -109,14 +110,18 @@ fun TimeCardsGrid() {
                 title = "Alarm",
                 time = "04 : 00", // Пробелы вокруг двоеточия
                 iconRes = R.drawable.ic_alarm,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).clickable {
+                    navController.navigate("alarm")
+                }
             )
             Spacer(modifier = Modifier.width(16.dp))
             TimeCard(
                 title = "Bedtime",
                 time = "22 : 00", // Пробелы вокруг двоеточия
                 iconRes = R.drawable.ic_bedtime,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).clickable {
+                    navController.navigate("bedtime")
+                }
             )
         }
 

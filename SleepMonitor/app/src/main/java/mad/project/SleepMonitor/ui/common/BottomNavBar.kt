@@ -54,28 +54,28 @@ fun BottomNavBar(navController: NavController, currentRoute: String?) { // Па�
             }
         )
 
-        // --- Элемент Abilities ---
+        // --- Элемент Analytics ---
         NavigationBarItem(
             icon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_bar_chart),
-                    contentDescription = "Abilities",
+                    contentDescription = "Analytics",
                     modifier = Modifier.size(24.dp)
                 )
             },
             label = {
                 Text(
-                    "abilities",
+                    "analytics",
                     fontSize = 12.sp,
                     color = Color.White
                 )
             },
             // Выбран, если текущий маршрут совпадает с маршрутом AbilitiesScreen
-            selected = currentRoute == Screen.AbilitiesScreen.route,
+            selected = currentRoute == Screen.AnalyticsScreen.route,
             onClick = {
                 // Навигация только если мы НЕ на этом экране
-                if (currentRoute != Screen.AbilitiesScreen.route) {
-                    navController.navigate(Screen.AbilitiesScreen.route) {
+                if (currentRoute != Screen.AnalyticsScreen.route) {
+                    navController.navigate(Screen.AnalyticsScreen.route) {
                         // Возврат к MainScreen (корневому экрану табов) и singleTop
                         popUpTo(Screen.MainScreen.route)
                         launchSingleTop = true
