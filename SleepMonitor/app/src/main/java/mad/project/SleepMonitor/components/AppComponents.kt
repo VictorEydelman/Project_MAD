@@ -317,3 +317,16 @@ fun SettingSwitch(){
         contentDescription = "Checker"
     })
 }
+@Composable
+fun SettingSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Switch(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        colors = SwitchDefaults.colors(
+            checkedThumbColor = Color(0xFFD9D9D9),
+            uncheckedThumbColor = Color(0xFFB0BEC5),
+            checkedTrackColor = Color(0xFF3C5195),
+            uncheckedTrackColor = Color(0xFFCFD8DC)
+        )
+    )
+}
