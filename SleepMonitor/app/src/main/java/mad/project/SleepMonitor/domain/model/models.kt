@@ -11,6 +11,24 @@ enum class Weekday {
     Mon, Tue, Wed, Thu, Fri, Sat, Sun
 }
 
+data class Alarm(
+    val time: LocalTime,
+    val alarm: Boolean,
+)
+
+data class BedTime(
+    val time: LocalTime,
+    val remindMeToSleep: Boolean,
+    val remindBeforeBad: Boolean,
+)
+data class TimePreference(
+    val asleepTime: LocalTime,
+    val awakeTime: LocalTime,
+)
+data class User(
+    val username: String,
+    val password: String,
+)
 
 data class Report(
     val quality: Int,

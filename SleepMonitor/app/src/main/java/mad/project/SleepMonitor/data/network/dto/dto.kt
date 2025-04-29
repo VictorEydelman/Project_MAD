@@ -29,3 +29,19 @@ data class SleepDataPieceDto(
     @SerializedName("pulse") val pulse: Int?,
     @SerializedName("phase") val phase: String?
 )
+//----- Request DTO --------
+data class AuthRequest(
+    @SerializedName("username") val username: String,
+    @SerializedName("password") val password: String
+)
+
+// --- Response DTOs ---
+data class AuthResponse(
+    @SerializedName("username") val username: String,
+    @SerializedName("token") val token: String,
+    @SerializedName("success") val success: Boolean
+)
+data class CheckAuthResponse(
+    @SerializedName("username") val username: String?,
+    @SerializedName("success") val success: Boolean
+)

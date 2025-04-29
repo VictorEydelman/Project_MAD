@@ -1,5 +1,8 @@
 package mad.project.SleepMonitor.data.mapper
 
+import mad.project.SleepMonitor.data.network.dto.AuthRequest
+import mad.project.SleepMonitor.data.network.dto.AuthResponse
+import mad.project.SleepMonitor.data.network.dto.CheckAuthResponse
 import mad.project.SleepMonitor.data.network.dto.ReportDataDto
 import mad.project.SleepMonitor.data.network.dto.SleepDataPieceDto
 import mad.project.SleepMonitor.domain.model.*
@@ -70,6 +73,51 @@ fun SleepDataPieceDto.toDomain(): SleepDataPiece? {
     }
 }
 
+// --- Mappers for Authentication (Login/Register) ---
+fun AuthRequest.toDomain(): User? {
+    if (username.isBlank()) {
+        println("Error: Username is empty or blank")
+        return null
+    }
+    if (password.isBlank() || password.length < 6) {
+        println("Error: Password is empty or too short")
+        return null
+    }
+    return User(
+        username = username,
+        password = password
+    )
+}
+
+fun AuthResponse.toDomain(storedPassword: String): User? {
+    if (!success) {
+        println("Error: Authentication failed for username: $username")
+        return null
+    }
+    if (username.isBlank()) {
+        println("Error: Invalid username in AuthResponse")
+        return null
+    }
+    return User(
+        username = username,
+        password = storedPassword
+    )
+}
+
+fun CheckAuthResponse.toDomain(storedPassword: String?): User? {
+    if (!success || username.isNullOrBlank()) {
+        println("Error: Check authentication failed or no valid username")
+        return null
+    }
+    if (storedPassword.isNullOrBlank()) {
+        println("Warning: No stored password available for CheckAuth")
+        return null
+    }
+    return User(
+        username = username,
+        password = storedPassword
+    )
+}
 
 private fun calculateSleepQuality(totalSleep: Duration?, awakenings: Int?): Int {
     if (totalSleep == null) return 0
