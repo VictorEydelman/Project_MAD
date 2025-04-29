@@ -89,6 +89,7 @@ fun Application.configureDatabases() {
     val settingsService = SettingsService(dbConnection)
     val sleepStatisticService = SleepStatisticService(clickHouseConnection)
     val keyDBClient = KeyDBClient()
+    Logger.init(keyDBClient,"DB Microservice")
 
     launch {
         keyDBClient.subscribeWithResponse("get-user", String::class.java, { username: String ->

@@ -81,7 +81,7 @@ class SettingsService(private val connection: Connection){
                     "alarmTemporary = ?, " +
                     "bedTimeRecurring = ?, " +
                     "bedTimeTemporary = ? WHERE USERNAME = ?"
-        private const val UPDATE_Temporary = "PDATE SETTINGS SET alarmTemporary = ?," +
+        private const val UPDATE_Temporary = "UPDATE SETTINGS SET alarmTemporary = ?," +
                 "bedTimeTemporary = ? WHERE USERNAME = ?"
         private const val DROP_TABLE = "DROP TABLE IF EXISTS SETTINGS"
         private const val EXIST_SETTING = "SELECT count(*) FROM SETTINGS WHERE username = ?"
@@ -351,9 +351,10 @@ class SettingsService(private val connection: Connection){
             statement.setNull(1, java.sql.Types.INTEGER)
             statement.setNull(2, java.sql.Types.INTEGER)
             statement.setString(3, username)
+            statement.executeUpdate()
             return true
         } catch (e: SQLException){
-            Logger.error("Error in database postgresql")
+            Logger.error("Error in database postgresql: ",e)
             return false
         }
     }
