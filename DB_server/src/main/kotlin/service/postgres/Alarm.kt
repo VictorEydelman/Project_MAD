@@ -77,7 +77,7 @@ class AlarmService(private val connection: Connection){
     /**
      * Возвращает Alarm по id
      */
-    fun get(id: Int): Alarm{
+    fun get(id: Int): Alarm?{
         val statement = connection.prepareStatement(SELECT_ALARM_BY_ID)
         statement.setInt(1,id);
         val result = statement.executeQuery()

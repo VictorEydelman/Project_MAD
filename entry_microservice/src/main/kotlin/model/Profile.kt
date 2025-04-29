@@ -1,5 +1,6 @@
 package ru.itmo.model
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -11,6 +12,7 @@ enum class Periodicity { OnceADay, TwiceADay, ThreeTimesADay, OnceEveryTwoDays, 
  * @param time Время будильника
  * @param alarm Активен ли будильник
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class Alarm(val time: LocalTime, val alarm: Boolean)
 
 /**
@@ -19,6 +21,7 @@ data class Alarm(val time: LocalTime, val alarm: Boolean)
  * @param remindMeToSleep Нужно ли уведомление в это время
  * @param remindBeforeBad Нужно ли уведомление за 15 минут до этого времени
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class BedTime(val time: LocalTime, val remindMeToSleep: Boolean, val remindBeforeBad: Boolean)
 
 
@@ -36,6 +39,7 @@ data class BedTime(val time: LocalTime, val remindMeToSleep: Boolean, val remind
  * @param bedTimeRecurring Заданное постоянное желаемое время отхода ко сну
  * @param bedTimeTemporary Временное сбрасывающееся после уведомления отхода ко сну
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class Profile(
     val name: String,
     val surname: String,

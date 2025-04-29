@@ -119,8 +119,10 @@ class SettingsService(private val connection: Connection){
      * Сохраняет или обновляет setting пользователя
      */
     fun save(settingUser: DataUser<Settings>): Boolean{
+        println(settingUser)
         var settings = settingUser.data
         settings.username = settingUser.username
+        println(settings)
         if(settingNotExist(settings.username)){
             return insert(settings)
         } else{
@@ -195,18 +197,42 @@ class SettingsService(private val connection: Connection){
     fun update(settings: Settings): Boolean{
         try {
             val Alarm = AlarmService(connection)
+            var alrec_id: Int? =null
             if(settings.alarmRecurring!=null) {
-                Alarm.update(settings.alarmRecurring)
+                if(settings.alarmRecurring!!.id==-1){
+                    alrec_id = Alarm.save(settings.alarmRecurring)
+                } else{
+                    Alarm.update(settings.alarmRecurring)
+                    alrec_id = settings.alarmRecurring!!.id
+                }
             }
+            var altem_id: Int? =null
             if(settings.alarmTemporary!=null) {
-                Alarm.update(settings.alarmTemporary)
+                if(settings.alarmTemporary!!.id==-1){
+                    altem_id = Alarm.save(settings.alarmTemporary)
+                } else{
+                    Alarm.update(settings.alarmTemporary)
+                    altem_id = settings.alarmTemporary!!.id
+                }
             }
             val BedTime = BedTimeService(connection)
+            var bedrec_id: Int? =null
             if(settings.bedTimeRecurring!=null) {
-                BedTime.update(settings.bedTimeRecurring!!)
+                if(settings.bedTimeRecurring!!.id==-1){
+                    bedrec_id = BedTime.save(settings.bedTimeRecurring!!)
+                } else{
+                    BedTime.update(settings.bedTimeRecurring!!)
+                    bedrec_id = settings.bedTimeRecurring!!.id
+                }
             }
+            var bedtem_id: Int? =null
             if(settings.bedTimeTemporary!=null) {
-                BedTime.update(settings.bedTimeTemporary!!)
+                if(settings.bedTimeTemporary!!.id==-1){
+                    bedtem_id = BedTime.save(settings.bedTimeTemporary!!)
+                } else{
+                    BedTime.update(settings.bedTimeTemporary!!)
+                    bedtem_id = settings.bedTimeTemporary!!.id
+                }
             }
             val statement = connection.prepareStatement(UPDATE_SETTING)
             statement.setString(1, settings.name)
@@ -217,22 +243,22 @@ class SettingsService(private val connection: Connection){
             statement.setObject(6,settings.caffeineUsage.name,java.sql.Types.OTHER)
             statement.setObject(7,settings.alcoholUsage.name,java.sql.Types.OTHER)
             if (settings.alarmRecurring != null) {
-                statement.setInt(8, settings.alarmRecurring!!.id)
+                statement.setInt(8, alrec_id!!)
             } else {
                 statement.setNull(8, java.sql.Types.INTEGER) // Устанавливаем null для alarmRecurring
             }
             if (settings.alarmTemporary != null) {
-                statement.setInt(9, settings.alarmTemporary!!.id)
+                statement.setInt(9, altem_id!!)
             } else {
                 statement.setNull(9, java.sql.Types.INTEGER) // Устанавливаем null для alarmTemporary
             }
             if (settings.bedTimeRecurring != null) {
-                statement.setInt(10, settings.bedTimeRecurring!!.id)
+                statement.setInt(10, bedrec_id!!)
             } else {
                 statement.setNull(10, java.sql.Types.INTEGER) // Устанавливаем null для alarmRecurring
             }
             if (settings.bedTimeTemporary!= null) {
-                statement.setInt(11, settings.bedTimeTemporary!!.id)
+                statement.setInt(11, bedtem_id!!)
             } else {
                 statement.setNull(11, java.sql.Types.INTEGER) // Устанавливаем null для alarmTemporary
             }

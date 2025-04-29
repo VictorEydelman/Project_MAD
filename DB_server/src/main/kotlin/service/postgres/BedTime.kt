@@ -78,7 +78,7 @@ class BedTimeService(private val connection: Connection){
     /**
      * Возвращает BedTime по id
      */
-    fun get(id: Int): BedTime{
+    fun get(id: Int): BedTime?{
         val statement = connection.prepareStatement(SELECT_BEDTIME_BY_ID)
         statement.setInt(1,id);
         val result = statement.executeQuery()
@@ -86,7 +86,8 @@ class BedTimeService(private val connection: Connection){
         if(result.next()){
             return BedTime(result.getInt("id"), result.getObject("time") as Time,result.getBoolean("remindMeToSleep"), result.getBoolean("remindBeforeBad"))
         } else{
-            throw Exception("Нету настроек")
+            return null
+            //throw Exception("Нету настроек")
         }
 
     }

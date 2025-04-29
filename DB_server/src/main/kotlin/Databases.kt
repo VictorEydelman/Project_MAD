@@ -2,12 +2,14 @@ package mad.project
 
 import KeyDBClient
 import com.fasterxml.jackson.core.type.TypeReference
+import com.typesafe.config.ConfigException
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import mad.project.keyDB.Logger
 import mad.project.service.clickhouse.SleepInterval
 import mad.project.service.clickhouse.SleepStatistic
 import java.sql.Connection
@@ -183,19 +185,31 @@ fun Application.configureDatabases() {
  * Подключение к базе данных postgres
  */
 fun Application.connectToPostgres(): Connection {
-    Class.forName("org.postgresql.Driver")
-    val url = environment.config.property("postgres.url").getString()
-    log.info("Connecting to postgres database at $url")
-    val user = environment.config.property("postgres.user").getString()
-    val password = environment.config.property("postgres.password").getString()
-    return DriverManager.getConnection(url, user, password)
+    try {
+        Class.forName("org.postgresql.Driver")
+        val url = environment.config.property("postgres.url").getString()
+        log.info("Connecting to postgres database at $url")
+        val user = environment.config.property("postgres.user").getString()
+        val password = environment.config.property("postgres.password").getString()
+        return DriverManager.getConnection(url, user, password)
+    } catch (e: Exception){
+        Logger.error("Error launch to postgres")
+        throw Exception(e)
+
+    }
 }
 
 /**
  * Подключение к базе данных ClickHouse
  */
 fun Application.connectToClickHouse(): Connection {
-    val url = environment.config.property("clickhouse.url").getString() // Убедитесь, что ClickHouse запущен на этом адресе
-    Class.forName("ru.yandex.clickhouse.ClickHouseDriver")
-    return DriverManager.getConnection(url,"default","")
+    try {
+        val url = environment.config.property("clickhouse.url")
+            .getString() // Убедитесь, что ClickHouse запущен на этом адресе
+        Class.forName("ru.yandex.clickhouse.ClickHouseDriver")
+        return DriverManager.getConnection(url, "default", "")
+    } catch (e : Exception){
+        Logger.error("Error launch to clickhouse")
+        throw Exception(e)
+    }
 }
