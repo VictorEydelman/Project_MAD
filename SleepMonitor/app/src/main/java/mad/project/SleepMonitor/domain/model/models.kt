@@ -1,6 +1,7 @@
 package mad.project.SleepMonitor.domain.model
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.LocalTime
 
 enum class SleepPhase {
@@ -26,9 +27,9 @@ data class Report(
 )
 
 data class SleepDataPiece(
-    val timestamp: Instant,
+    val timestamp: LocalDateTime,
     val pulse: Int,
-    val phase: SleepPhase,
+    val sleepPhase: SleepPhase,
 )
 
 typealias SleepData = List<SleepDataPiece>

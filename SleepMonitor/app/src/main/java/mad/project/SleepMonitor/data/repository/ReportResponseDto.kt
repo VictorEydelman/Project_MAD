@@ -7,6 +7,7 @@ import mad.project.SleepMonitor.data.network.dto.ReportResponseDto
 import mad.project.SleepMonitor.data.network.dto.SleepDataPieceDto
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 import java.time.format.DateTimeFormatter
 import kotlin.random.Random
@@ -33,7 +34,7 @@ fun createMockReportResponseForDay(): ReportResponseDto {
         sleepDataPoints.add(
             SleepDataPieceDto(
                 timestamp = DateTimeFormatter.ISO_INSTANT.format(time),
-                phase = phase,
+                sleepPhase = phase,
                 pulse = Random.nextInt(pulseRange.first, pulseRange.last + 1)
             )
         )
@@ -79,20 +80,25 @@ fun createMockReportResponseForDay(): ReportResponseDto {
     }
 
     // Агрегированные значения
-    val totalSleepMillis = nightTotalSleep.toMillis()
-    val avgAsleepMillis = totalSleepMillis
-    val avgAwakeMillis = if (nightAwakenings > 0) nightTotalAwake.dividedBy(nightAwakenings.toLong()).toMillis() else Duration.ofMinutes(2).toMillis()
+    val totalSleepSec = nightTotalSleep.toSeconds()
+    val avgAsleepSec = totalSleepSec
+    val avgAwakeSec = if (nightAwakenings > 0) nightTotalAwake.dividedBy(nightAwakenings.toLong()).toSeconds() else Duration.ofMinutes(2).toSeconds()
     val awakeningsCount = nightAwakenings
 
     return ReportResponseDto(
         success = true,
         message = null,
         data = ReportDataDto(
-            totalSleepMillis = totalSleepMillis,
-            avgAsleepMillis = avgAsleepMillis,
-            avgAwakeMillis = avgAwakeMillis,
+            totalSleepSec = totalSleepSec.toDouble(),
+            avgAsleepSec = avgAsleepSec.toDouble(),
+            avgAwakeSec = avgAwakeSec.toDouble(),
             awakenings = awakeningsCount,
-            data = sleepDataPoints
+            data = sleepDataPoints,
+            quality = (Math.random() * 100).toInt(),
+            startTime = LocalTime.now().minusSeconds(totalSleepSec).toString(),
+            endTime = LocalTime.now().toString(),
+            avgToFallAsleepSec = avgAwakeSec.toDouble(),
+            distribution = null
         )
     )
 }
@@ -125,7 +131,7 @@ fun createMockReportResponseForWeek(): ReportResponseDto {
             allSleepDataPoints.add(
                 SleepDataPieceDto(
                     timestamp = DateTimeFormatter.ISO_INSTANT.format(time),
-                    phase = phase,
+                    sleepPhase = phase,
                     pulse = Random.nextInt(pulseRange.first, pulseRange.last + 1)
                 )
             )
@@ -170,19 +176,24 @@ fun createMockReportResponseForWeek(): ReportResponseDto {
         totalAwakeningsAggregated += nightAwakenings
     }
 
-    val avgSleepPerNightMillis = if (numberOfDays > 0) totalSleepDurationAggregated.dividedBy(numberOfDays.toLong()).toMillis() else 0
-    val avgAwakeDurationPerAwakeningMillis = if (totalAwakeningsAggregated > 0) totalAwakeDurationAggregated.dividedBy(totalAwakeningsAggregated.toLong()).toMillis() else Duration.ofMinutes(5).toMillis()
+    val avgSleepPerNightMillis = if (numberOfDays > 0) totalSleepDurationAggregated.dividedBy(numberOfDays.toLong()).toSeconds() else 0
+    val avgAwakeDurationPerAwakeningMillis = if (totalAwakeningsAggregated > 0) totalAwakeDurationAggregated.dividedBy(totalAwakeningsAggregated.toLong()).toSeconds() else Duration.ofMinutes(5).toSeconds()
     val avgAwakeningsPerNight = if (numberOfDays > 0) totalAwakeningsAggregated / numberOfDays else 0
 
     return ReportResponseDto(
         success = true,
         message = null,
         data = ReportDataDto(
-            totalSleepMillis = avgSleepPerNightMillis,
-            avgAsleepMillis = avgSleepPerNightMillis,
-            avgAwakeMillis = avgAwakeDurationPerAwakeningMillis,
+            totalSleepSec = avgSleepPerNightMillis.toDouble(),
+            avgAsleepSec = avgSleepPerNightMillis.toDouble(),
+            avgAwakeSec = avgAwakeDurationPerAwakeningMillis.toDouble(),
             awakenings = avgAwakeningsPerNight,
-            data = allSleepDataPoints
+            data = allSleepDataPoints,
+            quality = (Math.random() * 100).toInt(),
+            startTime = LocalTime.now().minusSeconds(avgSleepPerNightMillis).toString(),
+            endTime = LocalTime.now().toString(),
+            avgToFallAsleepSec = avgAwakeDurationPerAwakeningMillis.toDouble(),
+            distribution = null
         )
     )
 }

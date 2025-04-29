@@ -42,6 +42,7 @@ class AnalyticsViewModel(
                 TimeRange.WEEK -> repository.getWeeklyReport()
                 TimeRange.ALL -> repository.getAllTimeReport()
             }
+            println(result.data)
 
             when (result) {
                 is Resource.Success -> {

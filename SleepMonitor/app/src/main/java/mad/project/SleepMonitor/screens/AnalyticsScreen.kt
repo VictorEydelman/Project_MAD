@@ -117,6 +117,7 @@ fun AnalyticsScreen(navController: NavController, viewModel: AnalyticsViewModel)
                 }
                 state.report != null -> {
                     // Показываем контент, если данные есть
+                    println(state.report)
                     Column(modifier = Modifier.fillMaxWidth()) {
                         when (selectedTimeRange) {
                             TimeRange.ALL -> AllTimeContent(report = state.report!!)

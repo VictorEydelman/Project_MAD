@@ -26,6 +26,7 @@ import mad.project.SleepMonitor.ui.abilities.*
 import mad.project.SleepMonitor.ui.theme.White
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -41,8 +42,8 @@ private val SleepTimelineTrackColor = Color(0xFF3A395E)
 // --- Структура для подготовленных данных графика ---
 private data class PreparedTimelineData(
     val segmentsByPhase: Map<SleepPhase, List<Pair<Float, Float>>>,
-    val startInstant: Instant?,
-    val endInstant: Instant?
+    val startInstant: LocalDateTime?,
+    val endInstant: LocalDateTime?
 )
 
 private data class PreparedSummaryData(
@@ -474,7 +475,7 @@ private fun prepareTimelineData(sleepData: SleepData?): PreparedTimelineData {
     for (i in 0 until sortedData.size - 1) {
         val p1 = sortedData[i]
         val p2 = sortedData[i + 1]
-        val phase = p1.phase // Фаза определяется по началу интервала
+        val phase = p1.sleepPhase // Фаза определяется по началу интервала
 
         val startSeconds = Duration.between(minTimestamp, p1.timestamp).seconds
         val endSeconds = Duration.between(minTimestamp, p2.timestamp).seconds
@@ -528,7 +529,7 @@ private fun prepareSummaryData(sleepData: SleepData?): PreparedSummaryData {
     for (i in 0 until sortedData.size - 1) {
         val p1 = sortedData[i]
         val p2 = sortedData[i + 1]
-        val phase = p1.phase
+        val phase = p1.sleepPhase
         val durationBetweenPoints = Duration.between(p1.timestamp, p2.timestamp)
 
         // Пропускаем слишком длинные разрывы
