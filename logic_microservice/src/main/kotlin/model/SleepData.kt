@@ -1,6 +1,7 @@
 package ru.itmo.model
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import java.time.DayOfWeek
 import java.time.LocalDateTime
 
 enum class SleepPhase {
@@ -17,7 +18,19 @@ data class SleepDataPiece(
 typealias SleepData = List<SleepDataPiece>
 
 enum class Weekday {
-    Mon, Tue, Wed, Thu, Fri, Sat, Sun
+    Mon, Tue, Wed, Thu, Fri, Sat, Sun;
+
+    companion object {
+        fun of(week: DayOfWeek) = when (week) {
+            DayOfWeek.MONDAY -> Mon
+            DayOfWeek.TUESDAY -> Tue
+            DayOfWeek.WEDNESDAY -> Wed
+            DayOfWeek.THURSDAY -> Thu
+            DayOfWeek.FRIDAY -> Fri
+            DayOfWeek.SATURDAY -> Sat
+            DayOfWeek.SUNDAY -> Sun
+        }
+    }
 }
 
 data class WeekdaySleep(

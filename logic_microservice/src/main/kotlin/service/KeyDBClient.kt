@@ -23,16 +23,16 @@ class KeyDBClient(
     poolConfig: JedisPoolConfig = defaultPoolConfig()
 ) {
     private val pool = JedisPool(poolConfig, host, port)
-    private val objectMapper = jacksonObjectMapper()
+    val objectMapper = jacksonObjectMapper()
         .registerModule(JavaTimeModule())
         .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
 
     companion object {
         private fun defaultPoolConfig(): JedisPoolConfig {
             return JedisPoolConfig().apply {
-                maxTotal = 128
-                maxIdle = 16
-                minIdle = 8
+                maxTotal = 8
+                maxIdle = 8
+                minIdle = 1
                 testOnBorrow = true
                 testWhileIdle = true
                 blockWhenExhausted = true
@@ -43,7 +43,7 @@ class KeyDBClient(
     /**
      * Отправляет запрос через указанный канал и ожидает ответ.
      */
-    suspend fun <TRequest : Any, TResponse : Any> sendRequest(
+    suspend inline fun <TRequest : Any, reified TResponse : Any> sendRequest(
         channel: String,
         message: TRequest,
         //responseType: Class<TResponse>,
@@ -51,7 +51,7 @@ class KeyDBClient(
     ): TResponse? {
         val json = objectMapper.writeValueAsString(message)
         val responseJson = sendRequest(channel, json, timeoutMs)
-        return responseJson?.let { objectMapper.readValue(it, object : TypeReference<TResponse>(){}) }
+        return responseJson?.let { objectMapper.readValue<TResponse>(it) }
     }
 
     /**
