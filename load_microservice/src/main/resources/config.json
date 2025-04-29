@@ -1,7 +1,7 @@
 {
-  "userCount": 1000,
-  "initialDelayMs": 1000,
-  "userDelayMs": 100,
+  "userCount": 10000,
+  "initialDelayMs": 0,
+  "userDelayMs": 200,
   "randomOrder": true,
   "includeRequests": [
     "/auth/register",

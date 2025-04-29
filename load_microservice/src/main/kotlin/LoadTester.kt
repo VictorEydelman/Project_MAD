@@ -39,9 +39,6 @@ class LoadTester(
         return allTemplates.filter { it.address in requiredAddresses }
     }
 
-
-
-
     fun start() {
         repeat(config.userCount) {
             scope.launch { simulateUser() }
@@ -56,7 +53,7 @@ class LoadTester(
 
     private suspend fun simulateUser() {
         val delayMs = if (config.userDelayMs <= 0) 1 else config.userDelayMs
-        delay(Random.nextLong(0, (config.userCount * 100).toLong()))
+        delay(Random.nextLong(0, (config.userCount * 10).toLong()))
 
         val username = generateRandomString(8)
         val password = generateRandomString(12)
@@ -78,6 +75,7 @@ class LoadTester(
             }
         } catch (e: Exception) {
             println("Ошибка при ${registrationTemplate.method.uppercase()} ${registrationTemplate.address}: ${e.message}")
+            simulateUser();
             return
         }
         if (token == null) {
@@ -85,7 +83,7 @@ class LoadTester(
         }
         if (config.randomOrder) {
             while (coroutineContext.isActive) {
-                delay(Random.nextLong(config.userDelayMs - 100, config.userDelayMs + 100))
+                delay(Random.nextLong((config.userDelayMs * 0.9).toLong(), (config.userDelayMs * 1.1).toLong()))
                 val tmpl = otherTemplates.random()
                 sendRequest(tmpl, username, password, token)
             }

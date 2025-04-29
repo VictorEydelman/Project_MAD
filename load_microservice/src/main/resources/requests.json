@@ -22,23 +22,7 @@
     "method": "POST",
     "body": "{ \"name\": $1, \"surname\": $2, \"birthday\": $3, \"gender\": $4, \"physicalCondition\": $5, \"caffeineUsage\": $6, \"alcoholUsage\": $7, \"alarmRecurring\": { \"time\": $8, \"alarm\": $9 }, \"alarmTemporary\": { \"time\": $10, \"alarm\": $11 }, \"bedTimeRecurring\": { \"time\": $12, \"remindMeToSleep\": $13, \"remindBeforeBad\": $14 }, \"bedTimeTemporary\": { \"time\": $15, \"remindMeToSleep\": $16, \"remindBeforeBad\": $17 } }",
     "args": [
-      "string",
-      "string",
-      "date",
-      "enum:Male:Female:Null",
-      "enum:OnceADay:TwiceADay:ThreeTimesADay:OnceEveryTwoDays:TwiceAWeek:ThreeTimesAWeek:Rarely:Often:Never",
-      "enum:OnceADay:TwiceADay:ThreeTimesADay:OnceEveryTwoDays:TwiceAWeek:ThreeTimesAWeek:Rarely:Often:Never",
-      "enum:OnceADay:TwiceADay:ThreeTimesADay:OnceEveryTwoDays:TwiceAWeek:ThreeTimesAWeek:Rarely:Often:Never",
-      "time",
-      "boolean",
-      "time",
-      "boolean",
-      "time",
-      "boolean",
-      "boolean",
-      "time",
-      "boolean",
-      "boolean"
+      "string", "string", "date", "enum:Male:Female:Null", "enum:OnceADay:TwiceADay:ThreeTimesADay:OnceEveryTwoDays:TwiceAWeek:ThreeTimesAWeek:Rarely:Often:Never", "enum:OnceADay:TwiceADay:ThreeTimesADay:OnceEveryTwoDays:TwiceAWeek:ThreeTimesAWeek:Rarely:Often:Never", "enum:OnceADay:TwiceADay:ThreeTimesADay:OnceEveryTwoDays:TwiceAWeek:ThreeTimesAWeek:Rarely:Often:Never", "time", "boolean", "time", "boolean", "time", "boolean", "boolean", "time", "boolean", "boolean"
     ]
   },
   {

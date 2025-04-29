@@ -51,7 +51,7 @@ class ReportService(private val keydb: KeyDBClient) {
 
     suspend fun makeAllTimeReport(username: String): Report = withContext(Dispatchers.IO) {
         val stats = getSleepStatistics(username,
-            LocalDateTime.of(1970, 0, 0, 0, 0),
+            LocalDateTime.of(1970, 1, 1, 0, 0),
             LocalDateTime.now())
 
         Report(
