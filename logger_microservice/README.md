@@ -48,7 +48,7 @@ object Logger {
             stacktrace,
         )
         println("${LocalTime.now()} $level [$name] $message" + if (stacktrace != null) "\n$stacktrace" else "")
-        keydb.publish("log", request)
+        runCatching { keydb.publish("log", request) }
     }
 
     fun debug(message: String) {
