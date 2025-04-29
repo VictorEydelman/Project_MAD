@@ -10,12 +10,12 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface AuthApiService {
-    @POST("/auth/login")
+    @POST("auth/login")
     suspend fun login(@Body authRequest: AuthRequest): Response<AuthResponse>
 
-    @POST("/auth/register")
+    @POST("auth/register")
     suspend fun register(@Body authRequest: AuthRequest): Response<AuthResponse>
 
-    @GET("/auth/check")
+    @GET("auth/check")
     suspend fun checkAuth(@Header("Authorization") token: String): Response<CheckAuthResponse>
 }
