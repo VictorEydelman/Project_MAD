@@ -10,7 +10,6 @@ import com.google.accompanist.permissions.rememberPermissionState
 import mad.project.SleepMonitor.app.SleepMonitorApp
 import mad.project.SleepMonitor.notification.NotificationService
 
-
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,12 +21,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-//  Используем экспериментальное API для управления разрешениями
+
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun RequestNotificationPermission(onPermissionGranted: () -> Unit) {
     val permissionState = rememberPermissionState(
-        permission = android.Manifest.permission.POST_NOTIFICATIONS // Разрешение на уведомления
+        permission = android.Manifest.permission.POST_NOTIFICATIONS
     )
     LaunchedEffect(permissionState.status) {
         if (permissionState.status.isGranted) {

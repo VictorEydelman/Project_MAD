@@ -5,7 +5,7 @@ import okhttp3.Response
 
 class AuthInterceptor : Interceptor {
 
-    private val HARDCODED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3NDU2NjgzOTcsImV4cCI6MTc0NTY4OTk5N30.Ikw4uZOG_c6D9vUmLf_5JOtnGlnxbAYalaIMAAIInfs"
+    private val HARDCODED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0IiwiaWF0IjoxNzQ1ODU2ODUwLCJleHAiOjE3NDU4Nzg0NTB9.smdbNMEpN3IFsjQaLQGS_TeKfErP0ShiIt5bIpM-L5A"
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()

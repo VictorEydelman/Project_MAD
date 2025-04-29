@@ -8,7 +8,7 @@ enum class TimeRange {
     ALL, WEEK, DAY
 }
 
-// Общие цвета, используемые на экране Abilities
+// Общие цвета, используемые на экране Abilities (Statistics)
 internal val ButtonInactiveBackground = Color(0xFF313050)
 internal val ButtonActiveBackground = White
 internal val ButtonInactiveText = White

@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import mad.project.SleepMonitor.domain.model.Report
 import mad.project.SleepMonitor.domain.model.SleepData
-import mad.project.SleepMonitor.domain.model.SleepDataPiece
 import mad.project.SleepMonitor.domain.model.SleepPhase
 import mad.project.SleepMonitor.ui.abilities.*
 import mad.project.SleepMonitor.ui.theme.White
@@ -32,7 +31,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import kotlin.math.max
 
-// Цвета для графика стадий (оставляем)
+// Цвета для графика стадий
 private val AwakeningColor = Color(0xFFA09EE8)
 private val REMColor = Color(0xFF8A88D8)
 private val LightSleepColor = Color(0xFF6C6AC0)
@@ -51,20 +50,16 @@ private data class PreparedSummaryData(
     val totalDuration: Duration
 )
 
-// --- Главная функция ---
 @Composable
 internal fun DayContent(report: Report) {
-
     val timeFormatter = remember { DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT) }
 
-    // +++ Подготовка данных для графика и сводки +++
-    val timelineData = remember(report.data) { // Пересчитываем только при изменении report.data
+    val timelineData = remember(report.data) {
         prepareTimelineData(report.data)
     }
-    val summaryData = remember(report.data) { // Пересчитываем только при изменении report.data
+    val summaryData = remember(report.data) {
         prepareSummaryData(report.data)
     }
-    // +++ Конец подготовки +++
 
     Column(
         verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -90,9 +85,9 @@ internal fun DayContent(report: Report) {
                     verticalArrangement = Arrangement.Center
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        val qualityProgress = report.quality / 100f // +++ Данные из отчета
+                        val qualityProgress = report.quality / 100f
                         CircularProgressIndicator(
-                            progress = { qualityProgress }, // +++
+                            progress = { qualityProgress },
                             modifier = Modifier.size(80.dp),
                             color = RingColor,
                             strokeWidth = 8.dp,
@@ -101,13 +96,13 @@ internal fun DayContent(report: Report) {
                         )
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text = report.quality.toString(), // +++
+                                text = report.quality.toString(),
                                 color = White,
                                 fontSize = 25.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
-                                text = mapQualityToText(report.quality), // +++
+                                text = mapQualityToText(report.quality),
                                 color = White,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.SemiBold
@@ -125,13 +120,12 @@ internal fun DayContent(report: Report) {
                     modifier = Modifier.weight(1f).fillMaxHeight(),
                     verticalArrangement = Arrangement.SpaceAround
                 ) {
-                    // +++ Выносим форматирование времени +++
                     val startTimeStr = report.startTime?.format(timeFormatter) ?: "--:--"
                     val endTimeStr = report.endTime?.format(timeFormatter) ?: "--:--"
 
                     Column(horizontalAlignment = Alignment.Start) {
                         Text(
-                            text = "$startTimeStr - $endTimeStr", // +++
+                            text = "$startTimeStr - $endTimeStr",
                             color = White,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.SemiBold
@@ -145,7 +139,7 @@ internal fun DayContent(report: Report) {
                     ) {
                         Column(horizontalAlignment = Alignment.Start) {
                             Text(
-                                text = formatDuration(report.totalSleep), // +++ Используем totalSleep для дня
+                                text = formatDuration(report.totalSleep),
                                 color = White,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.SemiBold
@@ -155,7 +149,7 @@ internal fun DayContent(report: Report) {
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
-                                text = endTimeStr, // +++
+                                text = endTimeStr,
                                 color = White,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.SemiBold
@@ -188,21 +182,21 @@ internal fun DayContent(report: Report) {
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(0.9f), // Занимает 90% ширины родителя (внешнего Row)
-                        horizontalArrangement = Arrangement.SpaceBetween // Элементы распределяются внутри этих 90%
+                        modifier = Modifier.fillMaxWidth(0.9f),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         SleepDetailItem(
-                            value = report.awakenings?.toString() ?: "--", // +++
+                            value = report.awakenings?.toString() ?: "--",
                             labelFirstLine = "Average",
                             labelRest = "Number\nof awakenings"
                         )
                         SleepDetailItem(
-                            value = formatDuration(report.avgAwake), // +++
+                            value = formatDuration(report.avgAwake),
                             labelFirstLine = "Average",
                             labelRest = "Duration\nof awakenings"
                         )
                         SleepDetailItem(
-                            value = formatDuration(report.avgToFallAsleep), // +++
+                            value = formatDuration(report.avgToFallAsleep),
                             labelFirstLine = "Average",
                             labelRest = "Time\nto fall asleep"
                         )
@@ -211,8 +205,7 @@ internal fun DayContent(report: Report) {
             }
         }
 
-        // --- Третий блок (График стадий сна и сводка) ---
-        // +++ Отображаем только если есть данные +++
+        // --- Третий блок (График стадий сна и сводка) --
         println("DayContent: timelineData.startInstant = ${timelineData.startInstant}")
         println("DayContent: timelineData.endInstant = ${timelineData.endInstant}")
         println("DayContent: summaryData.totalDuration = ${summaryData.totalDuration}")
@@ -234,14 +227,11 @@ internal fun DayContent(report: Report) {
                         .fillMaxSize()
                         .padding(16.dp)
                 ) {
-                    // +++ Определяем метки и цвета для графика +++
-                    // Порядок важен и должен соответствовать порядку в prepareTimelineData/prepareSummaryData
                     val orderedPhases = listOf(SleepPhase.AWAKE, SleepPhase.REM, SleepPhase.LIGHT, SleepPhase.DEEP)
                     val stageLabels = orderedPhases.map { it.name.capitalizeFirst() } // "AWAKE" -> "Awake"
                     val stageColors = orderedPhases.map { getPhaseColor(it) }
-                    // Получаем сегменты в нужном порядке
                     val stageData = orderedPhases.map {
-                        timelineData.segmentsByPhase[it] ?: emptyList() // Берем сегменты для фазы или пустой список
+                        timelineData.segmentsByPhase[it] ?: emptyList()
                     }
 
                     println("stageLabels = ${stageLabels}")
@@ -249,8 +239,8 @@ internal fun DayContent(report: Report) {
                         stageLabels = stageLabels,
                         stageData = stageData,
                         stageColors = stageColors,
-                        startTimeLabel = timelineData.startInstant?.atZone(ZoneId.systemDefault())?.format(timeFormatter) ?: "--:--", // +++
-                        endTimeLabel = timelineData.endInstant?.atZone(ZoneId.systemDefault())?.format(timeFormatter) ?: "--:--"      // +++
+                        startTimeLabel = timelineData.startInstant?.atZone(ZoneId.systemDefault())?.format(timeFormatter) ?: "--:--",
+                        endTimeLabel = timelineData.endInstant?.atZone(ZoneId.systemDefault())?.format(timeFormatter) ?: "--:--"
                     )
                     Spacer(modifier = Modifier.height(32.dp))
                     SleepStagesSummary(
@@ -260,11 +250,10 @@ internal fun DayContent(report: Report) {
                 }
             }
         } else {
-            // +++ Если данных нет, показываем заглушку +++
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(100.dp), // Меньшая высота для заглушки
+                    .height(100.dp),
                 shape = RoundedCornerShape(18.dp),
                 color = ButtonInactiveBackground
             ){
@@ -276,24 +265,24 @@ internal fun DayContent(report: Report) {
     }
 }
 
-// --- Обновленный SleepStagesTimeline ---
+
 @Composable
 private fun SleepStagesTimeline(
     stageLabels: List<String>,
-    stageData: List<List<Pair<Float, Float>>>, // Сегменты для каждой стадии
+    stageData: List<List<Pair<Float, Float>>>,
     stageColors: List<Color>,
-    startTimeLabel: String, // +++ Метка начала
-    endTimeLabel: String,   // +++ Метка конца
+    startTimeLabel: String,
+    endTimeLabel: String,
     modifier: Modifier = Modifier
 ) {
-    // Размеры (оставляем)
+    // Размеры
     val rowHeight = 35.dp
     val barHeight = 28.dp
     val totalGraphHeight = rowHeight * stageLabels.size
 
     Column(modifier = modifier) {
         Row(modifier = Modifier.fillMaxWidth()) {
-            // Метки стадий слева (оставляем)
+            // Метки стадий слева
             Column(modifier = Modifier.width(70.dp)) {
                 stageLabels.forEach { label ->
                     Box(
@@ -311,7 +300,7 @@ private fun SleepStagesTimeline(
             }
             Spacer(modifier = Modifier.width(8.dp))
 
-            // Область с полосами графика (оставляем логику рисования)
+            // Область с полосами графика
             Column(modifier = Modifier.weight(1f).height(totalGraphHeight)) {
                 Canvas(modifier = Modifier.fillMaxSize()) {
                     val graphWidth = size.width
@@ -332,9 +321,9 @@ private fun SleepStagesTimeline(
                         segments.forEach { (startFraction, endFraction) ->
                             val startPx = startFraction * graphWidth
                             val endPx = endFraction * graphWidth
-                            val segmentWidth = (endPx - startPx).coerceAtLeast(0f) // Убедимся, что не отрицательная
+                            val segmentWidth = (endPx - startPx).coerceAtLeast(0f)
 
-                            if (segmentWidth > 0.1f) { // Рисуем только видимые сегменты
+                            if (segmentWidth > 0.1f) {
                                 drawRect(
                                     color = stageColors[stageIndex],
                                     topLeft = Offset(x = startPx, y = barTopY),
@@ -353,13 +342,13 @@ private fun SleepStagesTimeline(
             Spacer(modifier = Modifier.width(78.dp))
             Box(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = startTimeLabel, // +++ Используем переданную метку
+                    text = startTimeLabel,
                     color = LabelColor,
                     fontSize = 12.sp,
                     modifier = Modifier.align(Alignment.CenterStart)
                 )
                 Text(
-                    text = endTimeLabel, // +++ Используем переданную метку
+                    text = endTimeLabel,
                     color = LabelColor,
                     fontSize = 12.sp,
                     modifier = Modifier.align(Alignment.CenterEnd)
@@ -369,11 +358,10 @@ private fun SleepStagesTimeline(
     }
 }
 
-// --- Обновленный SleepStagesSummary ---
 @Composable
 private fun SleepStagesSummary(
-    summaryData: PreparedSummaryData, // +++ Принимаем подготовленные данные
-    orderedPhases: List<SleepPhase>,   // +++ Принимаем порядок фаз
+    summaryData: PreparedSummaryData,
+    orderedPhases: List<SleepPhase>,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -391,14 +379,13 @@ private fun SleepStagesSummary(
                 var drawnSomething = false
 
                 var startAngle = -90f
-                // +++ Итерируем по упорядоченным фазам для консистентности цветов/порядка +++
+
                 orderedPhases.forEach { phase ->
                     val duration = summaryData.durationByPhase[phase] ?: Duration.ZERO
                     val totalDurationMs = max(summaryData.totalDuration.toMillis(), 1L)
                     val fraction = duration.toMillis().toFloat() / totalDurationMs.toFloat()
                     val sweep = (fraction * 360f).coerceIn(0f, 360f)
 
-                    // Логгируем расчеты для каждой фазы
                     println("Phase: $phase, Duration: $duration, Fraction: $fraction, Sweep: $sweep")
 
                     if (sweep > 0.1f) {
@@ -414,7 +401,6 @@ private fun SleepStagesSummary(
                     }
                 }
 
-                // Если ничего не нарисовали, рисуем простое красное кольцо
                 if (!drawnSomething) {
                     println("!!! Drawing fallback red circle !!!")
                     drawCircle(color = Color.Red, style = Stroke(width = strokeWidth.toPx()))
@@ -426,27 +412,25 @@ private fun SleepStagesSummary(
 
         // Правая часть: Список стадий и длительностей
         Column(modifier = Modifier.weight(1f)) {
-            // +++ Итерируем по упорядоченным фазам +++
             orderedPhases.forEach { phase ->
                 val duration = summaryData.durationByPhase[phase] ?: Duration.ZERO
                 SleepStageDurationItem(
-                    stageName = phase.name.capitalizeFirst(), // +++ Название фазы
-                    duration = formatDuration(duration) // +++ Форматированная длительность
+                    stageName = phase.name.capitalizeFirst(),
+                    duration = formatDuration(duration)
                 )
             }
         }
     }
 }
 
-// Вспомогательный Composable для строки в списке длительностей
+
 @Composable
 private fun SleepStageDurationItem(stageName: String, duration: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 2.dp, horizontal = 40.dp), // Оставляем небольшой вертикальный отступ
+            .padding(vertical = 2.dp, horizontal = 40.dp),
         verticalAlignment = Alignment.CenterVertically
-        // Убираем horizontalArrangement или оставляем Start (по умолчанию)
     ) {
         Row(
             modifier = Modifier.weight(1f)
@@ -471,7 +455,6 @@ private fun SleepStageDurationItem(stageName: String, duration: String) {
     }
 }
 
-// --- Вспомогательные функции для подготовки данных ---
 private fun prepareTimelineData(sleepData: SleepData?): PreparedTimelineData {
     if (sleepData.isNullOrEmpty() || sleepData.size < 2) {
         return PreparedTimelineData(emptyMap(), null, null)
@@ -561,7 +544,6 @@ private fun prepareSummaryData(sleepData: SleepData?): PreparedSummaryData {
     }
 
     // Используем totalSleepDuration для расчета долей в кольцевой диаграмме
-    // totalSleepDuration может отличаться от report.totalSleep, если логика расчета разная
     return PreparedSummaryData(durationByPhase, totalSleepDuration)
 }
 
@@ -576,7 +558,7 @@ private fun getPhaseColor(phase: SleepPhase): Color {
     }
 }
 
-// Расширение для String.capitalize() (если нужно для старых версий Kotlin/Android)
+// Расширение для String.capitalize()
 private fun String.capitalizeFirst(): String {
     return this.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
 }

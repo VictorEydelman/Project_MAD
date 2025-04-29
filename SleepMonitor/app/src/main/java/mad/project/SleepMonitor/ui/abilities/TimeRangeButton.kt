@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
 
 
 @Composable
-internal fun TimeRangeButton( // internal - виден внутри модуля
+internal fun TimeRangeButton(
     text: String,
     timeRange: TimeRange,
     isSelected: Boolean,
