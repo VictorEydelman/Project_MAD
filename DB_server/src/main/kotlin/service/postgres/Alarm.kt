@@ -1,9 +1,11 @@
 package mad.project.service.postgres
 
+import io.ktor.util.logging.KtorSimpleLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import mad.project.keyDB.Logger
 import java.sql.Connection
 import java.sql.SQLException
 import java.sql.Statement
@@ -41,7 +43,7 @@ class AlarmService(private val connection: Connection){
     /**
      * Сохраняет alarm
      */
-    fun save(alarm: Alarm?): Int{
+    fun save(alarm: Alarm?): Int?{
         try {
             val statement = connection.prepareStatement(INSERT_Alarm, Statement.RETURN_GENERATED_KEYS)
             alarm?.let { statement.setObject(1, it.time) }
@@ -51,10 +53,12 @@ class AlarmService(private val connection: Connection){
             if (generatedKeys.next()) {
                 return generatedKeys.getInt(1)
             } else {
-                throw Exception("Unable to retrieve the id")
+                Logger.error("Unable to retrieve the id")
+                return null
             }
         } catch (e: SQLException){
-            throw Exception("Ошибка с бд")
+            Logger.error("Error in database postgresql")
+            return null
         }
     }
 
@@ -70,7 +74,7 @@ class AlarmService(private val connection: Connection){
 
             statement.executeUpdate()
         } catch (e: SQLException){
-            throw Exception("Ошибка с бд")
+            Logger.error("Error in database postgresql")
         }
     }
 
@@ -78,15 +82,24 @@ class AlarmService(private val connection: Connection){
      * Возвращает Alarm по id
      */
     fun get(id: Int): Alarm?{
-        val statement = connection.prepareStatement(SELECT_ALARM_BY_ID)
-        statement.setInt(1,id);
-        val result = statement.executeQuery()
+        try {
+            val statement = connection.prepareStatement(SELECT_ALARM_BY_ID)
+            statement.setInt(1, id);
+            val result = statement.executeQuery()
 
-        if(result.next()){
-            return Alarm(result.getInt("id"), result.getObject("time") as Time,result.getBoolean("alarm"))
-        } else{
-            throw Exception("Нету настроек")
+            if (result.next()) {
+                return Alarm(
+                    result.getInt("id"),
+                    result.getObject("time") as Time,
+                    result.getBoolean("alarm")
+                )
+            } else {
+                Logger.debug("Don't have Alarm")
+                return null
+            }
+        } catch (e: SQLException){
+            Logger.error("Error in database postgresql")
+            return null
         }
-
     }
 }

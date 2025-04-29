@@ -3,9 +3,11 @@ package mad.project.service.clickhouse
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import mad.project.DataUser
+import mad.project.keyDB.Logger
 import org.joda.time.DateTime
 import java.sql.Connection
 import java.sql.PreparedStatement
+import java.sql.SQLException
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -49,30 +51,37 @@ class SleepStatisticService(val connection: Connection){
     /**
      * Достать список данных о сне за опредлелённый интервал пользователя
      */
-    fun getSleepStatisticInterval(sleepInterval: SleepInterval): List<SleepStatistic>{
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-        val startFormat = sleepInterval.start.format(formatter)
-        val endFormat = sleepInterval.end.format(formatter)
+    fun getSleepStatisticInterval(sleepInterval: SleepInterval): List<SleepStatistic>?{
+        try {
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            val startFormat = sleepInterval.start.format(formatter)
+            val endFormat = sleepInterval.end.format(formatter)
 
-        val query = """
+            val query = """
             SELECT * FROM SleepStatistic 
             WHERE username = '${sleepInterval.username}'
             AND timestamp BETWEEN '$startFormat' AND '$endFormat'
             ORDER BY timestamp
         """.trimIndent()
 
-        val resultSet = connection.createStatement().executeQuery(query)
-        val results = ArrayList<SleepStatistic>()
-        while (resultSet.next()) {
-            val timestamp: Timestamp = resultSet.getTimestamp("timestamp")
-            val localDateTime = timestamp.toInstant().atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
-            val sleepStatistic = SleepStatistic(resultSet.getString("username"),
-                localDateTime, resultSet.getFloat("pulse"),
-                resultSet.getString("sleep_phase"))
-            results.add(sleepStatistic)
+            val resultSet = connection.createStatement().executeQuery(query)
+            val results = ArrayList<SleepStatistic>()
+            while (resultSet.next()) {
+                val timestamp: Timestamp = resultSet.getTimestamp("timestamp")
+                val localDateTime = timestamp.toInstant().atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+                val sleepStatistic = SleepStatistic(
+                    resultSet.getString("username"),
+                    localDateTime, resultSet.getFloat("pulse"),
+                    resultSet.getString("sleep_phase")
+                )
+                results.add(sleepStatistic)
+            }
+            return results
+        } catch (e: SQLException){
+            Logger.error("Error in database clickhouse")
+            return null
         }
-        return results
     }
 
     /**
@@ -100,12 +109,13 @@ class SleepStatisticService(val connection: Connection){
                 error = preparedStatement.executeUpdate() > 0
                 //return true
             } catch (e: Exception) {
-                e.printStackTrace()
+                Logger.error("Error add SleepStatistic")
                 return false
             } finally {
                 preparedStatement?.close()
             }
             if(!error){
+                Logger.error("Error add SleepStatistic")
                 return false
             }
         }

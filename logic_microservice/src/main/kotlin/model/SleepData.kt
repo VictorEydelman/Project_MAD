@@ -9,6 +9,7 @@ enum class SleepPhase {
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SleepDataPiece(
+    val username: String,
     val timestamp: LocalDateTime,
     val pulse: Int,
     val sleepPhase: SleepPhase,

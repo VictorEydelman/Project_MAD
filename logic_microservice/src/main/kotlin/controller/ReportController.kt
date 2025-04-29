@@ -15,31 +15,7 @@ class ReportController(
     private val recommendationService: RecommendationService
 ) {
 
-    fun createKeyDBChannels() = runBlocking {
-        launch {
-            keydb.subscribeWithResponse("make-daily-report", String::class.java, { username ->
-                // Можно ли как то сделать неблокирующе? Спросите Марата
-                runBlocking { reportService.makeDailyReport(username) }
-            })
-        }
-        launch {
-            keydb.subscribeWithResponse("make-weekly-report", String::class.java, { username ->
-                // Можно ли как то сделать неблокирующе? Спросите Марата
-                runBlocking { reportService.makeWeeklyReport(username) }
-            })
-        }
-        launch {
-            keydb.subscribeWithResponse("make-all-time-report", String::class.java, { username ->
-                // Можно ли как то сделать неблокирующе? Спросите Марата
-                runBlocking { reportService.makeAllTimeReport(username) }
-            })
-        }
-        launch {
-            keydb.subscribeWithResponse("calculate-recommended-times", String::class.java, { username ->
-                // Можно ли как то сделать неблокирующе? Спросите Марата
-                runBlocking { recommendationService.calculateRecommendedTimes(username) }
-            })
-        }
+    fun Application.createKeyDBChannels() {
     }
 
     fun configureRouting(routing: Routing) {
