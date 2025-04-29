@@ -70,6 +70,7 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel) {
                         errorMessage = ""
                         viewModel.login(username, password) { success, message ->
                             isLoading = false
+                            errorMessage = message
                             if (success) {
                                 navController.navigate(Screen.SplashScreen.route) {
                                     popUpTo(Screen.LoginScreen.route) { inclusive = true }

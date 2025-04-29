@@ -12,9 +12,9 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
             val authRequest = AuthRequest(username, password)
             val result = authRepository.login(authRequest)
             if (result.isSuccess) {
-                onResult(true, "Login successful: ${result.getOrNull()?.username}")
+                onResult(true, "")
             } else {
-                onResult(false, "Login failed: ${result.exceptionOrNull()?.message ?: "Unknown error"}")
+                onResult(false, result.exceptionOrNull()?.message ?: "Unknown error")
             }
         }
     }
@@ -24,9 +24,9 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
             val authRequest = AuthRequest(username, password)
             val result = authRepository.register(authRequest)
             if (result.isSuccess) {
-                onResult(true, "Registration successful: ${result.getOrNull()?.username}")
+                onResult(true, "")
             } else {
-                onResult(false, "Registration failed: ${result.exceptionOrNull()?.message ?: "Unknown error"}")
+                onResult(false, result.exceptionOrNull()?.message ?: "Unknown error")
             }
         }
     }

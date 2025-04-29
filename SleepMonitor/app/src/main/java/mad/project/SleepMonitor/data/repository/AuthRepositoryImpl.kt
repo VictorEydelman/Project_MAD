@@ -7,48 +7,53 @@ import mad.project.SleepMonitor.data.network.dto.AuthRequest
 import mad.project.SleepMonitor.domain.model.User
 import androidx.core.content.edit
 import mad.project.SleepMonitor.domain.repository.AuthRepository
+import org.json.JSONObject
 
 class AuthRepositoryImpl(private val authApi: AuthApiService, private val context: Context) : AuthRepository
 {
     override suspend fun login(authRequest: AuthRequest): Result<User> {
-        return try {
+        try {
             val response = authApi.login(authRequest)
             if (response.isSuccessful) {
                 val authResponse = response.body()
                 if (authResponse?.success == true) {
                     val authUser = authResponse.toDomain(authRequest.password)
                     if (authUser != null) {
-//                        saveToken(authResponse.token)
+                        saveToken(authResponse.token)
                         return Result.success(authUser)
                     }
                 }
-                Result.failure(Exception("Login failed"))
+                return Result.failure(Exception("Login failed"))
             } else {
-                Result.failure(Exception("Login failed with HTTP"))
+                val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                val errorMessage = getErrorMessageFromJson(errorBody)
+                return Result.failure(Exception(errorMessage))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            return Result.failure(e)
         }
     }
 
     override suspend fun register(authRequest: AuthRequest): Result<User> {
-        return try {
+        try {
             val response = authApi.register(authRequest)
             if (response.isSuccessful) {
                 val authResponse = response.body()
                 if (authResponse?.success == true) {
                     val authUser = authResponse.toDomain(authRequest.password)
                     if (authUser != null) {
-//                        saveToken(authResponse.token)
+                        saveToken(authResponse.token)
                         return Result.success(authUser)
                     }
                 }
-                Result.failure(Exception("Registration failed"))
+                return Result.failure(Exception("Registration failed"))
             } else {
-                Result.failure(Exception("Registration failed with HTTP"))
+                val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                val errorMessage = getErrorMessageFromJson(errorBody)
+                return Result.failure(Exception(errorMessage))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            return Result.failure(e)
         }
     }
 
@@ -77,4 +82,12 @@ class AuthRepositoryImpl(private val authApi: AuthApiService, private val contex
         prefs.edit() { putString("auth_token", token) }
     }
 
+    private fun getErrorMessageFromJson(errorBody: String): String {
+        return try {
+            val jsonObject = JSONObject(errorBody)
+            jsonObject.optString("message", "Unknown error")
+        } catch (e: Exception) {
+            "Error parsing the error message"
+        }
+    }
 }
