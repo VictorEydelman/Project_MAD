@@ -1,37 +1,42 @@
-package mad.project.SleepMonitor.screens.abilities // Убедись, что пакет правильный
+package mad.project.SleepMonitor.screens.abilities
 
-// Добавь все необходимые импорты из AllTimeContent.kt
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import mad.project.SleepMonitor.ui.abilities.ButtonInactiveBackground
-import mad.project.SleepMonitor.ui.abilities.LabelColor
-import mad.project.SleepMonitor.ui.abilities.RingColor
-import mad.project.SleepMonitor.ui.abilities.SleepDetailItem
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.background
+import mad.project.SleepMonitor.domain.model.Report
+import mad.project.SleepMonitor.domain.model.Weekday
+import mad.project.SleepMonitor.ui.abilities.*
+import mad.project.SleepMonitor.ui.theme.White
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
-// Импорты общих определений и компонентов
-import mad.project.SleepMonitor.ui.theme.White // Предполагая, что White доступен
 
 private val BarChartTrackColor = Color(0xFF4A4A6A)
 private val BarChartFilledColor = Color(0xFF8A88D8)
 
+// Максимальное значение для оси Y графика
+private const val BAR_CHART_MAX_HOURS = 12f
+
 @Composable
-internal fun WeekContent() { // internal
-    // Копируем содержимое из AllTimeContent
+internal fun WeekContent(report: Report) {
+
+    val timeFormatter = remember { DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT) }
+
     Column(
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
@@ -56,9 +61,9 @@ internal fun WeekContent() { // internal
                     verticalArrangement = Arrangement.Center
                 ) {
                     Box(contentAlignment = Alignment.Center) {
+                        val qualityProgress = report.quality / 100f
                         CircularProgressIndicator(
-                            // TODO: Заменить на данные для Week
-                            progress = { 0.75f }, // Пример для Week
+                            progress = { qualityProgress },
                             modifier = Modifier.size(80.dp),
                             color = RingColor,
                             strokeWidth = 8.dp,
@@ -66,13 +71,22 @@ internal fun WeekContent() { // internal
                             strokeCap = StrokeCap.Round
                         )
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            // TODO: Заменить на данные для Week
-                            Text("75", color = White, fontSize = 25.sp, fontWeight = FontWeight.SemiBold)
-                            Text("Okay", color = White, fontSize = 10.sp, fontWeight = FontWeight.SemiBold) // Пример
+                            Text(
+                                text = report.quality.toString(),
+                                color = White,
+                                fontSize = 25.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                text = mapQualityToText(report.quality),
+                                color = White,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Sleep Quality", color = White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Average Quality", color = White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold) // +++
                 }
 
                 Spacer(modifier = Modifier.width(16.dp))
@@ -82,27 +96,43 @@ internal fun WeekContent() { // internal
                     modifier = Modifier.weight(1f).fillMaxHeight(),
                     verticalArrangement = Arrangement.SpaceAround
                 ) {
+                    val startTimeStr = report.startTime?.format(timeFormatter) ?: "--:--"
+                    val endTimeStr = report.endTime?.format(timeFormatter) ?: "--:--"
+
                     Column(horizontalAlignment = Alignment.Start) {
-                        // TODO: Заменить на данные для Week
-                        Text("22.30 PM - 05.00 AM", color = White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold) // Пример
+                        Text(
+                            // Показываем среднее время начала/конца за период
+                            text = "$startTimeStr - $endTimeStr", // +++
+                            color = White,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text("Time in bed", color = LabelColor, fontSize = 13.sp, fontWeight = FontWeight.Normal)
+                        Text("Avg time in bed", color = LabelColor, fontSize = 13.sp, fontWeight = FontWeight.Normal) // +++
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column(horizontalAlignment = Alignment.Start) {
-                            // TODO: Заменить на данные для Week
-                            Text("6hr 15m", color = White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold) // Пример
+                            Text(
+                                text = formatDuration(report.avgAsleep),
+                                color = White,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text("Time asleep", color = LabelColor, fontSize = 13.sp, fontWeight = FontWeight.Normal)
+                            Text("Avg time asleep", color = LabelColor, fontSize = 13.sp, fontWeight = FontWeight.Normal) // +++
                         }
                         Column(horizontalAlignment = Alignment.End) {
-                            // TODO: Заменить на данные для Week
-                            Text("05.05", color = White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold) // Пример
+                            Text(
+                                text = endTimeStr,
+                                color = White,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text("Wakeup time", color = LabelColor, fontSize = 13.sp, fontWeight = FontWeight.Normal)
+                            Text("Avg wakeup time", color = LabelColor, fontSize = 13.sp, fontWeight = FontWeight.Normal) // +++
                         }
                     }
                 }
@@ -111,139 +141,198 @@ internal fun WeekContent() { // internal
 
         // --- Второй блок (Sleep Detail) ---
         Surface(
-            modifier = Modifier.fillMaxWidth().height(170.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(170.dp),
             shape = RoundedCornerShape(18.dp),
             color = ButtonInactiveBackground
         ) {
             Column(
-                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 16.dp)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp, vertical = 16.dp)
             ) {
-                Text("Sleep Detail", color = White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold) // Изменен заголовок
+                Text("Sleep Detail", color = White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    // TODO: Заменить на данные для Week
-                    SleepDetailItem(value = "3", labelFirstLine = "Average", labelRest = "Number\nof awakenings") // Пример
-                    SleepDetailItem(value = "18m", labelFirstLine = "Average", labelRest = "Duration\nof awakenings") // Пример
-                    SleepDetailItem(value = "15m", labelFirstLine = "Average", labelRest = "Time\nto fall asleep") // Пример
+                    Row(
+                        modifier = Modifier.fillMaxWidth(0.9f),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        SleepDetailItem(
+                            value = report.awakenings?.toString() ?: "--",
+                            labelFirstLine = "Average",
+                            labelRest = "Number\nof awakenings"
+                        )
+                        SleepDetailItem(
+                            value = formatDuration(report.avgAwake),
+                            labelFirstLine = "Average",
+                            labelRest = "Duration\nof awakenings"
+                        )
+                        SleepDetailItem(
+                            value = formatDuration(report.avgToFallAsleep),
+                            labelFirstLine = "Average",
+                            labelRest = "Time\nto fall asleep"
+                        )
+                    }
                 }
             }
         }
 
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                // Подберем высоту для графика
-                .height(220.dp),
-            shape = RoundedCornerShape(18.dp),
-            color = ButtonInactiveBackground
-        ) {
-            Row(
+        // --- Третий блок (График) ---
+        if (!report.distribution.isNullOrEmpty()) {
+            Surface(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 16.dp) // Внутренние отступы
+                    .fillMaxWidth()
+                    .height(220.dp),
+                shape = RoundedCornerShape(18.dp),
+                color = ButtonInactiveBackground
             ) {
-                // --- Y-ось (Метки часов) ---
-                YAxisLabels() // Вынесем в отдельную функцию для читаемости
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 16.dp)
+                ) {
+                    YAxisLabels()
 
-                Spacer(modifier = Modifier.width(8.dp)) // Отступ между осью и графиком
+                    Spacer(modifier = Modifier.width(8.dp))
 
-                // --- Область с барами графика ---
-                WeeklyBarChart() // Вынесем в отдельную функцию
+
+                    val orderedDays = listOf(
+                        Weekday.Sun, Weekday.Mon, Weekday.Tue, Weekday.Wed, Weekday.Thu, Weekday.Fri, Weekday.Sat
+                    )
+
+                    val hoursMap = report.distribution.associateBy({ it.weekday }, { it.asleepHours })
+
+                    val sleepDataHours = orderedDays.map { weekday ->
+                        (hoursMap[weekday] ?: 0.0).toFloat()
+                    }
+
+                    val dayLabels = orderedDays.map { mapWeekdayToLabel(it) } // "Sun", "Mon", ...
+
+
+                    WeeklyBarChart(
+                        modifier = Modifier.weight(1f),
+                        sleepData = sleepDataHours,
+                        dayLabels = dayLabels
+                    )
+                }
+            }
+        } else {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp),
+                shape = RoundedCornerShape(18.dp),
+                color = ButtonInactiveBackground
+            ){
+                Box(contentAlignment = Alignment.Center){
+                    Text("No weekly distribution data available.", color=LabelColor)
+                }
             }
         }
     }
 }
 
-
+// Метки оси Y
 @Composable
 private fun YAxisLabels(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxHeight()
-            .padding(bottom = 20.dp), // Отступ снизу, чтобы 0h был на уровне названий дней
-        verticalArrangement = Arrangement.SpaceBetween, // Распределяем метки равномерно
-        horizontalAlignment = Alignment.End // Выравниваем текст по правому краю
+            .padding(bottom = 20.dp),
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.End
     ) {
-        // Новые метки
         Text("12 h", color = LabelColor, fontSize = 12.sp)
         Text("8 h", color = LabelColor, fontSize = 12.sp)
-        Text("6 h", color = LabelColor, fontSize = 12.sp) // Добавлено
+        Text("6 h", color = LabelColor, fontSize = 12.sp)
         Text("4 h", color = LabelColor, fontSize = 12.sp)
-        Text("2 h", color = LabelColor, fontSize = 12.sp) // Добавлено
+        Text("2 h", color = LabelColor, fontSize = 12.sp)
         Text("0 h", color = LabelColor, fontSize = 12.sp)
     }
 }
 
 
-
 @Composable
-private fun RowScope.WeeklyBarChart(modifier: Modifier = Modifier) {
-    // Примерные данные (часы сна для каждого дня)
-    val sleepData = listOf(7.5f, 6.0f, 5.5f, 6.5f, 5.0f, 6.2f, 8.0f)
-    val days = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
-    val maxHours = 12f // Максимальное значение на оси Y
-
+private fun RowScope.WeeklyBarChart(
+    sleepData: List<Float>,
+    dayLabels: List<String>,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier
-            .fillMaxSize() // Занимаем все доступное место в родительском Row
-            .padding(start = 4.dp), // Небольшой отступ слева от первого бара
-        horizontalArrangement = Arrangement.SpaceAround, // Распределяем бары
-        verticalAlignment = Alignment.Bottom // Выравниваем все по низу (важно для текста под барами)
+            .fillMaxSize()
+            .padding(start = 4.dp),
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.Bottom
     ) {
         sleepData.forEachIndexed { index, sleepHours ->
-            BarColumn(
-                value = sleepHours,
-                maxValue = maxHours,
-                label = days[index]
-            )
+            if (index < dayLabels.size) {
+                BarColumn(
+                    value = sleepHours,
+                    maxValue = BAR_CHART_MAX_HOURS,
+                    label = dayLabels[index]
+                )
+            }
         }
     }
 }
 
-// Composable для одного столбца графика (бар + подпись)
+// Столбец графика
 @Composable
 private fun BarColumn(
-    value: Float,       // Текущее значение (часы сна)
-    maxValue: Float,    // Максимальное значение на графике (e.g., 12f)
-    label: String,      // Подпись под баром ("Sun", "Mon", ...)
+    value: Float,
+    maxValue: Float,
+    label: String,
     modifier: Modifier = Modifier,
-    barWidth: Dp = 20.dp, // Ширина столбца
-    chartHeight: Dp = 160.dp // Высота области самого столбца (без подписи)
+    barWidth: Dp = 20.dp,
+    chartHeight: Dp = 160.dp // Эта высота определяет максимальную высоту бара *относительно* низа колонки
 ) {
-    val barFillFraction = (value / maxValue).coerceIn(0f, 1f) // Доля заполнения от 0 до 1
+    val barFillFraction = (value / maxValue).coerceIn(0f, 1f)
 
     Column(
-        modifier = modifier,
+        modifier = modifier.height(chartHeight + 20.dp), // Общая высота колонки = высота бара + высота текста + отступ
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Bottom // Выравниваем по низу
+        verticalArrangement = Arrangement.Bottom
     ) {
-        // Бокс для самого столбца
         Box(
             modifier = Modifier
                 .width(barWidth)
-                .height(chartHeight) // Общая высота области бара
-                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)) // Скругляем верх
-                .background(BarChartTrackColor) // Фон/трек
+                .height(chartHeight) // Область для рисования бара
+                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                .background(BarChartTrackColor)
         ) {
-            // Бокс для заполненной части
             Box(
                 modifier = Modifier
-                    .fillMaxWidth() // Ширина как у родителя
-                    .fillMaxHeight(fraction = barFillFraction) // Заполняем нужную долю высоты
-                    .background(BarChartFilledColor) // Цвет заполнения
-                    .align(Alignment.BottomCenter) // Прижимаем к низу
+                    .fillMaxWidth()
+                    .fillMaxHeight(fraction = barFillFraction) // Заполняем долю
+                    .background(BarChartFilledColor)
+                    .align(Alignment.BottomCenter) // Растем снизу вверх
             )
         }
-        Spacer(modifier = Modifier.height(4.dp)) // Отступ между баром и подписью
-        // Подпись под столбцом
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = label,
             color = LabelColor,
             fontSize = 12.sp,
             textAlign = TextAlign.Center
         )
+    }
+}
+
+// --- Вспомогательная функция для маппинга Weekday -> String ---
+private fun mapWeekdayToLabel(weekday: Weekday): String {
+    return when (weekday) {
+        Weekday.Sun -> "Sun"
+        Weekday.Mon -> "Mon"
+        Weekday.Tue -> "Tue"
+        Weekday.Wed -> "Wed"
+        Weekday.Thu -> "Thu"
+        Weekday.Fri -> "Fri"
+        Weekday.Sat -> "Sat"
     }
 }

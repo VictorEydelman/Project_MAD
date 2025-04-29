@@ -1,30 +1,49 @@
 package mad.project.service.postgres
 
 import kotlinx.serialization.Serializable
+import mad.project.keyDB.Logger
 import java.sql.Connection
 import java.sql.SQLException
 
 @Serializable
 data class Users(val username: String, val password: String)
+/**
+ * Класс для работы с таблицей Users в базе данных postgres
+ */
 class UsersService(private val connection: Connection){
+    /**
+     * Запросы к таблице:
+     * CREATE_TABLE_USERS
+     * INSERT_USER
+     * EXIST_USER
+     * GET_USER
+     * FIND_BY_USERNAME_AND_PASSWORD
+     * DROP_TABLE
+     */
     companion object {
         private const val CREATE_TABLE_USERS =
             "CREATE TABLE IF NOT EXISTS USERS (username VARCHAR(255) PRIMARY KEY, password VARCHAR(255));"
-        private const val SELECT_CITY_BY_ID = "SELECT name, population FROM cities WHERE id = ?"
         private const val INSERT_USER = "INSERT INTO users (username, password) VALUES (?, ?)"
         private const val EXIST_USER = "SELECT count(*) FROM USERS WHERE username = ?"
         private const val GET_USER = "SELECT * FROM USERS WHERE username = ?"
         private const val FIND_BY_USERNAME_AND_PASSWORD = "SELECT count(*) FROM users WHERE username = ? and password = ?"
-        private const val UPDATE_CITY = "UPDATE cities SET name = ?, population = ? WHERE id = ?"
         private const val DROP_TABLE = "DROP TABLE IF EXISTS users"
 
     }
+
+    /**
+     * Создание таблицы
+     * Возможно ещё её удаление
+     */
     init {
         val statement = connection.createStatement()
         //statement.executeUpdate(DROP_TABLE)
         statement.executeUpdate(CREATE_TABLE_USERS)
     }
 
+    /**
+     * Проверяет, что пользователь не существует
+     */
     fun userNotExist(username: String): Boolean {
         try{
             val statement = connection.prepareStatement(EXIST_USER)
@@ -36,12 +55,15 @@ class UsersService(private val connection: Connection){
             }
             return true
         } catch (e: SQLException){
-            throw Exception("Ошибка с бд")
-            //throw Exception("Пользователь с таким именем уже существует.")
+            Logger.error("Error in database postgresql")
+            return false
         }
     }
 
-    fun insert(user: Users): Boolean {
+    /**
+     * Добавляет пользователя, если такого не было
+     */
+    suspend fun insert(user: Users): Boolean {
         if(userNotExist(user.username)){
             try {
                 val statement = connection.prepareStatement(INSERT_USER)
@@ -50,31 +72,18 @@ class UsersService(private val connection: Connection){
                 statement.executeUpdate()
                 return true
             } catch (e: SQLException){
+                Logger.error("Error in database postgresql")
                 return false
-                //throw Exception("Ошибка с бд")
             }
         } else{
             return false
         }
     }
 
-    suspend fun findByUsernameAndPassword(users: Users): Boolean{
-        try {
-            val statement = connection.prepareStatement(FIND_BY_USERNAME_AND_PASSWORD)
-            statement.setString(1, users.username)
-            statement.setString(2, users.password)
-            val exist = statement.executeQuery()
-            if (exist.next() && exist.getInt(1) == 1) {
-                return false
-                //throw Exception("Пользователь с таким именем уже существует.")
-            }
-            return true
-        } catch (e: SQLException){
-            throw Exception("Ошибка с бд")
-        }
-    }
-
-    fun getUserByUsername(username: String): Users? {
+    /**
+     * Возвращает пользователя по username
+     */
+    suspend fun getUserByUsername(username: String): Users? {
         try{
             val statement = connection.prepareStatement(GET_USER);
             statement.setString(1,username)
@@ -85,7 +94,8 @@ class UsersService(private val connection: Connection){
                 return null
             }
         } catch (e: SQLException){
-            throw Exception("Ошибка с бд")
+            Logger.error("Error in database postgresql")
+            return null
         }
     }
 }

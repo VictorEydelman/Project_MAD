@@ -4,6 +4,7 @@ import io.ktor.server.application.*
 import io.ktor.server.plugins.statuspages.*
 import ru.itmo.config.*
 import ru.itmo.exception.exceptionHandler
+import ru.itmo.keydb.Logger
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
@@ -18,5 +19,5 @@ fun Application.module() {
     configureSerialization()
     configureOpenAPI()
     configureRouting()
-    log.info("Starting application version {}", environment.config.property("ktor.version").getString())
+    Logger.info("Starting application version ${environment.config.property("ktor.version").getString()}")
 }

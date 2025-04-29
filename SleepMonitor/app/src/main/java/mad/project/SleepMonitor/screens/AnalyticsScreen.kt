@@ -1,12 +1,15 @@
-package mad.project.SleepMonitor.screens // Основной пакет экрана
+package mad.project.SleepMonitor.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -14,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -22,15 +26,16 @@ import mad.project.SleepMonitor.screens.abilities.WeekContent
 import mad.project.SleepMonitor.ui.common.AppScaffold
 import mad.project.SleepMonitor.ui.theme.White
 
-// Импортируем компоненты и определения из нового пакета
 import mad.project.SleepMonitor.ui.abilities.TimeRange
 import mad.project.SleepMonitor.ui.abilities.TimeRangeButton
 import mad.project.SleepMonitor.ui.abilities.AllTimeContent
+import mad.project.SleepMonitor.viewmodels.AnalyticsViewModel
 
 @Composable
-fun AbilitiesScreen(navController: NavController) { // Убираем private, если экран вызывается из навигации
+fun AnalyticsScreen(navController: NavController, viewModel: AnalyticsViewModel) {
 
-    var selectedTimeRange by remember { mutableStateOf(TimeRange.ALL) }
+    val state by viewModel.state.collectAsState()
+    val selectedTimeRange = state.selectedTimeRange
 
     AppScaffold(navController = navController) {
 
@@ -50,7 +55,7 @@ fun AbilitiesScreen(navController: NavController) { // Убираем private, �
             )
             Spacer(modifier = Modifier.width(32.dp))
             Text(
-                text = "Statistic",
+                text = "Analytics",
                 color = White,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.SemiBold
@@ -65,26 +70,26 @@ fun AbilitiesScreen(navController: NavController) { // Убираем private, �
                 .padding(horizontal = 24.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Используем импортированный TimeRangeButton
+
             TimeRangeButton(
                 text = "All time",
                 timeRange = TimeRange.ALL,
                 isSelected = selectedTimeRange == TimeRange.ALL,
-                onClick = { selectedTimeRange = TimeRange.ALL },
+                onClick = { viewModel.onTimeRangeSelected(TimeRange.ALL) },
                 modifier = Modifier.weight(1f)
             )
             TimeRangeButton(
                 text = "Week",
                 timeRange = TimeRange.WEEK,
                 isSelected = selectedTimeRange == TimeRange.WEEK,
-                onClick = { selectedTimeRange = TimeRange.WEEK },
+                onClick = { viewModel.onTimeRangeSelected(TimeRange.WEEK) },
                 modifier = Modifier.weight(1f)
             )
             TimeRangeButton(
                 text = "Day",
                 timeRange = TimeRange.DAY,
                 isSelected = selectedTimeRange == TimeRange.DAY,
-                onClick = { selectedTimeRange = TimeRange.DAY },
+                onClick = { viewModel.onTimeRangeSelected(TimeRange.DAY) },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -92,19 +97,45 @@ fun AbilitiesScreen(navController: NavController) { // Убираем private, �
         // --- Основной контент ---
         Spacer(modifier = Modifier.height(30.dp))
 
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = 24.dp),
+            contentAlignment = Alignment.TopCenter
         ) {
-            // Вызываем импортированные функции контента
-            when (selectedTimeRange) {
-                TimeRange.ALL -> AllTimeContent()
-                TimeRange.WEEK -> WeekContent()
-                TimeRange.DAY -> DayContent()
+            when {
+                state.isLoading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
+                state.error != null -> {
+                    Text(
+                        text = "Error: ${state.error}",
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+                state.report != null -> {
+                    // Показываем контент, если данные есть
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        when (selectedTimeRange) {
+                            TimeRange.ALL -> AllTimeContent(report = state.report!!)
+                            TimeRange.WEEK -> WeekContent(report = state.report!!)
+                            TimeRange.DAY -> DayContent(report = state.report!!)
+                        }
+                        Spacer(modifier = Modifier.height(32.dp))
+                    }
+                }
+                else -> {
+                    // Состояние по умолчанию или если отчет пуст, но нет ошибки
+                    Text(
+                        text = "No data available for the selected period.",
+                        color = White.copy(alpha = 0.7f),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
             }
-
-            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }

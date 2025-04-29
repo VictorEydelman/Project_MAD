@@ -4,9 +4,9 @@ ktor:
       - ru.itmo.ApplicationKt.module
   deployment:
     port: 8090
-  version: 0.5
+  version: 0.6
 jwt:
-  expiration: 6
+  expiration: 168  # 7 days
   secret: "secret"
 keydb:
   host: "keydb"

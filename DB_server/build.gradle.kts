@@ -4,6 +4,7 @@ plugins {
     kotlin("plugin.serialization") version "1.9.0"
     application
     id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("org.jetbrains.dokka") version "2.0.0"
 }
 
 group = "mad.project"

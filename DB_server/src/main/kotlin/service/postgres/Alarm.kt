@@ -1,9 +1,11 @@
 package mad.project.service.postgres
 
+import io.ktor.util.logging.KtorSimpleLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import mad.project.keyDB.Logger
 import java.sql.Connection
 import java.sql.SQLException
 import java.sql.Statement
@@ -11,23 +13,37 @@ import java.sql.Time
 
 @Serializable
 data class Alarm(val id: Int = -1, @Contextual val time: Time, val alarm: Boolean)
+/**
+ * Класс для работы с таблицей Alarm в базе данных postgres
+ */
 class AlarmService(private val connection: Connection){
+    /**
+     * Запросы к таблице:
+     * CREATE_TABLE_ALARM
+     * SELECT_ALARM_BY_ID
+     * INSERT_Alarm
+     * UPDATE_ALARM
+     */
     companion object {
         private const val CREATE_TABLE_ALARM =
             "CREATE TABLE IF NOT EXISTS ALARM (ID SERIAL PRIMARY KEY, time Time, alarm Boolean);"
         private const val SELECT_ALARM_BY_ID = "SELECT * FROM alarm WHERE id = ?"
         private const val INSERT_Alarm = "INSERT INTO alarm (time, alarm) VALUES (?, ?)"
-        private const val EXIST_USER = "SELECT count(*) FROM USERS WHERE username = ?"
-        private const val FIND_BY_USERNAME_AND_PASSWORD = "SELECT count(*) FROM users WHERE username = ? and password = ?"
         private const val UPDATE_ALARM = "UPDATE alarm SET time = ?, alarm = ? WHERE id = ?"
-        private const val DELETE_CITY = "DELETE FROM cities WHERE id = ?"
-
     }
+
+    /**
+     * Создание таблицы
+     */
     init {
         val statement = connection.createStatement()
         statement.executeUpdate(CREATE_TABLE_ALARM)
     }
-    fun save(alarm: Alarm?): Int{
+
+    /**
+     * Сохраняет alarm
+     */
+    fun save(alarm: Alarm?): Int?{
         try {
             val statement = connection.prepareStatement(INSERT_Alarm, Statement.RETURN_GENERATED_KEYS)
             alarm?.let { statement.setObject(1, it.time) }
@@ -37,13 +53,18 @@ class AlarmService(private val connection: Connection){
             if (generatedKeys.next()) {
                 return generatedKeys.getInt(1)
             } else {
-                throw Exception("Unable to retrieve the id")
+                Logger.error("Unable to retrieve the id")
+                return null
             }
         } catch (e: SQLException){
-            throw Exception("Ошибка с бд")
+            Logger.error("Error in database postgresql")
+            return null
         }
     }
 
+    /**
+     * Обновляет alarm
+     */
     fun update(alarm: Alarm?){
         try {
             val statement = connection.prepareStatement(UPDATE_ALARM)
@@ -53,19 +74,32 @@ class AlarmService(private val connection: Connection){
 
             statement.executeUpdate()
         } catch (e: SQLException){
-            throw Exception("Ошибка с бд")
+            Logger.error("Error in database postgresql")
         }
     }
-    fun get(id: Int): Alarm{
-        val statement = connection.prepareStatement(SELECT_ALARM_BY_ID)
-        statement.setInt(1,id);
-        val result = statement.executeQuery()
 
-        if(result.next()){
-            return Alarm(result.getInt("id"), result.getObject("time") as Time,result.getBoolean("alarm"))
-        } else{
-            throw Exception("Нету настроек")
+    /**
+     * Возвращает Alarm по id
+     */
+    fun get(id: Int): Alarm?{
+        try {
+            val statement = connection.prepareStatement(SELECT_ALARM_BY_ID)
+            statement.setInt(1, id);
+            val result = statement.executeQuery()
+
+            if (result.next()) {
+                return Alarm(
+                    result.getInt("id"),
+                    result.getObject("time") as Time,
+                    result.getBoolean("alarm")
+                )
+            } else {
+                Logger.debug("Don't have Alarm")
+                return null
+            }
+        } catch (e: SQLException){
+            Logger.error("Error in database postgresql")
+            return null
         }
-
     }
 }
