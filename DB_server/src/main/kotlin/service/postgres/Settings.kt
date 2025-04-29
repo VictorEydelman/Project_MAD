@@ -3,6 +3,7 @@ package mad.project.service.postgres
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import mad.project.DataUser
+import mad.project.keyDB.Logger
 import java.sql.Connection
 import java.sql.Date
 import java.sql.SQLException
@@ -118,8 +119,7 @@ class SettingsService(private val connection: Connection){
     /**
      * Сохраняет или обновляет setting пользователя
      */
-    fun save(settingUser: DataUser<Settings>): Boolean{
-        println(settingUser)
+    suspend fun save(settingUser: DataUser<Settings>): Boolean{
         var settings = settingUser.data
         settings.username = settingUser.username
         println(settings)
@@ -133,7 +133,7 @@ class SettingsService(private val connection: Connection){
     /**
      * Добавляет setting пользователя
      */
-    fun insert(settings: Settings): Boolean{
+    suspend fun insert(settings: Settings): Boolean{
         try {
             val Alarm = AlarmService(connection)
             var alrec: Int? = null
@@ -186,15 +186,15 @@ class SettingsService(private val connection: Connection){
             statement.executeUpdate()
             return true
         } catch (e: SQLException){
-            //return false
-            throw Exception(e)
+            Logger.error("Error in database postgresql")
+            return false
         }
     }
 
     /**
      * Обновляет setting пользователя
      */
-    fun update(settings: Settings): Boolean{
+    suspend fun update(settings: Settings): Boolean{
         try {
             val Alarm = AlarmService(connection)
             var alrec_id: Int? =null
@@ -266,59 +266,79 @@ class SettingsService(private val connection: Connection){
             statement.executeUpdate()
             return true
         } catch (e: SQLException){
+            Logger.error("Error in database postgresql")
             return false
-            throw Exception(e)
         }
     }
 
     /**
      * Возвращает setting по username
      */
-    fun get(username: String): SettingWithOutUser{
-        val statement = connection.prepareStatement(SELECT_SETTING_BY_USERNAME)
-        statement.setString(1,username);
-        val result = statement.executeQuery()
+    fun get(username: String): SettingWithOutUser?{
+        try {
+            val statement = connection.prepareStatement(SELECT_SETTING_BY_USERNAME)
+            statement.setString(1, username);
+            val result = statement.executeQuery()
 
-        if(result.next()){
-            val user = result.getString("USERNAME")
-            val name = result.getString("NAME")
-            val surname = result.getString("SURNAME")
-            val birthday = result.getObject("BIRTHDAY") as? Date ?: throw Exception("Неверный формат даты")
-            val gender = result.getString("GENDER")?.let { Gender.valueOf(it) }
-                ?: throw Exception("Неверное значение для пола")
-            val physicalCondition = result.getString("PHYSICALCONDITION")?.let { Frequency.valueOf(it) }
-                ?: throw Exception("Неверное значение для физического состояния")
-            val caffeineUsage = result.getString("CaffeineUsage")?.let { Frequency.valueOf(it) }
-                ?: throw Exception("Неверное значение для употребления кофеина")
-            val alcoholUsage = result.getString("AlcoholUsage")?.let { Frequency.valueOf(it) }
-                ?: throw Exception("Неверное значение для употребления алкоголя")
-            println(result)
-            val alrec_id = result.getInt("alarmRecurring")
-            val altem_id = result.getInt("alarmTemporary")
-            println(alrec_id)
-            val Alarm = AlarmService(connection)
-            var alrec: Alarm? = null
-            if(alrec_id != 0) {
-                alrec = Alarm.get(alrec_id)
+            if (result.next()) {
+                val user = result.getString("USERNAME")
+                val name = result.getString("NAME")
+                val surname = result.getString("SURNAME")
+                val birthday =
+                    result.getObject("BIRTHDAY") as? Date ?: throw Exception("Неверный формат даты")
+                val gender = result.getString("GENDER")?.let { Gender.valueOf(it) }
+                    ?: throw Exception("Неверное значение для пола")
+                val physicalCondition =
+                    result.getString("PHYSICALCONDITION")?.let { Frequency.valueOf(it) }
+                        ?: throw Exception("Неверное значение для физического состояния")
+                val caffeineUsage = result.getString("CaffeineUsage")?.let { Frequency.valueOf(it) }
+                    ?: throw Exception("Неверное значение для употребления кофеина")
+                val alcoholUsage = result.getString("AlcoholUsage")?.let { Frequency.valueOf(it) }
+                    ?: throw Exception("Неверное значение для употребления алкоголя")
+                println(result)
+                val alrec_id = result.getInt("alarmRecurring")
+                val altem_id = result.getInt("alarmTemporary")
+                println(alrec_id)
+                val Alarm = AlarmService(connection)
+                var alrec: Alarm? = null
+                if (alrec_id != 0) {
+                    alrec = Alarm.get(alrec_id)
+                }
+                var altem: Alarm? = null
+                if (altem_id != 0) {
+                    altem = Alarm.get(altem_id)
+                }
+                val bedrec_id = result.getInt("bedTimeRecurring")
+                val bedtem_id = result.getInt("bedTimeTemporary")
+                val BedTime = BedTimeService(connection)
+                var bedrec: BedTime? = null
+                if (bedrec_id != 0) {
+                    bedrec = BedTime.get(bedrec_id)
+                }
+                var bedtem: BedTime? = null
+                if (bedtem_id != 0) {
+                    bedtem = BedTime.get(bedtem_id)
+                }
+                return SettingWithOutUser(
+                    name,
+                    surname,
+                    birthday.toLocalDate(),
+                    gender,
+                    physicalCondition,
+                    caffeineUsage,
+                    alcoholUsage,
+                    alrec,
+                    altem,
+                    bedrec,
+                    bedtem
+                )
+            } else {
+                Logger.debug("Нету настроек")
+                return null
             }
-            var altem: Alarm? = null
-            if(altem_id != 0) {
-                altem = Alarm.get(altem_id)
-            }
-            val bedrec_id = result.getInt("bedTimeRecurring")
-            val bedtem_id = result.getInt("bedTimeTemporary")
-            val BedTime = BedTimeService(connection)
-            var bedrec: BedTime? = null
-            if(bedrec_id != 0) {
-                bedrec = BedTime.get(bedrec_id)
-            }
-            var bedtem: BedTime? = null
-            if(bedtem_id != 0) {
-                bedtem = BedTime.get(bedtem_id)
-            }
-            return SettingWithOutUser(name, surname, birthday.toLocalDate(), gender, physicalCondition, caffeineUsage, alcoholUsage, alrec, altem, bedrec, bedtem)
-        } else{
-            throw Exception("Нету настроек")
+        } catch (e: SQLException){
+            Logger.error("Error in database postgresql")
+            return null
         }
     }
 
@@ -333,8 +353,8 @@ class SettingsService(private val connection: Connection){
             statement.setString(3, username)
             return true
         } catch (e: SQLException){
+            Logger.error("Error in database postgresql")
             return false
-            throw Exception(e)
         }
     }
 }

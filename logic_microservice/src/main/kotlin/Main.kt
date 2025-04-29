@@ -8,6 +8,8 @@ import io.ktor.server.plugins.callloging.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.slf4j.event.Level
 import ru.itmo.controller.ReportController
 import ru.itmo.service.RecommendationService
@@ -28,5 +30,29 @@ fun Application.module() {
     val reportService = ReportService(keydb)
     val recommendationService = RecommendationService(keydb)
     val reportController = ReportController(keydb, reportService, recommendationService)
-    reportController.createKeyDBChannels()
+    launch {
+        keydb.subscribeWithResponse("make-daily-report", String::class.java, { username ->
+            // Можно ли как то сделать неблокирующе? Спросите Марата
+            runBlocking { reportService.makeDailyReport(username) }
+        })
+    }
+    launch {
+        keydb.subscribeWithResponse("make-weekly-report", String::class.java, { username ->
+            // Можно ли как то сделать неблокирующе? Спросите Марата
+            runBlocking { reportService.makeWeeklyReport(username) }
+        })
+    }
+    launch {
+        keydb.subscribeWithResponse("make-all-time-report", String::class.java, { username ->
+            // Можно ли как то сделать неблокирующе? Спросите Марата
+            runBlocking { reportService.makeAllTimeReport(username) }
+        })
+    }
+    launch {
+        keydb.subscribeWithResponse("calculate-recommended-times", String::class.java, { username ->
+            // Можно ли как то сделать неблокирующе? Спросите Марата
+            runBlocking { recommendationService.calculateRecommendedTimes(username) }
+        })
+    }
+
 }

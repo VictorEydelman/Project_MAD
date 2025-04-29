@@ -8,6 +8,7 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import mad.project.keyDB.Logger
 import mad.project.service.clickhouse.SleepInterval
@@ -91,18 +92,18 @@ fun Application.configureDatabases() {
 
     launch {
         keyDBClient.subscribeWithResponse("get-user", String::class.java, { username: String ->
-            usersService.getUserByUsername(username=username)
+            runBlocking {  usersService.getUserByUsername(username=username)}
         })
     }
     launch {
         keyDBClient.subscribeWithResponse("save-user", Users::class.java, { user->
-            usersService.insert(user=user)
+            runBlocking {usersService.insert(user=user) }
         })
     }
     launch {
         val requestType = object : TypeReference<DataUser<Settings>>() {}
         keyDBClient.subscribeWithResponse("update-profile", requestType, { setting_user: DataUser<Settings> ->
-            settingsService.save(setting_user)})
+            runBlocking {  settingsService.save(setting_user)}})
     }
     launch {
         keyDBClient.subscribeWithResponse("get-profile", String::class.java, { user->
@@ -148,12 +149,12 @@ fun Application.configureDatabases() {
             val s= DataUser<Settings>(settings.username,settings)
             val i = settingsService.save(s)
             println(i)
-            val settings3: SettingWithOutUser = settingsService.get(u)
+            val settings3: SettingWithOutUser? = settingsService.get(u)
             val settings2: Settings = settings
-            settings2.alarmTemporary= settings3.alarmTemporary
-            settings2.alarmRecurring=settings3.alarmRecurring
-            settings2.bedTimeRecurring=settings3.bedTimeRecurring
-            settings2.bedTimeTemporary=settings3.bedTimeTemporary
+            settings2.alarmTemporary= settings3?.alarmTemporary
+            settings2.alarmRecurring= settings3?.alarmRecurring
+            settings2.bedTimeRecurring=settings3?.bedTimeRecurring
+            settings2.bedTimeTemporary=settings3?.bedTimeTemporary
 
             println(settings3)
             settings2.gender= Gender.Female
@@ -173,8 +174,10 @@ fun Application.configureDatabases() {
             //println(sleepStatisticService.addSleepData(sleepStatistic2))
             val sleepInterval = SleepInterval(u, LocalDateTime.of(2024,4,20,11,1,4), LocalDateTime.of(2024,4,20,11,1,15))
             val list = sleepStatisticService.getSleepStatisticInterval(sleepInterval)
-            for (i in list){
-                println(i)
+            if (list != null) {
+                for (i in list){
+                    println(i)
+                }
             }
 
         }
