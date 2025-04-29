@@ -19,5 +19,7 @@ fun Application.module() {
     configureSerialization()
     configureOpenAPI()
     configureRouting()
-    Logger.info("Starting application version ${environment.config.property("ktor.version").getString()}")
+    runCatching {
+        Logger.info("Starting application version ${environment.config.property("ktor.version").getString()}")
+    }
 }

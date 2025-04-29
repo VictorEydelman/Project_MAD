@@ -42,6 +42,6 @@ dependencies {
     implementation("org.mindrot:jbcrypt:0.4")
     implementation("io.github.smiley4:ktor-swagger-ui:5.0.2")
     implementation("io.github.smiley4:ktor-openapi:5.0.2")
-    testImplementation("io.ktor:ktor-server-test-host")
+    testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }
