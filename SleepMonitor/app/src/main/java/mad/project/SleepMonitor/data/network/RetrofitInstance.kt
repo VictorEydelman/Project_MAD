@@ -39,4 +39,8 @@ object RetrofitInstance {
     val analyticsApi: AnalyticsApiService by lazy {
         retrofit.create(AnalyticsApiService::class.java)
     }
+
+    val profileApi: ProfileApi by lazy {
+        retrofit.create(ProfileApi::class.java)
+    }
 }
