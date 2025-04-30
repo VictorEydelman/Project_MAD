@@ -8,6 +8,7 @@ import mad.project.SleepMonitor.data.network.dto.CheckAuthResponse
 
 import mad.project.SleepMonitor.data.network.dto.ReportDataDto
 import mad.project.SleepMonitor.data.network.dto.SleepDataPieceDto
+import mad.project.SleepMonitor.data.network.dto.WeekdaySleepDto
 import mad.project.SleepMonitor.domain.model.*
 import java.time.*
 import java.time.format.DateTimeParseException
@@ -15,10 +16,15 @@ import kotlin.math.roundToInt
 
 
 fun ReportDataDto.toDomain(): Report? {
-    val totalSleepDuration = this.totalSleepMillis?.let { Duration.ofMillis(it) }
+    val quality = this.quality
+    val startTime = LocalTime.parse(this.startTime)
+    val endTime = LocalTime.parse(this.endTime)
+
+    val totalSleepDuration = Duration.ofSeconds(this.totalSleepSec.toLong())
     val awakeningsCount = this.awakenings
-    val avgAwakeDuration = this.avgAwakeMillis?.let { Duration.ofMillis(it) }
-    val avgAsleepDuration = this.avgAsleepMillis?.let { Duration.ofMillis(it) }
+    val avgAwakeDuration = Duration.ofSeconds(this.avgAwakeSec.toLong())
+    val avgAsleepDuration = Duration.ofSeconds(this.avgAsleepSec.toLong())
+    val avgToFallAsleepDuration = Duration.ofSeconds(this.avgToFallAsleepSec.toLong())
 
     val mappedSleepData: SleepData? = this.data
         ?.mapNotNull { it.toDomain() }
@@ -28,40 +34,44 @@ fun ReportDataDto.toDomain(): Report? {
         println("Warning: No valid sleep data pieces found in the report.")
     }
 
+    val mappedDistribution: WeekdaySleepDistribution? = this.distribution
+        ?.mapNotNull { it.toDomain() }
 
-    val reportStartTime: LocalTime? = mappedSleepData?.firstOrNull()?.timestamp?.atZone(ZoneId.systemDefault())?.toLocalTime()
-    val reportEndTime: LocalTime? = mappedSleepData?.lastOrNull()?.timestamp?.atZone(ZoneId.systemDefault())?.toLocalTime()
+    if (mappedDistribution.isNullOrEmpty()) {
+        println("Warning: No valid week distribution found in the report.")
+    }
 
-    val calculatedQuality: Int = calculateSleepQuality(totalSleepDuration, awakeningsCount)
-
-    val calculatedDistribution: WeekdaySleepDistribution? = calculateWeekdayDistribution(mappedSleepData)
+//    val reportStartTime: LocalTime? = mappedSleepData?.firstOrNull()?.timestamp?.atZone(ZoneId.systemDefault())?.toLocalTime()
+//    val reportEndTime: LocalTime? = mappedSleepData?.lastOrNull()?.timestamp?.atZone(ZoneId.systemDefault())?.toLocalTime()
+//    val calculatedQuality: Int = calculateSleepQuality(totalSleepDuration, awakeningsCount)
+//    val calculatedDistribution: WeekdaySleepDistribution? = calculateWeekdayDistribution(mappedSleepData)
 
     return Report(
+        quality = quality,
+        startTime = startTime,
+        endTime = endTime,
         totalSleep = totalSleepDuration,
         awakenings = awakeningsCount,
         avgAwake = avgAwakeDuration,
         avgAsleep = avgAsleepDuration,
+        avgToFallAsleep = avgToFallAsleepDuration,
         data = mappedSleepData,
-        startTime = reportStartTime ?: LocalTime.MIDNIGHT,
-        endTime = reportEndTime ?: LocalTime.MIDNIGHT,
-        quality = calculatedQuality,
-        distribution = calculatedDistribution,
-        avgToFallAsleep = null
+        distribution = mappedDistribution
     )
 }
 
 fun SleepDataPieceDto.toDomain(): SleepDataPiece? {
     val instant = try {
-        this.timestamp?.let { Instant.parse(it) }
+        this.timestamp?.let { LocalDateTime.parse(it) }
     } catch (e: DateTimeParseException) {
         println("Error parsing timestamp: ${this.timestamp}, error: ${e.message}")
         null
     }
 
     val phase = try {
-        this.phase?.let { SleepPhase.valueOf(it.uppercase()) } ?: SleepPhase.UNKNOWN
+        this.sleepPhase?.let { SleepPhase.valueOf(it.uppercase()) } ?: SleepPhase.UNKNOWN
     } catch (e: IllegalArgumentException) {
-        println("Error parsing phase: ${this.phase}, error: ${e.message}")
+        println("Error parsing phase: ${this.sleepPhase}, error: ${e.message}")
         SleepPhase.UNKNOWN
     }
 
@@ -69,11 +79,20 @@ fun SleepDataPieceDto.toDomain(): SleepDataPiece? {
         SleepDataPiece(
             timestamp = instant,
             pulse = this.pulse,
-            phase = phase
+            sleepPhase = phase
         )
     } else {
         null
     }
+}
+fun WeekdaySleepDto.toDomain(): WeekdaySleep? {
+    val week = try {
+        Weekday.valueOf(this.weekday)
+    } catch (e: IllegalArgumentException) {
+        println("Error parsing weekday: ${this.weekday}, error: ${e.message}")
+        return null
+    }
+    return WeekdaySleep(week, this.asleepHours)
 }
 
 // --- Mappers for Authentication (Login/Register) ---
@@ -169,7 +188,7 @@ private fun calculateTotalSleepDurationForPieces(pieces: List<SleepDataPiece>): 
     val sortedPieces = pieces.sortedBy { it.timestamp }
 
     for (i in 0 until sortedPieces.size - 1) {
-        if (sortedPieces[i].phase != SleepPhase.AWAKE) {
+        if (sortedPieces[i].sleepPhase != SleepPhase.AWAKE) {
             val durationBetweenPoints = Duration.between(sortedPieces[i].timestamp, sortedPieces[i + 1].timestamp)
             if (durationBetweenPoints.abs().toMinutes() < 30) {
                 totalDuration = totalDuration.plus(durationBetweenPoints)

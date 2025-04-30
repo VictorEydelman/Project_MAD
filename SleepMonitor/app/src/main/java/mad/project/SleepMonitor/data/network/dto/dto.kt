@@ -16,18 +16,26 @@ data class ReportResponseDto(
 )
 
 data class ReportDataDto(
-    @SerializedName("avg_asleep") val avgAsleepMillis: Long?,
-    @SerializedName("avg_awake") val avgAwakeMillis: Long?,
-    @SerializedName("total_sleep") val totalSleepMillis: Long?,
-
-    @SerializedName("awakenings") val awakenings: Int?,
-    @SerializedName("data") val data: List<SleepDataPieceDto>?
+    @SerializedName("quality") val quality: Int,
+    @SerializedName("startTime") val startTime: String,
+    @SerializedName("endTime") val endTime: String,
+    @SerializedName("totalSleep") val totalSleepSec: Double,
+    @SerializedName("awakenings") val awakenings: Int,
+    @SerializedName("avgAwake") val avgAwakeSec: Double,
+    @SerializedName("avgAsleep") val avgAsleepSec: Double,
+    @SerializedName("avgToFallAsleepSec") val avgToFallAsleepSec: Double,
+    @SerializedName("data") val data: List<SleepDataPieceDto>?,
+    @SerializedName("distribution") val distribution: List<WeekdaySleepDto>?
 )
 
 data class SleepDataPieceDto(
     @SerializedName("timestamp") val timestamp: String?,
     @SerializedName("pulse") val pulse: Int?,
-    @SerializedName("phase") val phase: String?
+    @SerializedName("sleepPhase") val sleepPhase: String?
+)
+data class WeekdaySleepDto(
+    @SerializedName("weekday") val weekday: String,
+    @SerializedName("asleepHours") val asleepHours: Double,
 )
 
 data class ProfileResponse(
