@@ -17,7 +17,7 @@ import mad.project.SleepMonitor.ui.theme.White
 
 
 @Composable
-internal fun RowScope.SleepDetailItem( // internal и RowScope
+internal fun RowScope.SleepDetailItem(
     value: String,
     labelFirstLine: String,
     labelRest: String

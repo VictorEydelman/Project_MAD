@@ -4,33 +4,33 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import java.nio.file.Files
-import java.nio.file.Paths
 
 @Serializable
 data class Config(
     val userCount: Int,
-    val delayMs: Long
+    val initialDelayMs: Long,
+    val userDelayMs: Long,
+    val randomOrder: Boolean,
+    val includeRequests: List<String>
 )
 
 fun main() = runBlocking {
-    // 1. Читаем файл из classpath
     val configText = object {}.javaClass
         .classLoader
         .getResource("config.json")
         ?.readText()
         ?: throw IllegalStateException("config.json not found in resources")
 
-    // 2. Парсим JSON в Config
     val config = Json { ignoreUnknownKeys = true }
         .decodeFromString(Config.serializer(), configText)
 
-    // 3. Используем параметры из конфигурации
     val client = HttpClient(CIO)
-    val tester = LoadTester(client, userCount = config.userCount)
+    val tester = LoadTester(client, config)
 
-    println("Тест начнётся через ${config.delayMs} мс...")
-    delay(config.delayMs)
+    if (config.initialDelayMs > 0) {
+        println("Тест начнётся через ${config.initialDelayMs} мс...")
+    }
+    delay(config.initialDelayMs)
 
     tester.start()
 

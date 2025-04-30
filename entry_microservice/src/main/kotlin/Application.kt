@@ -1,6 +1,7 @@
 package ru.itmo
 
 import io.ktor.server.application.*
+import io.ktor.server.plugins.doublereceive.DoubleReceive
 import io.ktor.server.plugins.statuspages.*
 import ru.itmo.config.*
 import ru.itmo.exception.exceptionHandler
@@ -11,6 +12,7 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
+    install(DoubleReceive)
     install(StatusPages) {
         exceptionHandler()
     }

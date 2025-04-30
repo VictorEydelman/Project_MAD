@@ -1,4 +1,4 @@
-package mad.project.SleepMonitor.screens // Основной пакет экрана
+package mad.project.SleepMonitor.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -26,14 +26,13 @@ import mad.project.SleepMonitor.screens.abilities.WeekContent
 import mad.project.SleepMonitor.ui.common.AppScaffold
 import mad.project.SleepMonitor.ui.theme.White
 
-// Импортируем компоненты и определения из нового пакета
 import mad.project.SleepMonitor.ui.abilities.TimeRange
 import mad.project.SleepMonitor.ui.abilities.TimeRangeButton
 import mad.project.SleepMonitor.ui.abilities.AllTimeContent
 import mad.project.SleepMonitor.viewmodels.AnalyticsViewModel
 
 @Composable
-fun AnalyticsScreen(navController: NavController, viewModel: AnalyticsViewModel) { // Убираем private, если экран вызывается из навигации
+fun AnalyticsScreen(navController: NavController, viewModel: AnalyticsViewModel) {
 
     val state by viewModel.state.collectAsState()
     val selectedTimeRange = state.selectedTimeRange
@@ -71,7 +70,7 @@ fun AnalyticsScreen(navController: NavController, viewModel: AnalyticsViewModel)
                 .padding(horizontal = 24.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Используем импортированный TimeRangeButton
+
             TimeRangeButton(
                 text = "All time",
                 timeRange = TimeRange.ALL,
@@ -98,11 +97,11 @@ fun AnalyticsScreen(navController: NavController, viewModel: AnalyticsViewModel)
         // --- Основной контент ---
         Spacer(modifier = Modifier.height(30.dp))
 
-        Box( // Используем Box для удобного отображения загрузки/ошибки по центру
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp),
-            contentAlignment = Alignment.TopCenter // Выравниваем контент по верху
+            contentAlignment = Alignment.TopCenter
         ) {
             when {
                 state.isLoading -> {
@@ -118,9 +117,9 @@ fun AnalyticsScreen(navController: NavController, viewModel: AnalyticsViewModel)
                 }
                 state.report != null -> {
                     // Показываем контент, если данные есть
+                    println(state.report)
                     Column(modifier = Modifier.fillMaxWidth()) {
                         when (selectedTimeRange) {
-                            // Передаем данные отчета в соответствующие Composable
                             TimeRange.ALL -> AllTimeContent(report = state.report!!)
                             TimeRange.WEEK -> WeekContent(report = state.report!!)
                             TimeRange.DAY -> DayContent(report = state.report!!)

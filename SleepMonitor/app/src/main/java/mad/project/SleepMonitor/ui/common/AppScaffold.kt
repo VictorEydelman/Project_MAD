@@ -11,7 +11,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import mad.project.SleepMonitor.ui.common.BottomNavBar
 
 @Composable
 fun AppScaffold(

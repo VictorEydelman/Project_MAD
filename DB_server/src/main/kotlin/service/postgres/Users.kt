@@ -1,6 +1,7 @@
 package mad.project.service.postgres
 
 import kotlinx.serialization.Serializable
+import mad.project.keyDB.Logger
 import java.sql.Connection
 import java.sql.SQLException
 
@@ -54,15 +55,15 @@ class UsersService(private val connection: Connection){
             }
             return true
         } catch (e: SQLException){
-            throw Exception("Ошибка с бд")
-            //throw Exception("Пользователь с таким именем уже существует.")
+            Logger.error("Error in database postgresql")
+            return false
         }
     }
 
     /**
      * Добавляет пользователя, если такого не было
      */
-    fun insert(user: Users): Boolean {
+    suspend fun insert(user: Users): Boolean {
         if(userNotExist(user.username)){
             try {
                 val statement = connection.prepareStatement(INSERT_USER)
@@ -71,8 +72,8 @@ class UsersService(private val connection: Connection){
                 statement.executeUpdate()
                 return true
             } catch (e: SQLException){
+                Logger.error("Error in database postgresql")
                 return false
-                //throw Exception("Ошибка с бд")
             }
         } else{
             return false
@@ -82,7 +83,7 @@ class UsersService(private val connection: Connection){
     /**
      * Возвращает пользователя по username
      */
-    fun getUserByUsername(username: String): Users? {
+    suspend fun getUserByUsername(username: String): Users? {
         try{
             val statement = connection.prepareStatement(GET_USER);
             statement.setString(1,username)
@@ -93,7 +94,8 @@ class UsersService(private val connection: Connection){
                 return null
             }
         } catch (e: SQLException){
-            throw Exception("Ошибка с бд")
+            Logger.error("Error in database postgresql")
+            return null
         }
     }
 }

@@ -2,12 +2,15 @@ package mad.project
 
 import KeyDBClient
 import com.fasterxml.jackson.core.type.TypeReference
+import com.typesafe.config.ConfigException
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
+import mad.project.keyDB.Logger
 import mad.project.service.clickhouse.SleepInterval
 import mad.project.service.clickhouse.SleepStatistic
 import java.sql.Connection
@@ -86,21 +89,22 @@ fun Application.configureDatabases() {
     val settingsService = SettingsService(dbConnection)
     val sleepStatisticService = SleepStatisticService(clickHouseConnection)
     val keyDBClient = KeyDBClient()
+    Logger.init(keyDBClient,"DB Microservice")
 
     launch {
         keyDBClient.subscribeWithResponse("get-user", String::class.java, { username: String ->
-            usersService.getUserByUsername(username=username)
+            runBlocking {  usersService.getUserByUsername(username=username)}
         })
     }
     launch {
         keyDBClient.subscribeWithResponse("save-user", Users::class.java, { user->
-            usersService.insert(user=user)
+            runBlocking {usersService.insert(user=user) }
         })
     }
     launch {
         val requestType = object : TypeReference<DataUser<Settings>>() {}
         keyDBClient.subscribeWithResponse("update-profile", requestType, { setting_user: DataUser<Settings> ->
-            settingsService.save(setting_user)})
+            runBlocking {  settingsService.save(setting_user)}})
     }
     launch {
         keyDBClient.subscribeWithResponse("get-profile", String::class.java, { user->
@@ -146,12 +150,12 @@ fun Application.configureDatabases() {
             val s= DataUser<Settings>(settings.username,settings)
             val i = settingsService.save(s)
             println(i)
-            val settings3: SettingWithOutUser = settingsService.get(u)
+            val settings3: SettingWithOutUser? = settingsService.get(u)
             val settings2: Settings = settings
-            settings2.alarmTemporary= settings3.alarmTemporary
-            settings2.alarmRecurring=settings3.alarmRecurring
-            settings2.bedTimeRecurring=settings3.bedTimeRecurring
-            settings2.bedTimeTemporary=settings3.bedTimeTemporary
+            settings2.alarmTemporary= settings3?.alarmTemporary
+            settings2.alarmRecurring= settings3?.alarmRecurring
+            settings2.bedTimeRecurring=settings3?.bedTimeRecurring
+            settings2.bedTimeTemporary=settings3?.bedTimeTemporary
 
             println(settings3)
             settings2.gender= Gender.Female
@@ -171,8 +175,10 @@ fun Application.configureDatabases() {
             //println(sleepStatisticService.addSleepData(sleepStatistic2))
             val sleepInterval = SleepInterval(u, LocalDateTime.of(2024,4,20,11,1,4), LocalDateTime.of(2024,4,20,11,1,15))
             val list = sleepStatisticService.getSleepStatisticInterval(sleepInterval)
-            for (i in list){
-                println(i)
+            if (list != null) {
+                for (i in list){
+                    println(i)
+                }
             }
 
         }
@@ -183,19 +189,31 @@ fun Application.configureDatabases() {
  * Подключение к базе данных postgres
  */
 fun Application.connectToPostgres(): Connection {
-    Class.forName("org.postgresql.Driver")
-    val url = environment.config.property("postgres.url").getString()
-    log.info("Connecting to postgres database at $url")
-    val user = environment.config.property("postgres.user").getString()
-    val password = environment.config.property("postgres.password").getString()
-    return DriverManager.getConnection(url, user, password)
+    try {
+        Class.forName("org.postgresql.Driver")
+        val url = environment.config.property("postgres.url").getString()
+        log.info("Connecting to postgres database at $url")
+        val user = environment.config.property("postgres.user").getString()
+        val password = environment.config.property("postgres.password").getString()
+        return DriverManager.getConnection(url, user, password)
+    } catch (e: Exception){
+        Logger.error("Error launch to postgres")
+        throw Exception(e)
+
+    }
 }
 
 /**
  * Подключение к базе данных ClickHouse
  */
 fun Application.connectToClickHouse(): Connection {
-    val url = environment.config.property("clickhouse.url").getString() // Убедитесь, что ClickHouse запущен на этом адресе
-    Class.forName("ru.yandex.clickhouse.ClickHouseDriver")
-    return DriverManager.getConnection(url,"default","")
+    try {
+        val url = environment.config.property("clickhouse.url")
+            .getString() // Убедитесь, что ClickHouse запущен на этом адресе
+        Class.forName("ru.yandex.clickhouse.ClickHouseDriver")
+        return DriverManager.getConnection(url, "default", "")
+    } catch (e : Exception){
+        Logger.error("Error launch to clickhouse")
+        throw Exception(e)
+    }
 }

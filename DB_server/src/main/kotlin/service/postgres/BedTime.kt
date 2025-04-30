@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import mad.project.keyDB.Logger
 import java.sql.Connection
 import java.sql.SQLException
 import java.sql.Statement
@@ -40,7 +41,7 @@ class BedTimeService(private val connection: Connection){
     /**
      * Сохраняет bedTime
      */
-    fun save(bedTime: BedTime): Int{
+    fun save(bedTime: BedTime): Int?{
         try {
             val statement = connection.prepareStatement(INSERT_BEDTIME, Statement.RETURN_GENERATED_KEYS)
             statement.setObject(1, bedTime.time)
@@ -51,10 +52,12 @@ class BedTimeService(private val connection: Connection){
             if (generatedKeys.next()) {
                 return generatedKeys.getInt(1)
             } else {
-                throw Exception("Unable to retrieve the id")
+                Logger.error("Unable to retrieve the id")
+                return null
             }
         } catch (e: SQLException){
-            throw Exception(e)
+            Logger.error("Error in database postgresql")
+            return null
         }
     }
 
@@ -71,23 +74,33 @@ class BedTimeService(private val connection: Connection){
 
             statement.executeUpdate()
         } catch (e: SQLException){
-            throw Exception("Ошибка с бд")
+            Logger.error("Error in database postgresql")
         }
     }
 
     /**
      * Возвращает BedTime по id
      */
-    fun get(id: Int): BedTime{
-        val statement = connection.prepareStatement(SELECT_BEDTIME_BY_ID)
-        statement.setInt(1,id);
-        val result = statement.executeQuery()
+    fun get(id: Int): BedTime?{
+        try {
+            val statement = connection.prepareStatement(SELECT_BEDTIME_BY_ID)
+            statement.setInt(1, id);
+            val result = statement.executeQuery()
 
-        if(result.next()){
-            return BedTime(result.getInt("id"), result.getObject("time") as Time,result.getBoolean("remindMeToSleep"), result.getBoolean("remindBeforeBad"))
-        } else{
-            throw Exception("Нету настроек")
+            if (result.next()) {
+                return BedTime(
+                    result.getInt("id"),
+                    result.getObject("time") as Time,
+                    result.getBoolean("remindMeToSleep"),
+                    result.getBoolean("remindBeforeBad")
+                )
+            } else {
+                Logger.debug("Don't have Bedtime")
+                return null
+            }
+        } catch (e: SQLException){
+            Logger.error("Error in database postgresql")
+            return null
         }
-
     }
 }

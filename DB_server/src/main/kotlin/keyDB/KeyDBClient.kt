@@ -31,9 +31,9 @@ class KeyDBClient(
     companion object {
         private fun defaultPoolConfig(): JedisPoolConfig {
             return JedisPoolConfig().apply {
-                maxTotal = 128
-                maxIdle = 16
-                minIdle = 8
+                maxTotal = 8
+                maxIdle = 8
+                minIdle = 1
                 testOnBorrow = true
                 testWhileIdle = true
                 blockWhenExhausted = true

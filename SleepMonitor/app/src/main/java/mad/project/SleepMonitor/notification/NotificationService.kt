@@ -9,15 +9,19 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import mad.project.SleepMonitor.R
 import mad.project.SleepMonitor.MainActivity
+import mad.project.SleepMonitor.navigation.Screen.MainScreen
 import mad.project.SleepMonitor.notification.NotificationConstants.NotificationKeys.NOTIFICATION_CHANNEL_ID
 import mad.project.SleepMonitor.notification.NotificationConstants.NotificationKeys.NOTIFICATION_ID
 import mad.project.SleepMonitor.notification.NotificationConstants.NotificationKeys.REQUEST_CODE
 
 
-class NotificationService(private val context: Context)
-{
+class NotificationService(private val context: Context) {
     private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager // менеджер уведомлений
-    private val myIntent = Intent(context, MainActivity::class.java) // перехода в MainActivity при нажатии
+    private val myIntent = try {
+        Intent(context, MainScreen::class.java)
+    } catch (e: Exception) {
+        Intent(context, MainActivity::class.java)
+    }
     private val pendingIntent = PendingIntent.getActivity(
         context,
         REQUEST_CODE,
@@ -57,6 +61,22 @@ class NotificationService(private val context: Context)
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
             timeInMillis,
+            pendingIntent
+        )
+    }
+    fun scheduleRepeatingNotification(triggerTimeMillis: Long) {
+        val intent = Intent(context, AlarmReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            1,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.setRepeating(
+            AlarmManager.RTC_WAKEUP,
+            triggerTimeMillis,
+            AlarmManager.INTERVAL_DAY,
             pendingIntent
         )
     }

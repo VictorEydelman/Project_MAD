@@ -1,76 +1,77 @@
 package mad.project.SleepMonitor.data.mapper
 
+
+import mad.project.SleepMonitor.data.network.dto.ProfileData
+import mad.project.SleepMonitor.data.network.dto.AuthRequest
+import mad.project.SleepMonitor.data.network.dto.AuthResponse
+import mad.project.SleepMonitor.data.network.dto.CheckAuthResponse
+
 import mad.project.SleepMonitor.data.network.dto.ReportDataDto
 import mad.project.SleepMonitor.data.network.dto.SleepDataPieceDto
-import mad.project.SleepMonitor.domain.model.* // Импортируем все из domain.model
-import java.time.* // Импортируем java.time
+import mad.project.SleepMonitor.data.network.dto.WeekdaySleepDto
+import mad.project.SleepMonitor.domain.model.*
+import java.time.*
 import java.time.format.DateTimeParseException
 import kotlin.math.roundToInt
 
-// --- Основной маппер DTO -> Domain ---
 
-fun ReportDataDto.toDomain(): Report? { // Делаем возвращаемый тип nullable, если основные данные не пришли
-    // Сначала мапим базовые поля
-    val totalSleepDuration = this.totalSleepMillis?.let { Duration.ofMillis(it) }
+fun ReportDataDto.toDomain(): Report? {
+    val quality = this.quality
+    val startTime = LocalTime.parse(this.startTime)
+    val endTime = LocalTime.parse(this.endTime)
+
+    val totalSleepDuration = Duration.ofSeconds(this.totalSleepSec.toLong())
     val awakeningsCount = this.awakenings
-    val avgAwakeDuration = this.avgAwakeMillis?.let { Duration.ofMillis(it) }
-    val avgAsleepDuration = this.avgAsleepMillis?.let { Duration.ofMillis(it) }
+    val avgAwakeDuration = Duration.ofSeconds(this.avgAwakeSec.toLong())
+    val avgAsleepDuration = Duration.ofSeconds(this.avgAsleepSec.toLong())
+    val avgToFallAsleepDuration = Duration.ofSeconds(this.avgToFallAsleepSec.toLong())
 
-    // Мапим детальные данные сна, отфильтровывая некорректные записи
     val mappedSleepData: SleepData? = this.data
-        ?.mapNotNull { it.toDomain() } // Используем mapNotNull с маппером для SleepDataPieceDto
-        ?.sortedBy { it.timestamp } // Сортируем по времени на всякий случай
+        ?.mapNotNull { it.toDomain() }
+        ?.sortedBy { it.timestamp }
 
-    // Если нет данных для анализа, возможно, стоит вернуть null
     if (mappedSleepData.isNullOrEmpty()) {
-        // Можно вернуть Report с null/default значениями, если это допустимо
         println("Warning: No valid sleep data pieces found in the report.")
-        // return null // Или вернуть отчет с пустыми/нулевыми значениями, если это нужно UI
     }
 
-    // Вычисляем startTime и endTime из данных
-    val reportStartTime: LocalTime? = mappedSleepData?.firstOrNull()?.timestamp?.atZone(ZoneId.systemDefault())?.toLocalTime()
-    val reportEndTime: LocalTime? = mappedSleepData?.lastOrNull()?.timestamp?.atZone(ZoneId.systemDefault())?.toLocalTime()
+    val mappedDistribution: WeekdaySleepDistribution? = this.distribution
+        ?.mapNotNull { it.toDomain() }
 
-    // Вычисляем качество сна (простая заглушка, нужна реальная логика)
-    val calculatedQuality: Int = calculateSleepQuality(totalSleepDuration, awakeningsCount)
+    if (mappedDistribution.isNullOrEmpty()) {
+        println("Warning: No valid week distribution found in the report.")
+    }
 
-    // Вычисляем распределение по дням недели
-    val calculatedDistribution: WeekdaySleepDistribution? = calculateWeekdayDistribution(mappedSleepData)
+//    val reportStartTime: LocalTime? = mappedSleepData?.firstOrNull()?.timestamp?.atZone(ZoneId.systemDefault())?.toLocalTime()
+//    val reportEndTime: LocalTime? = mappedSleepData?.lastOrNull()?.timestamp?.atZone(ZoneId.systemDefault())?.toLocalTime()
+//    val calculatedQuality: Int = calculateSleepQuality(totalSleepDuration, awakeningsCount)
+//    val calculatedDistribution: WeekdaySleepDistribution? = calculateWeekdayDistribution(mappedSleepData)
 
-    // Собираем доменный объект Report
-    // Поля, которые пришли напрямую или были только что вычислены/замаплены
     return Report(
+        quality = quality,
+        startTime = startTime,
+        endTime = endTime,
         totalSleep = totalSleepDuration,
         awakenings = awakeningsCount,
         avgAwake = avgAwakeDuration,
-        avgAsleep = avgAsleepDuration, // Это поле из DTO, не avgToFallAsleep
+        avgAsleep = avgAsleepDuration,
+        avgToFallAsleep = avgToFallAsleepDuration,
         data = mappedSleepData,
-        // Поля, которые мы вычислили
-        startTime = reportStartTime ?: LocalTime.MIDNIGHT, // Значение по умолчанию, если вычислить не удалось
-        endTime = reportEndTime ?: LocalTime.MIDNIGHT,   // Значение по умолчанию
-        quality = calculatedQuality,
-        distribution = calculatedDistribution,
-        // Поле, которое не можем вычислить из DTO - делаем nullable или ставим заглушку
-        avgToFallAsleep = null // Сделали nullable в модели ИЛИ Duration.ZERO, если не nullable
+        distribution = mappedDistribution
     )
 }
 
-// --- Вспомогательные мапперы и функции ---
-
-// Маппер для одной точки данных (остается почти без изменений)
 fun SleepDataPieceDto.toDomain(): SleepDataPiece? {
     val instant = try {
-        this.timestamp?.let { Instant.parse(it) }
+        this.timestamp?.let { LocalDateTime.parse(it) }
     } catch (e: DateTimeParseException) {
         println("Error parsing timestamp: ${this.timestamp}, error: ${e.message}")
         null
     }
 
     val phase = try {
-        this.phase?.let { SleepPhase.valueOf(it.uppercase()) } ?: SleepPhase.UNKNOWN
+        this.sleepPhase?.let { SleepPhase.valueOf(it.uppercase()) } ?: SleepPhase.UNKNOWN
     } catch (e: IllegalArgumentException) {
-        println("Error parsing phase: ${this.phase}, error: ${e.message}")
+        println("Error parsing phase: ${this.sleepPhase}, error: ${e.message}")
         SleepPhase.UNKNOWN
     }
 
@@ -78,21 +79,74 @@ fun SleepDataPieceDto.toDomain(): SleepDataPiece? {
         SleepDataPiece(
             timestamp = instant,
             pulse = this.pulse,
-            phase = phase
+            sleepPhase = phase
         )
     } else {
         null
     }
 }
+fun WeekdaySleepDto.toDomain(): WeekdaySleep? {
+    val week = try {
+        Weekday.valueOf(this.weekday)
+    } catch (e: IllegalArgumentException) {
+        println("Error parsing weekday: ${this.weekday}, error: ${e.message}")
+        return null
+    }
+    return WeekdaySleep(week, this.asleepHours)
+}
 
-// Функция для расчета качества сна (ЗАГЛУШКА - нужна реальная логика!)
+// --- Mappers for Authentication (Login/Register) ---
+fun AuthRequest.toDomain(): User? {
+    if (username.isBlank()) {
+        println("Error: Username is empty or blank")
+        return null
+    }
+    if (password.isBlank() || password.length < 6) {
+        println("Error: Password is empty or too short")
+        return null
+    }
+    return User(
+        username = username,
+        password = password
+    )
+}
+
+fun AuthResponse.toDomain(storedPassword: String): User? {
+    if (!success) {
+        println("Error: Authentication failed for username: $username")
+        return null
+    }
+    if (username.isBlank()) {
+        println("Error: Invalid username in AuthResponse")
+        return null
+    }
+    return User(
+        username = username,
+        password = storedPassword
+    )
+}
+
+fun CheckAuthResponse.toDomain(storedPassword: String?): User? {
+    if (!success || username.isNullOrBlank()) {
+        println("Error: Check authentication failed or no valid username")
+        return null
+    }
+    if (storedPassword.isNullOrBlank()) {
+        println("Warning: No stored password available for CheckAuth")
+        return null
+    }
+    return User(
+        username = username,
+        password = storedPassword
+    )
+}
+
 private fun calculateSleepQuality(totalSleep: Duration?, awakenings: Int?): Int {
-    if (totalSleep == null) return 0 // Не можем рассчитать без длительности сна
+    if (totalSleep == null) return 0
 
     val hoursSlept = totalSleep.toHours().toInt()
     val awakeningsCount = awakenings ?: 0
 
-    // Очень примитивная формула: больше сна - лучше, меньше пробуждений - лучше
     var score = 0
     score += when {
         hoursSlept >= 9 -> 50
@@ -108,42 +162,34 @@ private fun calculateSleepQuality(totalSleep: Duration?, awakenings: Int?): Int 
         else -> 5
     }
 
-    // Нормализация до 0-100 (примерно)
     return (score * 1.1).roundToInt().coerceIn(0, 100)
 }
 
-// Функция для расчета распределения сна по дням недели
 private fun calculateWeekdayDistribution(sleepData: SleepData?): WeekdaySleepDistribution? {
     if (sleepData.isNullOrEmpty()) return null
 
-    // Группируем данные по дням недели
     val sleepByDay = sleepData
-        .groupBy { it.timestamp.atZone(ZoneId.systemDefault()).dayOfWeek } // Группируем по java.time.DayOfWeek
-        .mapValues { (_, pieces) -> calculateTotalSleepDurationForPieces(pieces) } // Считаем длительность для каждой группы
+        .groupBy { it.timestamp.atZone(ZoneId.systemDefault()).dayOfWeek }
+        .mapValues { (_, pieces) -> calculateTotalSleepDurationForPieces(pieces) }
 
-    // Конвертируем в вашу модель WeekdaySleepDistribution
     val distribution = DayOfWeek.values().map { javaDayOfWeek ->
-        val domainWeekday = mapJavaDayToDomainWeekday(javaDayOfWeek) // Маппер дней недели
-        val duration = sleepByDay[javaDayOfWeek] ?: Duration.ZERO // Берем посчитанную длительность или 0
-        val hours = duration.toMillis() / (1000.0 * 60 * 60) // Конвертируем в double часы
+        val domainWeekday = mapJavaDayToDomainWeekday(javaDayOfWeek)
+        val duration = sleepByDay[javaDayOfWeek] ?: Duration.ZERO
+        val hours = duration.toMillis() / (1000.0 * 60 * 60)
         WeekdaySleep(weekday = domainWeekday, asleepHours = hours)
     }
 
     return distribution
 }
 
-// Вспомогательная функция для подсчета длительности сна в списке SleepDataPiece
+
 private fun calculateTotalSleepDurationForPieces(pieces: List<SleepDataPiece>): Duration {
     var totalDuration = Duration.ZERO
-    // Сортируем на всякий случай
     val sortedPieces = pieces.sortedBy { it.timestamp }
 
     for (i in 0 until sortedPieces.size - 1) {
-        // Учитываем только те промежутки, когда фаза была не AWAKE
-        if (sortedPieces[i].phase != SleepPhase.AWAKE) {
+        if (sortedPieces[i].sleepPhase != SleepPhase.AWAKE) {
             val durationBetweenPoints = Duration.between(sortedPieces[i].timestamp, sortedPieces[i + 1].timestamp)
-            // Добавляем длительность, но не больше разумного предела (например, 30 минут),
-            // чтобы избежать больших скачков при редких данных
             if (durationBetweenPoints.abs().toMinutes() < 30) {
                 totalDuration = totalDuration.plus(durationBetweenPoints)
             }
@@ -152,7 +198,6 @@ private fun calculateTotalSleepDurationForPieces(pieces: List<SleepDataPiece>): 
     return totalDuration
 }
 
-// Вспомогательный маппер для дней недели (java.time -> ваш enum)
 private fun mapJavaDayToDomainWeekday(javaDayOfWeek: DayOfWeek): Weekday {
     return when (javaDayOfWeek) {
         DayOfWeek.MONDAY -> Weekday.Mon
@@ -164,3 +209,20 @@ private fun mapJavaDayToDomainWeekday(javaDayOfWeek: DayOfWeek): Weekday {
         DayOfWeek.SUNDAY -> Weekday.Sun
     }
 }
+
+fun ProfileData.toDomain(): Profile {
+    return Profile(
+        name = this.name,
+        surname = this.surname,
+        birthday = this.birthday,
+        gender = this.gender,
+        physicalCondition = this.physicalCondition,
+        caffeineUsage = this.caffeineUsage,
+        alcoholUsage = this.alcoholUsage,
+        alarmRecurring = this.alarmRecurring,
+        alarmTemporary = this.alarmTemporary,
+        bedTimeRecurring = this.bedTimeRecurring,
+        bedTimeTemporary = this.bedTimeTemporary
+    )
+}
+

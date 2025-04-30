@@ -51,8 +51,8 @@ class ReportService(private val keydb: KeyDBClient) {
 
     suspend fun makeAllTimeReport(username: String): Report = withContext(Dispatchers.IO) {
         val stats = getSleepStatistics(username,
-            LocalDateTime.of(1970, 0, 0, 0, 0),
-            LocalDateTime.now())
+            LocalDateTime.of(1970, 1, 1, 0, 0),
+            LocalDateTime.now().plusDays(1))
 
         Report(
             quality = calculateQuality(stats),
@@ -74,13 +74,6 @@ class ReportService(private val keydb: KeyDBClient) {
             message = SleepInterval(username, start, end)
         )!!
         return response
-//        return response.map { map ->
-//            SleepDataPiece(
-//                timestamp = LocalDateTime.parse(map["timestamp"] as String),
-//                pulse = (map["pulse"] as Double).toInt(),
-//                sleepPhase = SleepPhase.valueOf(map["sleepPhase"] as String)
-//            )
-//        }
     }
 
     private fun calculateQuality(data: SleepData): Int {
@@ -257,7 +250,7 @@ class ReportService(private val keydb: KeyDBClient) {
         if (data.isEmpty()) return emptyList()
 
         val byWeekday = data.groupBy {
-            Weekday.valueOf(it.timestamp.dayOfWeek.name)
+            Weekday.of(it.timestamp.dayOfWeek)
         }
 
         return Weekday.entries.map { weekday ->

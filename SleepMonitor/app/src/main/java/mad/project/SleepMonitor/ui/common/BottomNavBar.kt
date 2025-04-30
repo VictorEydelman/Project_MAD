@@ -1,4 +1,4 @@
-package mad.project.SleepMonitor.ui.common // Убедись, что пакет правильный
+package mad.project.SleepMonitor.ui.common
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -19,7 +19,7 @@ import mad.project.SleepMonitor.R
 import mad.project.SleepMonitor.navigation.Screen
 
 @Composable
-fun BottomNavBar(navController: NavController, currentRoute: String?) { // Параметры верные: NavController и текущий маршрут
+fun BottomNavBar(navController: NavController, currentRoute: String?) {
     NavigationBar(
         containerColor = Color(0xFF152238),
         tonalElevation = 8.dp
@@ -37,16 +37,13 @@ fun BottomNavBar(navController: NavController, currentRoute: String?) { // Па�
                 Text(
                     "home",
                     fontSize = 12.sp,
-                    color = Color.White // Можно вынести цвета в константы или тему
+                    color = Color.White
                 )
             },
-            // Выбран, если текущий маршрут совпадает с маршрутом MainScreen
             selected = currentRoute == Screen.MainScreen.route,
             onClick = {
-                // Навигация только если мы НЕ на этом экране
                 if (currentRoute != Screen.MainScreen.route) {
                     navController.navigate(Screen.MainScreen.route) {
-                        // Очистка стека до MainScreen и singleTop для стандартного поведения табов
                         popUpTo(Screen.MainScreen.route) { inclusive = true }
                         launchSingleTop = true
                     }
@@ -70,13 +67,10 @@ fun BottomNavBar(navController: NavController, currentRoute: String?) { // Па�
                     color = Color.White
                 )
             },
-            // Выбран, если текущий маршрут совпадает с маршрутом AbilitiesScreen
             selected = currentRoute == Screen.AnalyticsScreen.route,
             onClick = {
-                // Навигация только если мы НЕ на этом экране
                 if (currentRoute != Screen.AnalyticsScreen.route) {
                     navController.navigate(Screen.AnalyticsScreen.route) {
-                        // Возврат к MainScreen (корневому экрану табов) и singleTop
                         popUpTo(Screen.MainScreen.route)
                         launchSingleTop = true
                     }
@@ -100,13 +94,10 @@ fun BottomNavBar(navController: NavController, currentRoute: String?) { // Па�
                     color = Color.White
                 )
             },
-            // Выбран, если текущий маршрут совпадает с маршрутом ProfileScreen
             selected = currentRoute == Screen.ProfileScreen.route,
             onClick = {
-                // Навигация только если мы НЕ на этом экране
                 if (currentRoute != Screen.ProfileScreen.route) {
                     navController.navigate(Screen.ProfileScreen.route) {
-                        // Возврат к MainScreen (корневому экрану табов) и singleTop
                         popUpTo(Screen.MainScreen.route)
                         launchSingleTop = true
                     }

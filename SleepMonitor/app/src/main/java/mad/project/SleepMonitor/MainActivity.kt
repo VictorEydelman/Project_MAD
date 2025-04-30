@@ -8,8 +8,8 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import mad.project.SleepMonitor.app.SleepMonitorApp
+import mad.project.SleepMonitor.data.network.RetrofitInstance
 import mad.project.SleepMonitor.notification.NotificationService
-
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalPermissionsApi::class)
@@ -17,17 +17,19 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val NotificationService = NotificationService(applicationContext)
 
+        RetrofitInstance.initialize(this)
+
         setContent {
             SleepMonitorApp(NotificationService)
         }
     }
 }
-//  Используем экспериментальное API для управления разрешениями
+
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun RequestNotificationPermission(onPermissionGranted: () -> Unit) {
     val permissionState = rememberPermissionState(
-        permission = android.Manifest.permission.POST_NOTIFICATIONS // Разрешение на уведомления
+        permission = android.Manifest.permission.POST_NOTIFICATIONS
     )
     LaunchedEffect(permissionState.status) {
         if (permissionState.status.isGranted) {
