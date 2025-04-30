@@ -8,7 +8,11 @@ import ru.itmo.config.getJwtConfig
 import ru.itmo.dto.api.AuthRequest
 import ru.itmo.exception.StatusException
 import ru.itmo.keydb.KeyDBAPI
+import ru.itmo.model.Gender
+import ru.itmo.model.Periodicity
+import ru.itmo.model.Profile
 import ru.itmo.model.User
+import java.time.LocalDate
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.ExperimentalTime
@@ -50,6 +54,12 @@ object AuthService {
         val user = User(request.username, password)
 
         KeyDBAPI.saveUser(user)
+        KeyDBAPI.updateProfile(user.username, Profile(
+            "Ivan", "Ivanov",
+            LocalDate.of(1990, 5, 14), Gender.Male,
+            Periodicity.Null, Periodicity.Null, Periodicity.Null,
+            null, null, null, null
+        ))
         return createToken(user.username)
     }
 
