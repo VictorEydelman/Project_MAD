@@ -1,4 +1,6 @@
 package mad.project.SleepMonitor.domain.model
+import mad.project.SleepMonitor.data.network.dto.AlarmData
+import mad.project.SleepMonitor.data.network.dto.BedTimeData
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalTime
@@ -48,6 +50,21 @@ data class SleepDataPiece(
     val pulse: Int,
     val phase: SleepPhase,
 )
+
+data class Profile(
+    val name: String,
+    val surname: String,
+    val birthday: String,
+    val gender: String?,
+    val physicalCondition: String?,
+    val caffeineUsage: String?,
+    val alcoholUsage: String?,
+    val alarmRecurring: AlarmData,
+    val alarmTemporary: AlarmData,
+    val bedTimeRecurring: BedTimeData,
+    val bedTimeTemporary: BedTimeData
+)
+
 
 typealias SleepData = List<SleepDataPiece>
 

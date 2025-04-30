@@ -1,8 +1,11 @@
 package mad.project.SleepMonitor.data.mapper
 
+
+import mad.project.SleepMonitor.data.network.dto.ProfileData
 import mad.project.SleepMonitor.data.network.dto.AuthRequest
 import mad.project.SleepMonitor.data.network.dto.AuthResponse
 import mad.project.SleepMonitor.data.network.dto.CheckAuthResponse
+
 import mad.project.SleepMonitor.data.network.dto.ReportDataDto
 import mad.project.SleepMonitor.data.network.dto.SleepDataPieceDto
 import mad.project.SleepMonitor.domain.model.*
@@ -187,3 +190,20 @@ private fun mapJavaDayToDomainWeekday(javaDayOfWeek: DayOfWeek): Weekday {
         DayOfWeek.SUNDAY -> Weekday.Sun
     }
 }
+
+fun ProfileData.toDomain(): Profile {
+    return Profile(
+        name = this.name,
+        surname = this.surname,
+        birthday = this.birthday,
+        gender = this.gender,
+        physicalCondition = this.physicalCondition,
+        caffeineUsage = this.caffeineUsage,
+        alcoholUsage = this.alcoholUsage,
+        alarmRecurring = this.alarmRecurring,
+        alarmTemporary = this.alarmTemporary,
+        bedTimeRecurring = this.bedTimeRecurring,
+        bedTimeTemporary = this.bedTimeTemporary
+    )
+}
+

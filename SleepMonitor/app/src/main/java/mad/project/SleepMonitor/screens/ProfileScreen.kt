@@ -1,5 +1,8 @@
 package mad.project.SleepMonitor.screens
 
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,26 +18,49 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.gson.Gson
+import kotlinx.coroutines.launch
+import mad.project.SleepMonitor.data.network.dto.UpdateProfileRequest
 import mad.project.SleepMonitor.navigation.Screen
 import mad.project.SleepMonitor.ui.common.AppScaffold
+import mad.project.SleepMonitor.viewmodels.ProfileViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 @Composable
-fun ProfileScreen(navController: NavController) {
-    var username by remember { mutableStateOf("ivan_ivanov") }
-    var name by remember { mutableStateOf("Ivan") }
-    var surname by remember { mutableStateOf("Ivanov") }
-    var gender by remember { mutableStateOf<Gender?>(null) }
+fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel) {
+    val state by viewModel.state.collectAsState()
+    val profile = state.profile
+
+    var username by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
+    var surname by remember { mutableStateOf("") }
     var birthday by remember { mutableStateOf("") }
+    var gender by remember { mutableStateOf<Gender?>(null) }
     var physicalCondition by remember { mutableStateOf<Preference?>(null) }
     var caffeineUsage by remember { mutableStateOf<Preference?>(null) }
     var alcoholUsage by remember { mutableStateOf<Preference?>(null) }
     var wearableDevice by remember { mutableStateOf<String?>(null) }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(profile) {
+        profile?.let {
+            username = it.name ?: ""
+            name = it.name ?: ""
+            surname = it.surname ?: ""
+            birthday = it.birthday ?: ""
+            gender = Gender.fromString(it.gender)
+            physicalCondition = Preference.fromString(it.physicalCondition)
+            caffeineUsage = Preference.fromString(it.caffeineUsage)
+            alcoholUsage = Preference.fromString(it.alcoholUsage)
+        }
+    }
 
     AppScaffold(navController = navController) {
         Surface(
@@ -92,7 +118,20 @@ fun ProfileScreen(navController: NavController) {
                     }
 
                     Button(
-                        onClick = { changeAccount() },
+                        onClick = {
+                            viewModel.saveProfile(
+                                name = name,
+                                surname = surname,
+                                birthday = birthday,
+                                gender = gender,
+                                physicalCondition = physicalCondition,
+                                caffeineUsage = caffeineUsage,
+                                alcoholUsage = alcoholUsage,
+                            )
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Changes saved successfully")
+                            }
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                         border = BorderStroke(1.dp, Color(0xFF7E73A8)),
                         modifier = Modifier
@@ -100,13 +139,18 @@ fun ProfileScreen(navController: NavController) {
                             .height(50.dp)
                     ) {
                         Text(
-                            text = "Change account",
+                            text = "Save changes",
                             color = Color.White,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             textAlign = TextAlign.Center
                         )
                     }
+
+                    SnackbarHost(
+                        hostState = snackbarHostState,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
                 }
             }
         }
@@ -250,7 +294,7 @@ fun GenderField(selectedGender: Gender?, onGenderSelected: (Gender?) -> Unit) {
 @Composable
 fun BirthdayField(selectedDate: String, onDateSelected: (String) -> Unit) {
     var openDialog by remember { mutableStateOf(false) }
-    val dateFormatter = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
+    val dateFormatter = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
     val datePickerState = rememberDatePickerState()
 
     Row(
@@ -408,7 +452,13 @@ fun NavigationField(label: String, onClick: () -> Unit) {
 
 enum class Gender(val displayName: String) {
     MALE("Male"),
-    FEMALE("Female")
+    FEMALE("Female");
+
+    companion object {
+        fun fromString(value: String?): Gender? {
+            return entries.find { it.displayName.equals(value, ignoreCase = true) }
+        }
+    }
 }
 
 enum class Preference(val displayName: String) {
@@ -420,9 +470,17 @@ enum class Preference(val displayName: String) {
     ThreeTimesAWeek("Three times a week"),
     Rarely("Rarely"),
     Often("Often"),
-    Never("Never")
+    Never("Never");
+
+    companion object {
+        fun fromString(value: String?): Preference? {
+            return entries.find { it.displayName.equals(value, ignoreCase = true) }
+        }
+    }
 }
 
-fun changeAccount() {
-    // TODO: Реализация выхода
+fun changeAccount(navController: NavController) {
+    navController.navigate(Screen.LoginScreen.route) {
+        popUpTo(0) { inclusive = true }
+    }
 }
