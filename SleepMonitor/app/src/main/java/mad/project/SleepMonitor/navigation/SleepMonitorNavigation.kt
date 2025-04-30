@@ -14,6 +14,7 @@ import mad.project.SleepMonitor.factory.AnalyticsViewModelFactory
 import mad.project.SleepMonitor.factory.ProfileViewModelFactory
 import mad.project.SleepMonitor.data.repository.AuthRepositoryImpl
 import mad.project.SleepMonitor.factory.AuthViewModelFactory
+import mad.project.SleepMonitor.factory.MainViewModelFactory
 import mad.project.SleepMonitor.notification.NotificationService
 import mad.project.SleepMonitor.screens.AlarmScreen
 import mad.project.SleepMonitor.screens.AnalyticsScreen
@@ -26,6 +27,7 @@ import mad.project.SleepMonitor.screens.ProfileScreen
 import mad.project.SleepMonitor.viewmodels.AnalyticsViewModel
 import mad.project.SleepMonitor.viewmodels.ProfileViewModel
 import mad.project.SleepMonitor.viewmodels.AuthViewModel
+import mad.project.SleepMonitor.viewmodels.MainViewModel
 
 
 sealed class Screen(val route: String) {
@@ -71,7 +73,9 @@ fun SleepMonitorNavigation(notification: NotificationService) {
         }
 
         composable(Screen.MainScreen.route) {
-            MainScreen(navController)
+            val mainFactory = MainViewModelFactory(repository, profileRepository)
+            val mainViewModel: MainViewModel = viewModel(factory = mainFactory)
+            MainScreen(navController, mainViewModel)
         }
         composable(Screen.ProfileScreen.route) {
             val profileFactory = ProfileViewModelFactory(profileRepository)

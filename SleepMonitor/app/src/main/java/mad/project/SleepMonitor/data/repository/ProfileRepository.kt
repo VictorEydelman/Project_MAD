@@ -4,13 +4,9 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import mad.project.SleepMonitor.data.mapper.toDomain
-
 import mad.project.SleepMonitor.data.network.ProfileApi
-import mad.project.SleepMonitor.data.network.dto.ProfileResponse
 import mad.project.SleepMonitor.data.network.dto.UpdateProfileRequest
 import mad.project.SleepMonitor.domain.model.Profile
-import mad.project.SleepMonitor.domain.model.Report
-import mad.project.SleepMonitor.util.Resource
 import retrofit2.HttpException
 import java.io.IOException
 

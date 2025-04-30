@@ -8,6 +8,7 @@ import mad.project.SleepMonitor.data.network.dto.CheckAuthResponse
 
 import mad.project.SleepMonitor.data.network.dto.ReportDataDto
 import mad.project.SleepMonitor.data.network.dto.SleepDataPieceDto
+import mad.project.SleepMonitor.data.network.dto.TimePreferenceDto
 import mad.project.SleepMonitor.data.network.dto.WeekdaySleepDto
 import mad.project.SleepMonitor.domain.model.*
 import java.time.*
@@ -93,6 +94,18 @@ fun WeekdaySleepDto.toDomain(): WeekdaySleep? {
         return null
     }
     return WeekdaySleep(week, this.asleepHours)
+}
+
+fun TimePreferenceDto.toDomain(): TimePreference? {
+    return try {
+        TimePreference(
+            asleepTime = LocalTime.parse(asleepTime),
+            awakeTime = LocalTime.parse(awakeTime)
+        )
+    } catch (e: DateTimeParseException) {
+        println("Error parsing times: ${asleepTime} ${awakeTime}, error: ${e.message}")
+        null
+    }
 }
 
 // --- Mappers for Authentication (Login/Register) ---

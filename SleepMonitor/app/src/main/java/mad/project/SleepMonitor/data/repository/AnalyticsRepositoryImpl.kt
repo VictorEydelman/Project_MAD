@@ -5,10 +5,12 @@ import androidx.annotation.RequiresApi
 import mad.project.SleepMonitor.data.mapper.toDomain
 import mad.project.SleepMonitor.data.network.AnalyticsApiService
 import mad.project.SleepMonitor.domain.model.Report
+import mad.project.SleepMonitor.domain.model.TimePreference
 import mad.project.SleepMonitor.domain.repository.AnalyticsRepository
 import mad.project.SleepMonitor.util.Resource
 import retrofit2.HttpException
 import java.io.IOException
+import java.time.LocalTime
 
 class AnalyticsRepositoryImpl(
     private val apiService: AnalyticsApiService
@@ -119,4 +121,33 @@ class AnalyticsRepositoryImpl(
             Resource.Error("Failed to process mocked all time data: ${mockE.message}")
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    override suspend fun getRecommendedTimes(): Resource<TimePreference> {
+        try {
+            val response = apiService.getRecommendedTimes()
+
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null && body.success && body.data != null) {
+                    val domainReport = body.data.toDomain()
+                    if (domainReport != null) {
+                        return Resource.Success(domainReport)
+                    }
+                }
+            }
+        } catch (e: HttpException) {
+            // Ошибка HTTP, переход к моку
+        } catch (e: IOException) {
+            // Ошибка сети, переход к моку
+        } catch (e: Exception) {
+            // Другая ошибка, переход к моку
+        }
+
+        return Resource.Success(TimePreference(
+            awakeTime =  LocalTime.of(6, 0),
+            asleepTime = LocalTime.of(22, 0)
+        ))
+    }
+
 }
