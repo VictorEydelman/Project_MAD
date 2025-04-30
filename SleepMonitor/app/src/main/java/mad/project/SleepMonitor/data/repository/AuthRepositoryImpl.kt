@@ -6,6 +6,8 @@ import mad.project.SleepMonitor.data.network.AuthApiService
 import mad.project.SleepMonitor.data.network.dto.AuthRequest
 import mad.project.SleepMonitor.domain.model.User
 import androidx.core.content.edit
+import mad.project.SleepMonitor.data.network.AuthInterceptor.Companion.AUTH_TOKEN_KEY
+import mad.project.SleepMonitor.data.network.AuthInterceptor.Companion.PREFS_NAME
 import mad.project.SleepMonitor.domain.repository.AuthRepository
 import org.json.JSONObject
 
@@ -78,8 +80,13 @@ class AuthRepositoryImpl(private val authApi: AuthApiService, private val contex
     }
 
     private fun saveToken(token: String) {
-        val prefs = context.getSharedPreferences("SleepMonitorPrefs", Context.MODE_PRIVATE)
-        prefs.edit() { putString("auth_token", token) }
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit { putString(AUTH_TOKEN_KEY, token) }
+    }
+
+    fun clearToken() {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit { remove(AUTH_TOKEN_KEY) }
     }
 
     private fun getErrorMessageFromJson(errorBody: String): String {
