@@ -1,7 +1,6 @@
 package mad.project.SleepMonitor.screens
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -21,9 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.google.gson.Gson
 import kotlinx.coroutines.launch
-import mad.project.SleepMonitor.data.network.dto.UpdateProfileRequest
 import mad.project.SleepMonitor.navigation.Screen
 import mad.project.SleepMonitor.ui.common.AppScaffold
 import mad.project.SleepMonitor.viewmodels.ProfileViewModel
@@ -40,10 +37,10 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel) {
     var name by remember { mutableStateOf("") }
     var surname by remember { mutableStateOf("") }
     var birthday by remember { mutableStateOf("") }
-    var gender by remember { mutableStateOf<Gender?>(null) }
-    var physicalCondition by remember { mutableStateOf<Preference?>(null) }
-    var caffeineUsage by remember { mutableStateOf<Preference?>(null) }
-    var alcoholUsage by remember { mutableStateOf<Preference?>(null) }
+    var gender by remember { mutableStateOf(Gender.Null) }
+    var physicalCondition by remember { mutableStateOf(Preference.Null) }
+    var caffeineUsage by remember { mutableStateOf(Preference.Null) }
+    var alcoholUsage by remember { mutableStateOf(Preference.Null) }
     var wearableDevice by remember { mutableStateOf<String?>(null) }
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -55,10 +52,10 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel) {
             name = it.name ?: ""
             surname = it.surname ?: ""
             birthday = it.birthday ?: ""
-            gender = Gender.fromString(it.gender)
-            physicalCondition = Preference.fromString(it.physicalCondition)
-            caffeineUsage = Preference.fromString(it.caffeineUsage)
-            alcoholUsage = Preference.fromString(it.alcoholUsage)
+            gender = Gender.fromString(it.gender) ?: Gender.Null
+            physicalCondition = Preference.fromString(it.physicalCondition) ?: Preference.Null
+            caffeineUsage = Preference.fromString(it.caffeineUsage) ?: Preference.Null
+            alcoholUsage = Preference.fromString(it.alcoholUsage) ?: Preference.Null
         }
     }
 
@@ -249,7 +246,7 @@ fun NonEditableField(label: String, value: String) {
 }
 
 @Composable
-fun GenderField(selectedGender: Gender?, onGenderSelected: (Gender?) -> Unit) {
+fun GenderField(selectedGender: Gender, onGenderSelected: (Gender) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -278,9 +275,9 @@ fun GenderField(selectedGender: Gender?, onGenderSelected: (Gender?) -> Unit) {
         onDismissRequest = { expanded = false },
         modifier = Modifier.background(Color(0xFF2A2A3C))
     ) {
-        listOf(Gender.MALE, Gender.FEMALE, null).forEach { genderOption ->
+        Gender.entries.forEach { genderOption ->
             DropdownMenuItem(
-                text = { Text(genderOption?.displayName ?: "Not selected", color = Color.White) },
+                text = { Text(genderOption.displayName, color = Color.White) },
                 onClick = {
                     onGenderSelected(genderOption)
                     expanded = false
@@ -349,7 +346,7 @@ fun BirthdayField(selectedDate: String, onDateSelected: (String) -> Unit) {
 
 
 @Composable
-fun PreferenceField(label: String, selectedPreference: Preference?, onPreferenceSelected: (Preference?) -> Unit) {
+fun PreferenceField(label: String, selectedPreference: Preference, onPreferenceSelected: (Preference) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -363,7 +360,7 @@ fun PreferenceField(label: String, selectedPreference: Preference?, onPreference
             modifier = Modifier.weight(1f)
         )
         Text(
-            text = selectedPreference?.displayName ?: "Not selected",
+            text = selectedPreference.displayName,
             color = Color.White,
             fontSize = 14.sp,
             fontWeight = FontWeight.Normal,
@@ -378,7 +375,7 @@ fun PreferenceField(label: String, selectedPreference: Preference?, onPreference
         onDismissRequest = { expanded = false },
         modifier = Modifier.background(Color(0xFF2A2A3C))
     ) {
-        Preference.values().forEach { preference ->
+        Preference.entries.forEach { preference ->
             DropdownMenuItem(
                 text = { Text(preference.displayName, color = Color.White) },
                 onClick = {
@@ -451,11 +448,13 @@ fun NavigationField(label: String, onClick: () -> Unit) {
 }
 
 enum class Gender(val displayName: String) {
-    MALE("Male"),
-    FEMALE("Female");
+    Male("Male"),
+    Female("Female"),
+    Null("Not selected");
 
     companion object {
         fun fromString(value: String?): Gender? {
+            runCatching { return valueOf(value!!) }
             return entries.find { it.displayName.equals(value, ignoreCase = true) }
         }
     }
@@ -470,10 +469,12 @@ enum class Preference(val displayName: String) {
     ThreeTimesAWeek("Three times a week"),
     Rarely("Rarely"),
     Often("Often"),
-    Never("Never");
+    Never("Never"),
+    Null("Not selected");
 
     companion object {
         fun fromString(value: String?): Preference? {
+            runCatching { return valueOf(value!!) }
             return entries.find { it.displayName.equals(value, ignoreCase = true) }
         }
     }

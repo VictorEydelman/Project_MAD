@@ -43,6 +43,7 @@ object RetrofitInstance {
 
     val profileApi: ProfileApi by lazy {
         retrofit.create(ProfileApi::class.java)
+    }
 
     val AuthApi: AuthApiService by lazy {
         Retrofit.Builder()

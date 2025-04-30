@@ -62,10 +62,10 @@ class ProfileViewModel(
         name: String,
         surname: String,
         birthday: String,
-        gender: Gender?,
-        physicalCondition: Preference?,
-        caffeineUsage: Preference?,
-        alcoholUsage: Preference?
+        gender: Gender,
+        physicalCondition: Preference,
+        caffeineUsage: Preference,
+        alcoholUsage: Preference
     ) {
         viewModelScope.launch {
             val currentProfile = state.value.profile
@@ -75,10 +75,10 @@ class ProfileViewModel(
                     name = name,
                     surname = surname,
                     birthday = birthday,
-                    gender = gender?.displayName,
-                    physicalCondition = physicalCondition?.name,
-                    caffeineUsage = caffeineUsage?.name,
-                    alcoholUsage = alcoholUsage?.name,
+                    gender = gender.displayName,
+                    physicalCondition = physicalCondition.name,
+                    caffeineUsage = caffeineUsage.name,
+                    alcoholUsage = alcoholUsage.name,
                     alarmRecurring = currentProfile.alarmRecurring,
                     alarmTemporary = currentProfile.alarmTemporary,
                     bedTimeRecurring = currentProfile.bedTimeRecurring,

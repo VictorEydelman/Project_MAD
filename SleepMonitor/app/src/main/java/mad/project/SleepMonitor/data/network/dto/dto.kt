@@ -59,28 +59,29 @@ data class UpdateProfileRequest(
     @SerializedName("name") val name: String,
     @SerializedName("surname") val surname: String,
     @SerializedName("birthday") val birthday: String,
-    @SerializedName("gender") val gender: String?,
-    @SerializedName("physicalCondition") val physicalCondition: String?,
-    @SerializedName("caffeineUsage") val caffeineUsage: String?,
-    @SerializedName("alcoholUsage") val alcoholUsage: String?,
-    @SerializedName("alarmRecurring") val alarmRecurring: AlarmData,
-    @SerializedName("alarmTemporary") val alarmTemporary: AlarmData,
-    @SerializedName("bedTimeRecurring") val bedTimeRecurring: BedTimeData,
-    @SerializedName("bedTimeTemporary") val bedTimeTemporary: BedTimeData
+    @SerializedName("gender") val gender: String,
+    @SerializedName("physicalCondition") val physicalCondition: String,
+    @SerializedName("caffeineUsage") val caffeineUsage: String,
+    @SerializedName("alcoholUsage") val alcoholUsage: String,
+    @SerializedName("alarmRecurring") val alarmRecurring: AlarmData?,
+    @SerializedName("alarmTemporary") val alarmTemporary: AlarmData?,
+    @SerializedName("bedTimeRecurring") val bedTimeRecurring: BedTimeData?,
+    @SerializedName("bedTimeTemporary") val bedTimeTemporary: BedTimeData?
 )
 
 data class ProfileData(
     @SerializedName("name") val name: String,
     @SerializedName("surname") val surname: String,
     @SerializedName("birthday") val birthday: String,
-    @SerializedName("gender") val gender: String?,
-    @SerializedName("physicalCondition") val physicalCondition: String?,
-    @SerializedName("caffeineUsage") val caffeineUsage: String?,
-    @SerializedName("alcoholUsage") val alcoholUsage: String?,
-    @SerializedName("alarmRecurring") val alarmRecurring: AlarmData,
-    @SerializedName("alarmTemporary") val alarmTemporary: AlarmData,
-    @SerializedName("bedTimeRecurring") val bedTimeRecurring: BedTimeData,
-    @SerializedName("bedTimeTemporary") val bedTimeTemporary: BedTimeData
+    @SerializedName("gender") val gender: String,
+    @SerializedName("physicalCondition") val physicalCondition: String,
+    @SerializedName("caffeineUsage") val caffeineUsage: String,
+    @SerializedName("alcoholUsage") val alcoholUsage: String,
+    @SerializedName("alarmRecurring") val alarmRecurring: AlarmData?,
+    @SerializedName("alarmTemporary") val alarmTemporary: AlarmData?,
+    @SerializedName("bedTimeRecurring") val bedTimeRecurring: BedTimeData?,
+    @SerializedName("bedTimeTemporary") val bedTimeTemporary: BedTimeData?
+)
 
 //----- Request DTO --------
 data class AuthRequest(

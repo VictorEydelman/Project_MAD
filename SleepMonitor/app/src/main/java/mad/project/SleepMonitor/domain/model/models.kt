@@ -56,14 +56,14 @@ data class Profile(
     val name: String,
     val surname: String,
     val birthday: String,
-    val gender: String?,
-    val physicalCondition: String?,
-    val caffeineUsage: String?,
-    val alcoholUsage: String?,
-    val alarmRecurring: AlarmData,
-    val alarmTemporary: AlarmData,
-    val bedTimeRecurring: BedTimeData,
-    val bedTimeTemporary: BedTimeData
+    val gender: String,
+    val physicalCondition: String,
+    val caffeineUsage: String,
+    val alcoholUsage: String,
+    val alarmRecurring: AlarmData?,
+    val alarmTemporary: AlarmData?,
+    val bedTimeRecurring: BedTimeData?,
+    val bedTimeTemporary: BedTimeData?
 )
 
 
