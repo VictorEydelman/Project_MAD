@@ -37,18 +37,25 @@ services:
       - sleepmonitor-network
 
   db_server:
+    stdin_open: true
+    tty: true
+    container_name: db-serv
+    restart: on-failure
     build:
       context: DB_server  # Контекст сборки (папка с Dockerfile)
       dockerfile: Dockerfile  # Имя Dockerfile
     ports:
       - "8080:8080"  # Проброс порта для доступа к Ktor серверу
     depends_on:
-      - db  # Зависимость от базы данных
-      - keydb
-      - clickhouse-server
+      - db  # Зависимость от базы данных postgres
+      - keydb # Зависимость от keydb
+      - clickhouse-server # Зависимость от базы данных clickhouse
     networks:
       - sleepmonitor-network
   entry:
+    stdin_open: true
+    tty: true
+    container_name: entry
     build:
       context: entry_microservice  # Контекст сборки (папка с Dockerfile)
       dockerfile: Dockerfile  # Имя Dockerfile
@@ -59,18 +66,22 @@ services:
     networks:
       - sleepmonitor-network
   load:
-    stdin_open: true 
-    tty: true
-    container_name: load-tester
     build:
       context: load_microservice
       dockerfile: Dockerfile
+    container_name: load-tester
     ports:
       - "8099:8099"
     depends_on:
       - keydb
     networks:
       - sleepmonitor-network
+
+    stdin_open: true
+    tty: true
+
+    profiles:
+      - load
   logic:
     build:
       context: logic_microservice  # Контекст сборки (папка с Dockerfile)
@@ -83,14 +94,20 @@ services:
       - keydb
     networks:
       - sleepmonitor-network
+  logger:
+    build:
+      context: logger_microservice
+      dockerfile: Dockerfile
+    depends_on:
+      - keydb
+    networks:
+      - sleepmonitor-network
   external_device:
     build:
       context: external_device
       dockerfile: Dockerfile
     ports:
       - "8909:8909"
-    networks:
-      - sleepmonitor-network
 
 
 networks:

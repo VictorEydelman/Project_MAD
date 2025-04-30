@@ -9,4 +9,4 @@ postgres:
   user: "s291485"
   password: "qwe"
 clickhouse:
-  url: "jdbc:clickhouse://localhost:8123/default"
+  url: "jdbc:clickhouse://clickhouse-server:8123/default"

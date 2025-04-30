@@ -1,0 +1,19 @@
+{
+  "userCount": 10000,
+  "initialDelayMs": 0,
+  "userDelayMs": 200,
+  "randomOrder": true,
+  "includeRequests": [
+    "/auth/register",
+    "/auth/login",
+    "/auth/check",
+    "/profile/update",
+    "/profile/get",
+    "/profile/clear-temporaries",
+    "/sleep/upload",
+    "/sleep/daily-report",
+    "/sleep/weekly-report",
+    "/sleep/all-time-report",
+    "/sleep/recommended-times"
+  ]
+}

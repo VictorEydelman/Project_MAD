@@ -1,0 +1,36 @@
+//[entry_microservice](../../../index.md)/[[root]](../index.md)/[KeyDBClient](index.md)
+
+# KeyDBClient
+
+[jvm]\
+class [KeyDBClient](index.md)(host: [String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html) = &quot;keydb&quot;, port: [Int](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html) = 6379, poolConfig: JedisPoolConfig = defaultPoolConfig())
+
+Класс KeyDBClient реализует коммуникацию через KeyDB/Redis для обмена запросами и ответами.
+
+Использует JedisPool для потокобезопасного доступа к Redis.
+
+## Constructors
+
+| | |
+|---|---|
+| [KeyDBClient](-key-d-b-client.md) | [jvm]<br>constructor(host: [String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html) = &quot;keydb&quot;, port: [Int](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html) = 6379, poolConfig: JedisPoolConfig = defaultPoolConfig()) |
+
+## Types
+
+| Name | Summary |
+|---|---|
+| [Companion](-companion/index.md) | [jvm]<br>object [Companion](-companion/index.md) |
+
+## Functions
+
+| Name | Summary |
+|---|---|
+| [close](close.md) | [jvm]<br>fun [close](close.md)() |
+| [get](get.md) | [jvm]<br>fun &lt;[T](get.md) : [Any](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html)&gt; [get](get.md)(key: [String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html), type: [Class](https://docs.oracle.com/javase/8/docs/api/java/lang/Class.html)&lt;[T](get.md)&gt;): [T](get.md)? |
+| [pop](pop.md) | [jvm]<br>fun &lt;[T](pop.md) : [Any](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html)&gt; [pop](pop.md)(queue: [String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html), type: [Class](https://docs.oracle.com/javase/8/docs/api/java/lang/Class.html)&lt;[T](pop.md)&gt;): [T](pop.md)? |
+| [publish](publish.md) | [jvm]<br>fun [publish](publish.md)(channel: [String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html), message: [Any](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html))<br>Публикует сообщение в указанный канал через пул соединений. |
+| [push](push.md) | [jvm]<br>fun [push](push.md)(queue: [String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html), value: [Any](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html)): [Long](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html) |
+| [sendRequest](send-request.md) | [jvm]<br>suspend fun [sendRequest](send-request.md)(channel: [String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html), message: [String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html), timeoutMs: [Long](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html) = 5000): [String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html)?<br>Отправляет запрос как JSON-строку, ожидает ответ по ключу в Redis.<br>[jvm]<br>suspend fun &lt;[TRequest](send-request.md) : [Any](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html), [TResponse](send-request.md) : [Any](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html)&gt; [sendRequest](send-request.md)(channel: [String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html), message: [TRequest](send-request.md), responseType: [Class](https://docs.oracle.com/javase/8/docs/api/java/lang/Class.html)&lt;[TResponse](send-request.md)&gt;, timeoutMs: [Long](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html) = 5000): [TResponse](send-request.md)?<br>Отправляет запрос через указанный канал и ожидает ответ. |
+| [set](set.md) | [jvm]<br>fun [set](set.md)(key: [String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html), value: [Any](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html)): [String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html) |
+| [subscribe](subscribe.md) | [jvm]<br>suspend fun [subscribe](subscribe.md)(channel: [String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html), onMessage: ([String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html)) -&gt; [Unit](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html), repeat: [Boolean](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html) = false)<br>suspend fun &lt;[TMessage](subscribe.md) : [Any](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html)&gt; [subscribe](subscribe.md)(channel: [String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html), onMessage: ([TMessage](subscribe.md)) -&gt; [Unit](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html), messageType: [Class](https://docs.oracle.com/javase/8/docs/api/java/lang/Class.html)&lt;[TMessage](subscribe.md)&gt;, repeat: [Boolean](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html) = false) |
+| [subscribeWithResponse](subscribe-with-response.md) | [jvm]<br>suspend fun [subscribeWithResponse](subscribe-with-response.md)(channel: [String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html), messageHandler: ([String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html)) -&gt; [String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html), responseTTL: [Long](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html) = 10)<br>Подписывается на указанный канал для приёма запросов и отправки ответов.<br>[jvm]<br>suspend fun &lt;[TRequest](subscribe-with-response.md) : [Any](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html), [TResponse](subscribe-with-response.md) : [Any](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html)&gt; [subscribeWithResponse](subscribe-with-response.md)(channel: [String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html), requestType: TypeReference&lt;[TRequest](subscribe-with-response.md)&gt;, messageHandler: ([TRequest](subscribe-with-response.md)) -&gt; [TResponse](subscribe-with-response.md)?, responseTTL: [Long](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html) = 10)<br>suspend fun &lt;[TRequest](subscribe-with-response.md) : [Any](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html), [TResponse](subscribe-with-response.md) : [Any](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html)&gt; [subscribeWithResponse](subscribe-with-response.md)(channel: [String](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html), requestType: [Class](https://docs.oracle.com/javase/8/docs/api/java/lang/Class.html)&lt;[TRequest](subscribe-with-response.md)&gt;, messageHandler: ([TRequest](subscribe-with-response.md)) -&gt; [TResponse](subscribe-with-response.md)?, responseTTL: [Long](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html) = 10) |

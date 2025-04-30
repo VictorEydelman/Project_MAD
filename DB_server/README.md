@@ -1,53 +1,176 @@
 # DB_server
 
-Микросервис для подключения к бд postgres и clickhouse.
+## Микросервис для работы с базами данных PostgreSQL и ClickHouse
 
-## Для внешних пользователей предоставляет:
+Этот микросервис предоставляет API для взаимодействия с базами данных PostgreSQL и ClickHouse. Он предназначен для управления пользователями, настройками и статистикой сна.
 
-### Таблица Users:
+### Структура микросервиса
 
-USERS (username VARCHAR(255) PRIMARY KEY, password VARCHAR(255))
+Микросервис включает в себя три основные таблицы: Users, Settings и SleepStatistic.
 
-#### Типы данных:
+---
 
-Users(val username: String, val password: String)
+## Таблица Users
 
-#### Запросы:
+### Структура таблицы
 
-save-user - запрос который принимает Users и возвращает Boolean
-get-user - запрос который принимает username: String и возвращает Users
-user-not-exist - запрос который принимает username: String и возвращает Boolean, если пользователя нету то true, иначе false
+```sql
+USERS (
+    username VARCHAR(255) PRIMARY KEY,
+    password VARCHAR(255)
+)
+```
 
-### Таблица Settings:
 
-SETTINGS (USERNAME VARCHAR(255) PRIMARY KEY, BIRTHDAY DATE, GENDER GENDER, PHYSICALCONDITION Frequency, CaffeineUsage Frequency, AlcoholUsage Frequency)
+### Тип данных
+```kotlin
+data class Users(val username: String, val password: String)
+```
 
-#### Типы данных:
+### Запросы
 
-Settings(val id: Int, val username: String, @Contextual val birthday: Date, val gender: Gender, val physicalCondition: Frequency, val caffeineUsage: Frequency, val alcoholUsage: Frequency)
+- **save-user**: 
+  - **Описание**: Сохраняет пользователя.
+  - **Параметры**: Users
+  - **Ответ**: Boolean
 
-Frequency {OnceADay, TwiceADay, ThreeTimesADay, OnceEveryTwoDays, TwiceAWeek, ThreeTimesAWeek, Rarely, Often, Never, Null}
+- **get-user**: 
+  - **Описание**: Получает пользователя по имени.
+  - **Параметры**: username: String
+  - **Ответ**: Users
 
-Gender {Men, Woman, Null}
+---
 
-#### Запросы:
+## Таблица Settings
 
-save-setting - запрос который принимает Settings и возвращает boolean
-update-setting - запрос который принимает Settings и возвращает boolean
-get-setting - запрос который принимает username: String и возвращает Settings
+### Структура таблицы
 
-### Таблица SleepStatistic
+```sql
+SETTINGS (
+     USERNAME VARCHAR(255) PRIMARY KEY REFERENCES users (username),
+     NAME VARCHAR(255),
+     SURNAME VARCHAR(255),
+     BIRTHDAY DATE,
+     GENDER gender,
+     PHYSICALCONDITION frequency,
+     CAFFEINEUSAGE frequency,
+     ALCOHOLUSAGE frequency,
+     alarmRecurring integer NULL,
+     alarmTemporary integer NULL,
+     bedTimeRecurring integer NULL,
+     bedTimeTemporary integer NULL        
+)
+```
 
-SleepStatistic (username String,
-                timestamp DateTime,
-                pulse UFloat32,
-                sleep_phase Enum8('drowsiness' = 1, 'shallow' = 2, 'deep' = 3, 'fast ' = 4, 'wakefulness' = 5))
+### Тип данных
 
-#### Типы данных:
+```kotlin
+data class Settings(
+     val username: String,
+     val name: String,
+     val surname: String,
+     @Contextual val birthday: Date,
+     var gender: Gender,
+     val physicalCondition: Frequency,
+     val caffeineUsage: Frequency,
+     val alcoholUsage: Frequency,
+     val alarmRecurring: Alarm?,
+     var alarmTemporary: Alarm?,
+     val bedTimeRecurring: BedTime?,
+     var bedTimeTemporary: BedTime?)
+data class SettingUser (
+  val username: String,
+  val data: Settings
+)
+data class SettingWithOutUser(
+  val name: String,
+  val surname: String,
+  @Contextual val birthday: LocalDate,
+  var gender: Gender,
+  val physicalCondition: Frequency,
+  val caffeineUsage: Frequency,
+  val alcoholUsage: Frequency,
+  val alarmRecurring: Alarm?,
+  var alarmTemporary: Alarm?,
+  val bedTimeRecurring: BedTime?,
+  var bedTimeTemporary: BedTime?
+)
+```
 
-SleepStatistic(username: String, timestamp: Timestamp, pulse: Double, sleepPhase: Int)
+### Перечисления
 
-#### Запросы:
+```kotlin
+enum class Frequency {
+    OnceADay, TwiceADay, ThreeTimesADay, OnceEveryTwoDays, TwiceAWeek, ThreeTimesAWeek, Rarely, Often, Never, Null
+}
 
-save-sleepStatistic - запрос который принимает SleepStatistic и возвращает Boolean
-get-SleepStatistic-Interval - запрос который (username: String, start: Timestamp, end: Timestamp) и возращает List<Map<String, Any>> каждая Map состоит из (username: String,  timestamp: Timestamp, pulse: Double, sleepPhase: Int)
+enum class Gender {
+    male, female, Null
+}
+```
+
+### Запросы
+
+- **update-profile**: 
+  - **Описание**: Сохраняет или обновляет настройки пользователя.
+  - **Параметры**: SettingUser
+  - **Ответ**: Boolean
+
+- **get-profile**: 
+  - **Описание**: Получает настройки пользователя по имени.
+  - **Параметры**: username: String
+  - **Ответ**: SettingWithOutUser
+
+- **temporary-NULL-profile**:
+  - **Описание**: Обнуление временных значений alarm и bedTime.
+  - **Параметры**: username: String
+  - **Ответ**: Boolean
+---
+
+## Таблица SleepStatistic
+
+### Структура таблицы
+
+```sql
+SleepStatistic (
+     username String,
+     timestamp DateTime,
+     pulse Float32,
+     sleep_phase Enum8('AWAKE' = 1, 'DROWSY' = 2, 'LIGHT' = 3, 'DEEP' = 4, 'REM' = 5)
+)
+```
+
+### Тип данных
+
+```kotlin
+data class SleepStatistic(
+  val username: String, 
+  @Contextual val timestamp: LocalDateTime, 
+  val pulse: Float, 
+  val sleepPhase: String
+)
+
+data class SleepInterval(
+  val username: String, 
+  @Contextual val start: LocalDateTime,
+  @Contextual val end: LocalDateTime
+)
+
+```
+
+### Запросы
+
+- **save-sleepStatistic**:
+  - **Описание**: Сохраняет статистику сна.
+  - **Параметры**: SleepStatistic
+  - **Ответ**: Boolean
+
+- **get-sleepStatistic-Interval**:
+  - **Описание**: Получает статистику сна за указанный интервал.
+  - **Параметры**: SleepInterval
+  - **Ответ**: List<SleepStatistic>
+
+---
+
+
+

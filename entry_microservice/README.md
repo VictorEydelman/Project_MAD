@@ -1,44 +1,222 @@
-# entry_microservice
+# Sleep Monitoring API – Документация
 
-This project was created using the [Ktor Project Generator](https://start.ktor.io).
+Бэкенд-приложение на Ktor для сбора и анализа данных сна пользователя.
 
-Here are some useful links to get you started:
+Базовый URL: `/api/v1`
 
-- [Ktor Documentation](https://ktor.io/docs/home.html)
-- [Ktor GitHub page](https://github.com/ktorio/ktor)
-- The [Ktor Slack chat](https://app.slack.com/client/T09229ZC6/C0A974TJ9). You'll need
-  to [request an invite](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up) to join.
+[Документация Dokka](./docs/index.md)
 
-## Features
+## ⚙️ Особенности сериализации
 
-Here's a list of features included in this project:
+Для корректной (де-)сериализации объектов необходимо использовать
+Jackson object mapper с модулем JavaTimeModule (jackson-datatype-jsr310), в KeyDBClient уже настроен:
 
-| Name                                                               | Description                                                                        |
-|--------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| [Routing](https://start.ktor.io/p/routing)                         | Provides a structured routing DSL                                                  |
-| [Authentication](https://start.ktor.io/p/auth)                     | Provides extension point for handling the Authorization header                     |
-| [Authentication JWT](https://start.ktor.io/p/auth-jwt)             | Handles JSON Web Token (JWT) bearer authentication scheme                          |
-| [Content Negotiation](https://start.ktor.io/p/content-negotiation) | Provides automatic content conversion according to Content-Type and Accept headers |
-| [Jackson](https://start.ktor.io/p/ktor-jackson)                    | Handles JSON serialization using Jackson library                                   |
-
-## Building & Running
-
-To build or run the project, use one of the following tasks:
-
-| Task                          | Description                                                          |
-|-------------------------------|----------------------------------------------------------------------|
-| `./gradlew test`              | Run the tests                                                        |
-| `./gradlew build`             | Build everything                                                     |
-| `buildFatJar`                 | Build an executable JAR of the server with all dependencies included |
-| `buildImage`                  | Build the docker image to use with the fat JAR                       |
-| `publishImageToLocalRegistry` | Publish the docker image locally                                     |
-| `run`                         | Run the server                                                       |
-| `runDocker`                   | Run using the local docker image                                     |
-
-If the server starts successfully, you'll see the following output:
-
-```
-2024-12-04 14:32:45.584 [main] INFO  Application - Application started in 0.303 seconds.
-2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
+```kotlin
+val objectMapper = jacksonObjectMapper()
+    .registerModule(JavaTimeModule())
+    .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
 ```
 
+---
+
+## 🧱 1. Модель данных
+
+### Enum'ы
+
+```kotlin
+enum class Gender {
+    Male, Female, Null
+}
+
+enum class Periodicity {
+    OnceADay, TwiceADay, ThreeTimesADay,
+    OnceEveryTwoDays, TwiceAWeek, ThreeTimesAWeek,
+    Rarely, Often, Never, Null
+}
+
+enum class SleepPhase {
+    AWAKE, DROWSY, LIGHT, DEEP, REM
+}
+
+enum class Weekday {
+    Mon, Tue, Wed, Thu, Fri, Sat, Sun
+}
+```
+
+### Основные data классы
+
+```kotlin
+data class Alarm(
+    val time: LocalTime,
+    val alarm: Boolean,
+)
+
+data class BedTime(
+    val time: LocalTime,
+    val remindMeToSleep: Boolean,
+    val remindBeforeBad: Boolean,
+)
+
+data class Profile(
+    val name: String,
+    val surname: String,
+    val birthday: LocalDate,
+    val gender: Gender,
+    val physicalCondition: Periodicity,
+    val caffeineUsage: Periodicity,
+    val alcoholUsage: Periodicity,
+    val alarmRecurring: Alarm?,
+    var alarmTemporary: Alarm?,
+    val bedTimeRecurring: BedTime?,
+    var bedTimeTemporary: BedTime?,
+)
+
+data class Report(
+    val quality: Int,
+    val startTime: LocalTime,
+    val endTime: LocalTime,
+    val totalSleep: Duration,
+    val awakenings: Int,
+    val avgAwake: Duration,
+    val avgAsleep: Duration,
+    val avgToFallAsleep: Duration,
+    val data: SleepData?,
+    val distribution: WeekdaySleepDistribution?,
+)
+
+data class SleepDataPiece(
+    val timestamp: LocalDateTime,
+    val pulse: Int,
+    val sleepPhase: SleepPhase,
+)
+
+typealias SleepData = List<SleepDataPiece>
+
+data class WeekdaySleep(
+    val weekday: Weekday,
+    val asleepHours: Double,
+)
+
+typealias WeekdaySleepDistribution = List<WeekdaySleep>
+
+data class TimePreference(
+    val asleepTime: LocalTime,
+    val awakeTime: LocalTime,
+)
+
+data class User(
+    val username: String,
+    val password: String,
+)
+```
+
+### DTO API
+
+```kotlin
+data class AuthRequest(
+    val username: String,
+    val password: String,
+)
+
+data class AuthResponse(
+    val username: String,
+    val token: String,
+    val success: Boolean = true,
+)
+
+data class CheckAuthResponse(
+    val username: String?,
+    val success: Boolean,
+)
+
+data class DataResponse<T>(
+    val data: T,
+    val message: String? = null,
+    val success: Boolean = true,
+)
+
+data class SimpleResponse(
+    val success: Boolean,
+    val message: String?,
+)
+```
+
+### DTO KeyDB
+
+```kotlin
+data class UserRequest<T>(
+    val username: String,
+    val data: T,
+)
+```
+
+---
+
+## 🌐 2. API Маршруты (Routes)
+
+### 🔐 `/auth`
+
+| Метод  | Путь           | Тело запроса       | Ответ            |
+|--------|----------------|--------------------|------------------|
+| POST   | /register      | `AuthRequest`      | `AuthResponse`   |
+| POST   | /login         | `AuthRequest`      | `AuthResponse`   |
+| GET    | /check         | (авторизация JWT)  | `CheckAuthResponse` |
+
+---
+
+### 👤 `/profile`
+
+| Метод  | Путь                   | Тело запроса | Ответ              |
+|--------|------------------------|--------------|--------------------|
+| POST   | /update                | `Profile`    | `SimpleResponse`   |
+| GET    | /get                   | -            | `DataResponse<Profile>` |
+| POST   | /clear-temporaries     | -            | `SimpleResponse`   |
+
+---
+
+### 💤 `/sleep`
+
+| Метод  | Путь                          | Тело запроса         | Ответ                        |
+|--------|-------------------------------|----------------------|------------------------------|
+| POST   | /upload                       | `SleepData`          | `SimpleResponse`             |
+| GET    | /daily-report                 | -                    | `DataResponse<Report>`       |
+| GET    | /weekly-report                | -                    | `DataResponse<Report>`       |
+| GET    | /all-time-report              | -                    | `DataResponse<Report>`       |
+| GET    | /recommended-times            | -                    | `DataResponse<TimePreference>` |
+
+---
+
+## 🔌 3. KeyDB API
+
+### 📦 Каналы (Pub/Sub) через KeyDB
+
+#### 🔐 Авторизация
+
+| Канал       | Тип запроса     | Ответ          | Микросервис |
+|-------------|------------------|----------------|--------------|
+| `get-user`  | `String` (username) | `User?`       | DB          |
+| `save-user` | `User`             | `Boolean`     | DB          |
+
+---
+
+#### 👤 Профиль
+
+| Канал                  | Тип запроса                        | Ответ      | Микросервис |
+|------------------------|-------------------------------------|------------|-------------|
+| `update-profile`       | `UserRequest<Profile>`             | `Boolean`  | DB          |
+| `get-profile`          | `String` (username)                | `Profile`  | DB          |
+| `clear-profile-temporaries` | `String` (username)          | `Boolean`  | DB          |
+
+---
+
+#### 💤 Сон
+
+| Канал                 | Тип запроса                                | Ответ        | Микросервис |
+|-----------------------|---------------------------------------------|--------------|-------------|
+| `upload-sleep`        | `UserRequest<SleepData>`                   | `Boolean`    | DB          |
+| `make-daily-report`   | `String` (username)                        | `Report`     | Logic       |
+| `make-weekly-report`  | `String` (username)                        | `Report`     | Logic       |
+| `make-all-time-report`| `String` (username)                        | `Report`     | Logic       |
+| `calculate-recommended-times` | `String` (username)               | `TimePreference` | Logic   |
+
+---
