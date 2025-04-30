@@ -46,7 +46,7 @@ fun SleepMonitorNavigation(notification: NotificationService) {
     val navController = rememberNavController()
     val apiService = RetrofitInstance.analyticsApi
     val repository = AnalyticsRepositoryImpl(apiService)
-    val authRepository = AuthRepositoryImpl(RetrofitInstance.AuthApi, context)
+    val authRepository = AuthRepositoryImpl(RetrofitInstance.authApi, context)
 
     // Profile setup
     val profileApi = RetrofitInstance.profileApi
