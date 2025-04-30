@@ -14,11 +14,10 @@ RUN gradle dependencies --no-daemon
 # Теперь копируем остальные файлы приложения
 COPY . .
 
-# Выполните сборку приложения
 RUN gradle clean build --no-daemon
 
 # Используйте официальный образ OpenJDK для выполнения приложения
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre-noble
 
 # Установите рабочую директорию
 WORKDIR /app

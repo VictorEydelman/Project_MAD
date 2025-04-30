@@ -7,6 +7,6 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface SleepApiService {
-    @POST("/sleep/upload")
+    @POST("sleep/upload")
     fun addSleep(@Body request: SleepData?): Response<SimpleResponse>
 }

@@ -1,0 +1,13 @@
+<<<<<<< Updated upstream
+2025-04-26 10:07:13 [main] INFO  ktor.application - Autoreload is disabled because the development mode is off.
+2025-04-26 10:07:14 [main] INFO  ktor.application - Application started in 0.514 seconds.
+2025-04-26 10:07:14 [main] INFO  ktor.application - Application started: io.ktor.server.application.Application@42f3156d
+2025-04-26 10:07:14 [DefaultDispatcher-worker-1] INFO  ktor.application - Responding at http://0.0.0.0:8900
+=======
+2025-04-27 14:16:15 [KtorShutdownHook] INFO  ktor.application - Application stopping: io.ktor.server.application.Application@42f3156d
+2025-04-27 14:16:15 [KtorShutdownHook] INFO  ktor.application - Application stopped: io.ktor.server.application.Application@42f3156d
+>>>>>>> Stashed changes
+2025-04-30 15:52:31 [main] INFO  ktor.application - Autoreload is disabled because the development mode is off.
+2025-04-30 15:52:32 [main] INFO  ktor.application - Application started in 0.32 seconds.
+2025-04-30 15:52:32 [main] INFO  ktor.application - Application started: io.ktor.server.application.Application@464a4442
+2025-04-30 15:52:32 [DefaultDispatcher-worker-8] INFO  ktor.application - Responding at http://0.0.0.0:8900
