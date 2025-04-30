@@ -90,10 +90,10 @@ fun TitleTextComponent(value: String){
 }
 
 @Composable
-fun TextFieldComponent() {
-    val textValue = remember {
-        mutableStateOf("")
-    }
+fun TextFieldComponent(
+    text: String,
+    onTextChanged: (String) -> Unit
+) {
     OutlinedTextField(
         modifier = Modifier.fillMaxWidth(),
         colors = TextFieldDefaults.colors(
@@ -106,17 +106,16 @@ fun TextFieldComponent() {
             unfocusedIndicatorColor = Color.Gray
         ),
         keyboardActions = KeyboardActions.Default,
-        value = textValue.value,
-        onValueChange = {
-            textValue.value = it
-        },
+        value = text,
+        onValueChange = { onTextChanged(it) },
         textStyle = TextStyle(fontSize = 16.sp)
     )
 }
 
+
 @Composable
-fun PasswordFieldComponent() {
-    val password = remember { mutableStateOf("") }
+fun PasswordFieldComponent(  password: String,
+                             onPasswordChanged: (String) -> Unit) {
     val passwordVisible = remember { mutableStateOf(false) }
     OutlinedTextField(
         modifier = Modifier.fillMaxWidth(),
@@ -130,8 +129,8 @@ fun PasswordFieldComponent() {
             unfocusedIndicatorColor = Color.Gray
         ),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        value = password.value,
-        onValueChange = { password.value = it },
+        value = password,
+        onValueChange = { onPasswordChanged(it) },
         textStyle = TextStyle(fontSize = 16.sp),
         trailingIcon = {
             val icon = if (passwordVisible.value) { Icons.Filled.Visibility

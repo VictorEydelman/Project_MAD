@@ -73,4 +73,20 @@ data class ProfileData(
     @SerializedName("alarmTemporary") val alarmTemporary: AlarmData,
     @SerializedName("bedTimeRecurring") val bedTimeRecurring: BedTimeData,
     @SerializedName("bedTimeTemporary") val bedTimeTemporary: BedTimeData
+
+//----- Request DTO --------
+data class AuthRequest(
+    @SerializedName("username") val username: String,
+    @SerializedName("password") val password: String
+)
+
+// --- Response DTOs ---
+data class AuthResponse(
+    @SerializedName("username") val username: String,
+    @SerializedName("token") val token: String,
+    @SerializedName("success") val success: Boolean
+)
+data class CheckAuthResponse(
+    @SerializedName("username") val username: String?,
+    @SerializedName("success") val success: Boolean
 )

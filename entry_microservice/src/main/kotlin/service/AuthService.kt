@@ -22,7 +22,7 @@ object AuthService {
      * @return JWT токен
      */
     @OptIn(ExperimentalTime::class)
-    private fun createToken(username: String): String {
+    fun createToken(username: String): String {
         val config = getJwtConfig()
         val now = Clock.System.now()
         val expiresAt = now.plus(config.property("expiration").getString().toInt().hours)
