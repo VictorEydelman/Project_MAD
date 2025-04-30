@@ -18,7 +18,7 @@ COPY . .
 RUN gradle clean build --no-daemon
 
 # Используйте официальный образ OpenJDK для выполнения приложения
-FROM eclipse-temurin:17-jre-noble
+FROM eclipse-temurin:17-jre-alpine
 
 # Установите рабочую директорию
 WORKDIR /app
