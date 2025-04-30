@@ -11,9 +11,11 @@ import java.util.concurrent.TimeUnit
 object RetrofitInstance {
 
     private const val BASE_URL = "http://10.0.2.2:8090/api/v1/"
+    private const val EXTERNAL_DEVICE_URL = "http://10.0.2.2:8909/"
 
     private lateinit var okHttpClient: OkHttpClient
     private lateinit var retrofit: Retrofit
+    private lateinit var externalRetrofit: Retrofit
 
     private val gson = GsonBuilder()
         .serializeNulls()
@@ -45,7 +47,10 @@ object RetrofitInstance {
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
-
+        externalRetrofit = Retrofit.Builder()
+            .baseUrl(EXTERNAL_DEVICE_URL)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
         isInitialized = true
     }
 
@@ -68,5 +73,17 @@ object RetrofitInstance {
     val authApi: AuthApiService by lazy {
         ensureInitialized()
         retrofit.create(AuthApiService::class.java)
+    }
+
+    val externalApi: ExternalApiService by lazy{
+        Retrofit.Builder()
+            .baseUrl(EXTERNAL_DEVICE_URL)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build().create(ExternalApiService::class.java)
+    }
+
+    val sleepApi: SleepApiService by lazy {
+        ensureInitialized()
+        retrofit.create(SleepApiService::class.java)
     }
 }

@@ -1,6 +1,8 @@
 package mad.project.SleepMonitor.screens
 
+import android.os.Build
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,6 +15,8 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -25,23 +29,32 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import mad.project.SleepMonitor.R  // Убедитесь, что импортируется правильный R файл
 import mad.project.SleepMonitor.navigation.Screen
+import mad.project.SleepMonitor.states.MainScreenState
 import mad.project.SleepMonitor.ui.common.AppScaffold
+import mad.project.SleepMonitor.viewmodels.MainViewModel
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 @Composable
-fun MainScreen(navController: NavController) {
+fun MainScreen(navController: NavController, viewModel: MainViewModel) {
+    val state by viewModel.state.collectAsState()
+
     AppScaffold(navController = navController) {
-        Header()
+        Header(state)
         Spacer(modifier = Modifier.height(16.dp))
         ImageSection()
         Spacer(modifier = Modifier.height(16.dp))
-        TimeCardsGrid(navController)
+        TimeCardsGrid(navController, state)
         Spacer(modifier = Modifier.height(32.dp))
     }
 
 }
 
 @Composable
-fun Header() {
+fun Header(state: MainScreenState) {
+    val formatter = DateTimeFormatter.ofPattern("d, MMMM yyyy", Locale.ENGLISH)
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -54,7 +67,7 @@ fun Header() {
             color = Color.White
         )
         Text(
-            text = "Cristiano Ronaldo",
+            text = state.profile?.let { "${it.name} ${it.surname}" } ?: "Cristiano Ronaldo",
             fontSize = 24.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color.White,
@@ -74,7 +87,7 @@ fun Header() {
                 modifier = Modifier.padding(end = 4.dp) // Отступ между текстами
             )
             Text(
-                text = "22, march 2025",
+                text = LocalDate.now().format(formatter),
                 color = Color.White,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 20.sp
@@ -82,6 +95,7 @@ fun Header() {
         }
     }
 }
+
 @Composable
 fun ImageSection() {
     Box(
@@ -97,8 +111,10 @@ fun ImageSection() {
         )
     }
 }
+
 @Composable
-fun TimeCardsGrid(navController: NavController) {
+fun TimeCardsGrid(navController: NavController, state: MainScreenState) {
+    val formatter = DateTimeFormatter.ofPattern("HH ':' mm")
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -108,20 +124,28 @@ fun TimeCardsGrid(navController: NavController) {
         Row(modifier = Modifier.fillMaxWidth()) {
             TimeCard(
                 title = "Alarm",
-                time = "04 : 00", // Пробелы вокруг двоеточия
+                time = state.profile?.alarmTemporary?.time?.format(formatter)
+                    ?: state.profile?.alarmRecurring?.time?.format(formatter)
+                    ?: "-- : --", // Пробелы вокруг двоеточия
                 iconRes = R.drawable.ic_alarm,
-                modifier = Modifier.weight(1f).clickable {
-                    navController.navigate("alarm")
-                }
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        navController.navigate("alarm")
+                    }
             )
             Spacer(modifier = Modifier.width(16.dp))
             TimeCard(
                 title = "Bedtime",
-                time = "22 : 00", // Пробелы вокруг двоеточия
+                time = state.profile?.bedTimeTemporary?.time?.format(formatter)
+                    ?: state.profile?.bedTimeRecurring?.time?.format(formatter)
+                    ?: "-- : --", // Пробелы вокруг двоеточия
                 iconRes = R.drawable.ic_bedtime,
-                modifier = Modifier.weight(1f).clickable {
-                    navController.navigate("bedtime")
-                }
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        navController.navigate("bedtime")
+                    }
             )
         }
 
@@ -131,14 +155,16 @@ fun TimeCardsGrid(navController: NavController) {
         Row(modifier = Modifier.fillMaxWidth()) {
             TimeCard(
                 title = "Recommended wake up",
-                time = "06 : 00", // Пробелы вокруг двоеточия
+                time = state.recommendedTimes?.awakeTime?.format(formatter)
+                    ?: "06 : 00", // Пробелы вокруг двоеточия
                 iconRes = R.drawable.ic_wbsunny,
                 modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(16.dp))
             TimeCard(
                 title = "Recommended bedtime",
-                time = "22 : 00", // Пробелы вокруг двоеточия
+                time = state.recommendedTimes?.asleepTime?.format(formatter)
+                    ?: "22 : 00", // Пробелы вокруг двоеточия
                 iconRes = R.drawable.ic_bedtime,
                 modifier = Modifier.weight(1f)
             )

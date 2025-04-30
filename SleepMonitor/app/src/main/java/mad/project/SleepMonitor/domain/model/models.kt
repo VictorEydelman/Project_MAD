@@ -1,13 +1,15 @@
 package mad.project.SleepMonitor.domain.model
+import com.google.gson.annotations.SerializedName
 import mad.project.SleepMonitor.data.network.dto.AlarmData
 import mad.project.SleepMonitor.data.network.dto.BedTimeData
+import mad.project.SleepMonitor.util.Resource
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.LocalTime
 
 enum class SleepPhase {
-    AWAKE, REM, LIGHT, DEEP, UNKNOWN
+    AWAKE, DROWSY, LIGHT, DEEP, REM,UNKNOWN
 }
 
 enum class Weekday {
@@ -60,18 +62,26 @@ data class Profile(
     val physicalCondition: String,
     val caffeineUsage: String,
     val alcoholUsage: String,
-    val alarmRecurring: AlarmData?,
-    val alarmTemporary: AlarmData?,
-    val bedTimeRecurring: BedTimeData?,
-    val bedTimeTemporary: BedTimeData?
+    val alarmRecurring: Alarm?,
+    val alarmTemporary: Alarm?,
+    val bedTimeRecurring: BedTime?,
+    val bedTimeTemporary: BedTime?
 )
 
 
 typealias SleepData = List<SleepDataPiece>
 
+data class ExternalSleepData(
+    val success: Boolean,
+    val data: SleepData
+)
+
 data class WeekdaySleep(
     val weekday: Weekday,
     val asleepHours: Double,
 )
-
+data class SimpleResponse(
+    val success: Boolean,
+    val message: String?,
+)
 typealias WeekdaySleepDistribution = List<WeekdaySleep>
