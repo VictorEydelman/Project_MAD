@@ -14,6 +14,8 @@ RUN gradle dependencies --no-daemon
 # Теперь копируем остальные файлы приложения
 COPY . .
 
+RUN gradle clean build --no-daemon
+
 # Используйте официальный образ OpenJDK для выполнения приложения
 FROM eclipse-temurin:17-jre-noble
 

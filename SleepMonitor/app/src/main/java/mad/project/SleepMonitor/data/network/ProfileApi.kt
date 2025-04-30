@@ -11,9 +11,9 @@ import retrofit2.http.POST
 
 interface ProfileApi {
 
-    @GET("/api/v1/profile/get")
+    @GET("profile/get")
     suspend fun getProfile(): Response<ProfileResponse>
 
-    @POST("/api/v1/profile/update")
+    @POST("profile/update")
     suspend fun updateProfile(@Body request: UpdateProfileRequest): Response<Unit>
 }
