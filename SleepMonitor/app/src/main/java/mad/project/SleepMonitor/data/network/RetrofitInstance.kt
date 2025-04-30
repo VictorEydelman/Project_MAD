@@ -49,7 +49,6 @@ object RetrofitInstance {
             .build()
         externalRetrofit = Retrofit.Builder()
             .baseUrl(EXTERNAL_DEVICE_URL)
-            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
         isInitialized = true
@@ -77,8 +76,10 @@ object RetrofitInstance {
     }
 
     val externalApi: ExternalApiService by lazy{
-        ensureInitialized()
-        externalRetrofit.create(ExternalApiService::class.java)
+        Retrofit.Builder()
+            .baseUrl(EXTERNAL_DEVICE_URL)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build().create(ExternalApiService::class.java)
     }
 
     val sleepApi: SleepApiService by lazy {

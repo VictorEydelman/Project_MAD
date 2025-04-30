@@ -1,6 +1,11 @@
 package mad.project.SleepMonitor.data.repository
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import mad.project.SleepMonitor.data.network.ExternalApiService
 import mad.project.SleepMonitor.data.network.SleepApiService
 import mad.project.SleepMonitor.data.network.dto.SimpleResponse
@@ -15,31 +20,36 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class ExternalRepositoryImpl(private val externalApiService: ExternalApiService, private val sleepApiService: SleepApiService) {
-    fun getSleepData(): Resource<SleepData> {
-        try {
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    suspend fun getSleepData(): Resource<SleepData> {
+        return try {
             val response = externalApiService.getSleepData()
-            Log.i("f",response.toString())
+            Log.i("f", response.toString())
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {
+                    Log.i("b","3.5")
                     val sleep: MutableList<SleepDataPiece> = mutableListOf()
-                    val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
-                    for(i in body.data){
-                        val localDateTime: LocalDateTime = LocalDateTime.parse(i.timestamp, formatter)
-                        sleep.add(SleepDataPiece(localDateTime,i.pulse!!,SleepPhase.valueOf(i.sleepPhase!!.uppercase())))
+                    val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME //
+                    for (i in body.data!!) {
+                        sleep.add(SleepDataPiece(LocalDateTime.parse(i.timestamp, formatter), i.pulse!!, SleepPhase.valueOf(i.sleepPhase!!.uppercase())))
                     }
-                    return Resource.Success(sleep)
+                    Resource.Success(sleep)
+                } else {
+                    Resource.Error("Response body is null")
                 }
+            } else {
+                Resource.Error("Error: ${response.message()}")
             }
         } catch (e: HttpException) {
-            throw Exception(e)
+            Resource.Error("HttpException: ${e.message()}")
         } catch (e: IOException) {
-            throw Exception(e)
+            Resource.Error("IOException: ${e.message}")
         } catch (e: Exception) {
-            throw Exception(e)
+            Resource.Error("Exception: ${e.message}")
         }
-        throw Exception("Error")
     }
+
     fun addSleepData(sleepData: SleepData): Result<mad.project.SleepMonitor.domain.model.SimpleResponse> {
         try {
             val response = sleepApiService.addSleep(sleepData)

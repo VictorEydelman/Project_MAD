@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 
 enum class SleepPhase {
-    AWAKE, REM, LIGHT, DEEP, UNKNOWN
+    AWAKE, DROWSY, LIGHT, DEEP, REM,UNKNOWN
 }
 
 enum class Weekday {
