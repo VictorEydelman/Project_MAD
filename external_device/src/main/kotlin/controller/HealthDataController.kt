@@ -25,6 +25,7 @@ class HealthDataController(private val service: HealthDataService) {
                     call.request.queryParameters["lastSync"]?.let { LocalDateTime.parse(it) }
                 val data = service.generateData(lastSync)
                 val response = ApiResponse(success = true, data = data)
+                println(response)
                 call.respond(response)
             }
         }

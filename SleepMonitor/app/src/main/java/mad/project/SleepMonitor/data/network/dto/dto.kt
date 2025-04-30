@@ -99,3 +99,13 @@ data class CheckAuthResponse(
     @SerializedName("username") val username: String?,
     @SerializedName("success") val success: Boolean
 )
+
+data class SimpleResponse(
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("message")val message: String?,
+)
+
+data class SleepData(
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("data") val data: List<SleepDataPieceDto>
+)

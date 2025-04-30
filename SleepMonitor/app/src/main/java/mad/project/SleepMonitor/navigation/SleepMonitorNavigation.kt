@@ -1,5 +1,6 @@
 package mad.project.SleepMonitor.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -13,6 +14,7 @@ import mad.project.SleepMonitor.data.repository.ProfileRepository
 import mad.project.SleepMonitor.factory.AnalyticsViewModelFactory
 import mad.project.SleepMonitor.factory.ProfileViewModelFactory
 import mad.project.SleepMonitor.data.repository.AuthRepositoryImpl
+import mad.project.SleepMonitor.data.repository.ExternalRepositoryImpl
 import mad.project.SleepMonitor.factory.AuthViewModelFactory
 import mad.project.SleepMonitor.notification.NotificationService
 import mad.project.SleepMonitor.screens.AlarmScreen
@@ -52,9 +54,15 @@ fun SleepMonitorNavigation(notification: NotificationService) {
     val profileApi = RetrofitInstance.profileApi
     val profileRepository = ProfileRepository(profileApi)
 
+
     NavHost(navController = navController, startDestination = Screen.LoginScreen.route) {
 
         composable(Screen.LoginScreen.route) {
+            val externalRepositoryImpl = ExternalRepositoryImpl(RetrofitInstance.externalApi,
+                RetrofitInstance.sleepApi)
+            val r =externalRepositoryImpl.getSleepData()
+            Log.i("b",r.toString())
+            //externalRepositoryImpl.addSleepData(r)
             val factory = AuthViewModelFactory(authRepository)
             val authViewModel: AuthViewModel = viewModel(factory = factory)
 

@@ -1,6 +1,8 @@
 package mad.project.SleepMonitor.domain.model
+import com.google.gson.annotations.SerializedName
 import mad.project.SleepMonitor.data.network.dto.AlarmData
 import mad.project.SleepMonitor.data.network.dto.BedTimeData
+import mad.project.SleepMonitor.util.Resource
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
@@ -69,9 +71,17 @@ data class Profile(
 
 typealias SleepData = List<SleepDataPiece>
 
+data class ExternalSleepData(
+    val success: Boolean,
+    val data: SleepData
+)
+
 data class WeekdaySleep(
     val weekday: Weekday,
     val asleepHours: Double,
 )
-
+data class SimpleResponse(
+    val success: Boolean,
+    val message: String?,
+)
 typealias WeekdaySleepDistribution = List<WeekdaySleep>
