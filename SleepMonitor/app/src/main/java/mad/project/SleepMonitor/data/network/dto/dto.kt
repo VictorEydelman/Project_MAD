@@ -1,5 +1,6 @@
 package mad.project.SleepMonitor.data.network.dto
 import com.google.gson.annotations.SerializedName
+import java.time.LocalTime
 import java.time.LocalDateTime
 
 // --- Request DTO ---
@@ -14,6 +15,11 @@ data class ReportResponseDto(
     @SerializedName("success") val success: Boolean,
     @SerializedName("message") val message: String?,
     @SerializedName("data") val data: ReportDataDto? // Делаем nullable на случай !success
+)
+data class TimePreferenceResponseDto(
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("message") val message: String?,
+    @SerializedName("data") val data: TimePreferenceDto? // Делаем nullable на случай !success
 )
 
 data class ReportDataDto(
@@ -37,6 +43,11 @@ data class SleepDataPieceDto(
 data class WeekdaySleepDto(
     @SerializedName("weekday") val weekday: String,
     @SerializedName("asleepHours") val asleepHours: Double,
+)
+
+data class TimePreferenceDto(
+    @SerializedName("asleepTime") val asleepTime: String,
+    @SerializedName("awakeTime") val awakeTime: String,
 )
 
 data class ProfileResponse(

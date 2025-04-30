@@ -62,10 +62,10 @@ data class Profile(
     val physicalCondition: String,
     val caffeineUsage: String,
     val alcoholUsage: String,
-    val alarmRecurring: AlarmData?,
-    val alarmTemporary: AlarmData?,
-    val bedTimeRecurring: BedTimeData?,
-    val bedTimeTemporary: BedTimeData?
+    val alarmRecurring: Alarm?,
+    val alarmTemporary: Alarm?,
+    val bedTimeRecurring: BedTime?,
+    val bedTimeTemporary: BedTime?
 )
 
 

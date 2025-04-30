@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import mad.project.SleepMonitor.data.mapper.toData
 import mad.project.SleepMonitor.data.network.dto.ProfileData
 import mad.project.SleepMonitor.data.network.dto.UpdateProfileRequest
 import mad.project.SleepMonitor.data.repository.ProfileRepository
@@ -79,10 +80,10 @@ class ProfileViewModel(
                     physicalCondition = physicalCondition.name,
                     caffeineUsage = caffeineUsage.name,
                     alcoholUsage = alcoholUsage.name,
-                    alarmRecurring = currentProfile.alarmRecurring,
-                    alarmTemporary = currentProfile.alarmTemporary,
-                    bedTimeRecurring = currentProfile.bedTimeRecurring,
-                    bedTimeTemporary = currentProfile.bedTimeTemporary
+                    alarmRecurring = currentProfile.alarmRecurring?.toData(),
+                    alarmTemporary = currentProfile.alarmTemporary?.toData(),
+                    bedTimeRecurring = currentProfile.bedTimeRecurring?.toData(),
+                    bedTimeTemporary = currentProfile.bedTimeTemporary?.toData()
                 )
                 Log.d("ViewModel", "Sending JSON: ${Gson().toJson(request)}")
                 repository.updateProfile(request)
