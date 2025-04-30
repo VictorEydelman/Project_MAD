@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "2.1.20"
-    id("io.ktor.plugin") version "2.3.5"
+    id("io.ktor.plugin") version "3.1.2"
 }
 
 group = "org.example"
@@ -20,11 +20,11 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-    implementation("io.ktor:ktor-server-core:2.3.5")
-    implementation("io.ktor:ktor-server-netty:2.3.5")
-    implementation("io.ktor:ktor-server-content-negotiation:2.3.5")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.5")
-    implementation("ch.qos.logback:logback-classic:1.4.11")
+    implementation("io.ktor:ktor-server-core:3.1.2")
+    implementation("io.ktor:ktor-server-netty:3.1.2")
+    implementation("io.ktor:ktor-server-content-negotiation:3.1.2")
+    implementation("io.ktor:ktor-serialization-jackson:3.1.2")
+    implementation("ch.qos.logback:logback-classic:1.5.18")
 }
 
 

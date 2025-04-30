@@ -1,6 +1,7 @@
 package mad.project.SleepMonitor.data.network.dto
 import com.google.gson.annotations.SerializedName
 import java.time.LocalTime
+import java.time.LocalDateTime
 
 // --- Request DTO ---
 data class ReportRequest(
@@ -109,4 +110,19 @@ data class AuthResponse(
 data class CheckAuthResponse(
     @SerializedName("username") val username: String?,
     @SerializedName("success") val success: Boolean
+)
+
+data class SimpleResponse(
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("message")val message: String?,
+)
+data class SleepDataDto(
+    @SerializedName("timestamp") val timestamp: String?,
+    @SerializedName("pulse") val pulse: Int?,
+    @SerializedName("sleepPhase") val sleepPhase: String?
+)
+data class SleepDataResponse(
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("message") val message: String?,
+    @SerializedName("data") val data: List<SleepDataDto>?
 )

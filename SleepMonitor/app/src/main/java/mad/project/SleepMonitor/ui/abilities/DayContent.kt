@@ -555,7 +555,8 @@ private fun getPhaseColor(phase: SleepPhase): Color {
         SleepPhase.REM -> REMColor
         SleepPhase.LIGHT -> LightSleepColor
         SleepPhase.DEEP -> DeepSleepColor
-        SleepPhase.UNKNOWN -> Color.Gray
+        SleepPhase.DROWSY -> Color.Gray
+        SleepPhase.UNKNOWN -> DeepSleepColor
     }
 }
 

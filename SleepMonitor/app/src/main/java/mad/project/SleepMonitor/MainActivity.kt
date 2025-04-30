@@ -8,6 +8,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import mad.project.SleepMonitor.app.SleepMonitorApp
+import mad.project.SleepMonitor.data.network.RetrofitInstance
 import mad.project.SleepMonitor.notification.NotificationService
 
 class MainActivity : ComponentActivity() {
@@ -15,6 +16,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val NotificationService = NotificationService(applicationContext)
+
+        RetrofitInstance.initialize(this)
 
         setContent {
             SleepMonitorApp(NotificationService)

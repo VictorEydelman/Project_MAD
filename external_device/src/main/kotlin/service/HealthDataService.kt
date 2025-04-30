@@ -2,14 +2,14 @@ package org.example.service
 
 import org.example.model.SleepPhase
 import org.example.dto.HealthDataDto
-import java.time.Instant
+import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.random.Random
 
 class HealthDataService {
-    fun generateData(lastSync: Instant?): List<HealthDataDto> {
-        val startTime = lastSync ?: Instant.now().minus(8, ChronoUnit.HOURS)
-        val endTime = Instant.now()
+    fun generateData(lastSync: LocalDateTime?): List<HealthDataDto> {
+        val startTime = lastSync ?: LocalDateTime.now().minus(8, ChronoUnit.HOURS)
+        val endTime = LocalDateTime.now()
         val data = mutableListOf<HealthDataDto>()
 
         var currentTime = startTime
@@ -19,7 +19,7 @@ class HealthDataService {
             data.add(
                     HealthDataDto(
                             timestamp = currentTime.toString(),
-                            heartRate = heartRate,
+                            pulse = heartRate,
                             sleepPhase = sleepPhase.name
                     )
             )
@@ -29,7 +29,7 @@ class HealthDataService {
         return data
     }
 
-    private fun generateHeartRate(timestamp: Instant): Int {
+    private fun generateHeartRate(timestamp: LocalDateTime): Int {
         val hour = timestamp.atZone(java.time.ZoneId.systemDefault()).hour
         return when {
             hour in 6..21 -> Random.nextInt(60, 100)  // Бодрствование

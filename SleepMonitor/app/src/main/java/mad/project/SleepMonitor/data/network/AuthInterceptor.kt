@@ -1,18 +1,31 @@
-package mad.project.SleepMonitor.data.network // Или другой подходящий пакет
+package mad.project.SleepMonitor.data.network
 
+import android.content.Context
 import okhttp3.Interceptor
 import okhttp3.Response
 
-class AuthInterceptor : Interceptor {
+class AuthInterceptor(private val context: Context) : Interceptor {
 
-    private val HARDCODED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3NDU5NTU2ODMsImV4cCI6MTc0NjU2MDQ4M30.46KqUdrua3c0n77Aznw95qOonepGmaQQ3bjJjkhoCCE"
+    companion object {
+        const val PREFS_NAME = "SleepMonitorPrefs"
+        const val AUTH_TOKEN_KEY = "auth_token"
+    }
+
+    private fun getToken(): String? {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getString(AUTH_TOKEN_KEY, null)?.takeIf { it.isNotBlank() }
+    }
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
         val builder = originalRequest.newBuilder()
 
-        if (HARDCODED_TOKEN.isNotBlank() && originalRequest.header("Authorization") == null) {
-            builder.header("Authorization", "Bearer $HARDCODED_TOKEN")
+        if (originalRequest.header("Authorization") == null) {
+            val token = getToken()
+            if (token != null) {
+                builder.header("Authorization", "Bearer $token")
+            } else {
+            }
         }
 
         val newRequest = builder.build()
