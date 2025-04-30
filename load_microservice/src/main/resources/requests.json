@@ -69,7 +69,7 @@
   },
   {
     "address": "/sleep/recommended-times",
-    "method": "POST",
+    "method": "GET",
     "body": "",
     "args": []
   }

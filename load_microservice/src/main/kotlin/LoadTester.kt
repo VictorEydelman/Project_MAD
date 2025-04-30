@@ -63,7 +63,6 @@ class LoadTester(
             return
         }
 
-        val regBody = formatBody(registrationTemplate.body, listOf(username, password))
         var token: String? = null
         try {
             var response = sendRequest(registrationTemplate, username, password, null)
@@ -81,6 +80,7 @@ class LoadTester(
         if (token == null) {
             return
         }
+        sendRequest(otherTemplates.find { it.address == "/profile/update" }!!, username, password, token)
         if (config.randomOrder) {
             while (coroutineContext.isActive) {
                 delay(Random.nextLong((config.userDelayMs * 0.9).toLong(), (config.userDelayMs * 1.1).toLong()))
@@ -91,7 +91,7 @@ class LoadTester(
             while (coroutineContext.isActive) {
                 for (tmpl in otherTemplates) {
                     if (!coroutineContext.isActive) break
-                    delay(Random.nextLong(10, 100))
+                    delay(Random.nextLong((config.userDelayMs * 0.9).toLong(), (config.userDelayMs * 1.1).toLong()))
                     sendRequest(tmpl, username, password, token)
                 }
             }
