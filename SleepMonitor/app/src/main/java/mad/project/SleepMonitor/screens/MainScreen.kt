@@ -95,6 +95,7 @@ fun Header(state: MainScreenState) {
         }
     }
 }
+
 @Composable
 fun ImageSection() {
     Box(
@@ -110,8 +111,10 @@ fun ImageSection() {
         )
     }
 }
+
 @Composable
 fun TimeCardsGrid(navController: NavController, state: MainScreenState) {
+    val formatter = DateTimeFormatter.ofPattern("HH ':' mm")
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -121,39 +124,47 @@ fun TimeCardsGrid(navController: NavController, state: MainScreenState) {
         Row(modifier = Modifier.fillMaxWidth()) {
             TimeCard(
                 title = "Alarm",
-                time = "04 : 00", // Пробелы вокруг двоеточия
+                time = state.profile?.alarmTemporary?.time?.format(formatter)
+                    ?: state.profile?.alarmRecurring?.time?.format(formatter)
+                    ?: "-- : --", // Пробелы вокруг двоеточия
                 iconRes = R.drawable.ic_alarm,
-                modifier = Modifier.weight(1f).clickable {
-                    navController.navigate("alarm")
-                }
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        navController.navigate("alarm")
+                    }
             )
             Spacer(modifier = Modifier.width(16.dp))
             TimeCard(
                 title = "Bedtime",
-                time = "22 : 00", // Пробелы вокруг двоеточия
+                time = state.profile?.bedTimeTemporary?.time?.format(formatter)
+                    ?: state.profile?.bedTimeRecurring?.time?.format(formatter)
+                    ?: "-- : --", // Пробелы вокруг двоеточия
                 iconRes = R.drawable.ic_bedtime,
-                modifier = Modifier.weight(1f).clickable {
-                    navController.navigate("bedtime")
-                }
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        navController.navigate("bedtime")
+                    }
             )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        val formatter = DateTimeFormatter.ofPattern("HH ':' mm")
-
         // Вторая строка карточек
         Row(modifier = Modifier.fillMaxWidth()) {
             TimeCard(
                 title = "Recommended wake up",
-                time = state.recommendedTimes?.awakeTime?.format(formatter) ?: "06 : 00", // Пробелы вокруг двоеточия
+                time = state.recommendedTimes?.awakeTime?.format(formatter)
+                    ?: "06 : 00", // Пробелы вокруг двоеточия
                 iconRes = R.drawable.ic_wbsunny,
                 modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(16.dp))
             TimeCard(
                 title = "Recommended bedtime",
-                time = state.recommendedTimes?.asleepTime?.format(formatter) ?: "22 : 00", // Пробелы вокруг двоеточия
+                time = state.recommendedTimes?.asleepTime?.format(formatter)
+                    ?: "22 : 00", // Пробелы вокруг двоеточия
                 iconRes = R.drawable.ic_bedtime,
                 modifier = Modifier.weight(1f)
             )

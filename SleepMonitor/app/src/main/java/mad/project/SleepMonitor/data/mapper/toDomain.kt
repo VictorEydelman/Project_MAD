@@ -1,9 +1,11 @@
 package mad.project.SleepMonitor.data.mapper
 
 
+import mad.project.SleepMonitor.data.network.dto.AlarmData
 import mad.project.SleepMonitor.data.network.dto.ProfileData
 import mad.project.SleepMonitor.data.network.dto.AuthRequest
 import mad.project.SleepMonitor.data.network.dto.AuthResponse
+import mad.project.SleepMonitor.data.network.dto.BedTimeData
 import mad.project.SleepMonitor.data.network.dto.CheckAuthResponse
 
 import mad.project.SleepMonitor.data.network.dto.ReportDataDto
@@ -232,10 +234,37 @@ fun ProfileData.toDomain(): Profile {
         physicalCondition = this.physicalCondition,
         caffeineUsage = this.caffeineUsage,
         alcoholUsage = this.alcoholUsage,
-        alarmRecurring = this.alarmRecurring,
-        alarmTemporary = this.alarmTemporary,
-        bedTimeRecurring = this.bedTimeRecurring,
-        bedTimeTemporary = this.bedTimeTemporary
+        alarmRecurring = this.alarmRecurring?.toDomain(),
+        alarmTemporary = this.alarmTemporary?.toDomain(),
+        bedTimeRecurring = this.bedTimeRecurring?.toDomain(),
+        bedTimeTemporary = this.bedTimeTemporary?.toDomain()
     )
 }
 
+fun AlarmData.toDomain(): Alarm? {
+    return try {
+        Alarm(
+            time = LocalTime.parse(time),
+            alarm = alarm
+        )
+    } catch (e: DateTimeParseException) {
+        println("Error parsing alarm time: ${time}, error: ${e.message}")
+        null
+    }
+}
+
+fun BedTimeData.toDomain(): BedTime? {
+    return try {
+        BedTime(
+            time = LocalTime.parse(time),
+            remindMeToSleep = remindMeToSleep,
+            remindBeforeBad = remindBeforeBad
+        )
+    } catch (e: DateTimeParseException) {
+        println("Error parsing bed time: ${time}, error: ${e.message}")
+        null
+    }
+}
+
+fun Alarm.toData() = AlarmData(time.toString(), alarm)
+fun BedTime.toData() = BedTimeData(time.toString(), remindMeToSleep, remindBeforeBad)
